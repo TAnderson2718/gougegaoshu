@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理 - 统一模拟平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+        .mobile-frame-container { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 90vh; }
+        .mobile-frame { 
+            width: 100%; 
+            max-width: 420px; 
+            height: 85vh; 
+            max-height: 900px; 
+            background-color: white; 
+            border-radius: 36px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.05); 
+            border: 10px solid #1f2937; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .mobile-frame::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url('https://i.postimg.cc/pdmk3gkb/e9398b353525a8d77a431307d7e0cd1a.png');
+            background-repeat: repeat;
+            background-size: 150px;
+            transform: rotate(-45deg);
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .task-carousel {
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+        .task-page {
+            scroll-snap-align: start;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- CONTEXT & SHARED STATE ---
+        const { useState, createContext, useContext, useEffect, useMemo, useRef, useCallback } = React;
+        const AppContext = createContext();
+
+        // --- MOCK DATA & UTILS ---
+        const formatDate = (d) => {
+            const date = new Date(d);
+            return `${date.getFullYear()}-${('0'+(date.getMonth()+1)).slice(-2)}-${('0'+date.getDate()).slice(-2)}`;
+        };
+        
+        const INITIAL_PASSWORD = "Hello888";
+        
+        const initialStudents = [
+            { id: 'ST001', name: '张三', password: INITIAL_PASSWORD, forcePasswordChange: true },
+            { id: 'ST002', name: '李四', password: INITIAL_PASSWORD, forcePasswordChange: true }
+        ];
+        
+        const blankProfile = {
+            name: '', gender: '', age: '', studyStatus: '', studyStatusOther: '',
+            mathType: '', mathTypeOther: '', targetScore: '', dailyHours: '',
+            gaokaoYear: '未参加', gaokaoProvince: '', gaokaoScore: '',
+            gradExamYear: '未参加', gradExamMathType: '未考', gradExamScore: '',
+            upgradeExamYear: '未参加', upgradeExamProvince: '', upgradeExamMathType: '未分类', upgradeExamScore: '',
+            purchasedBooks: '', notes: '',
+            isProfileSubmitted: false
+        };
+
+        // --- Main App Provider ---
+        const AppProvider = ({ children }) => {
+            const [view, setView] = useState('student');
+            const [studentData, setStudentData] = useState({});
+            const [students, setStudents] = useState(initialStudents);
+            const [loggedInStudent, setLoggedInStudent] = useState(null);
+            const [systemDate, setSystemDate] = useState(new Date());
+
+            // --- AUTH & USER MANAGEMENT ---
+            const login = (id, password) => {
+                const student = students.find(s => s.id === id && s.password === password);
+                if (student) {
+                    setLoggedInStudent(student);
+                    if (!studentData[student.id]) {
+                        setStudentData(prev => ({...prev, [student.id]: { profile: {...blankProfile, name: student.name, id: student.id}, tasks: {}, leaveDays: {} }}));
+                    }
+                    return { success: true };
+                }
+                return { success: false, message: '学生ID或密码错误' };
+            };
+            const logout = () => {
+                setLoggedInStudent(null);
+            };
+
+            const forceChangePassword = (studentId, newPassword) => {
+                setStudents(prev => prev.map(s => s.id === studentId ? { ...s, password: newPassword, forcePasswordChange: false } : s));
+                setLoggedInStudent(prev => ({ ...prev, forcePasswordChange: false }));
+            };
+
+            const studentChangePassword = (studentId, oldPassword, newPassword) => {
+                const student = students.find(s => s.id === studentId);
+                if (student.password !== oldPassword) {
+                    return { success: false, message: '旧密码错误！' };
+                }
+                setStudents(prev => prev.map(s => s.id === studentId ? { ...s, password: newPassword } : s));
+                return { success: true, message: '密码修改成功！' };
+            };
+            
+            const adminResetPassword = (studentId) => {
+                setStudents(prev => prev.map(s => s.id === studentId ? { ...s, password: INITIAL_PASSWORD, forcePasswordChange: true } : s));
+                 return { success: true, message: '密码已重置为初始密码 (Hello888)！' };
+            };
+
+            const addStudent = (name) => {
+                const newId = `ST${(students.length + 1).toString().padStart(3, '0')}`;
+                setStudents(prev => [...prev, { id: newId, name, password: INITIAL_PASSWORD, forcePasswordChange: true }]);
+                setStudentData(prev => ({ ...prev, [newId]: { profile: {...blankProfile, name: name, id: newId}, tasks: {}, leaveDays: {} } }));
+            };
+            
+            const updateProfile = (studentId, newProfile, isAdmin = false) => {
+                setStudentData(prev => {
+                    const existingStudentData = prev[studentId] || { tasks: {}, leaveDays: {}, profile: {} };
+                    return {
+                        ...prev,
+                        [studentId]: {
+                            ...existingStudentData,
+                            profile: {
+                                ...newProfile,
+                                isProfileSubmitted: isAdmin ? existingStudentData.profile.isProfileSubmitted : true
+                            }
+                        }
+                    };
+                });
+            };
+
+            // --- COMPLEX TASK LOGIC ---
+            const updateTask = (studentId, date, taskId, updates) => {
+                 setStudentData(prev => ({
+                     ...prev,
+                     [studentId]: {
+                         ...prev[studentId],
+                         tasks: {
+                             ...prev[studentId].tasks,
+                             [date]: prev[studentId].tasks[date].map(t => 
+                                 t.id === taskId ? { ...t, ...updates } : t
+                             )
+                         }
+                     }
+                 }));
+            }
+            
+            const scheduleTasks = (currentTasks, startDateStr, tasksToInsert) => {
+                if (!tasksToInsert || tasksToInsert.length === 0) {
+                    return currentTasks;
+                }
+
+                let newTasks = { ...currentTasks };
+                let targetDate = new Date(startDateStr);
+                
+                while (newTasks[formatDate(targetDate)] && newTasks[formatDate(targetDate)].every(t => t.type === '休息')) {
+                    targetDate.setDate(targetDate.getDate() + 1);
+                }
+                
+                const targetDateStr = formatDate(targetDate);
+                const displacedTasks = newTasks[targetDateStr] || [];
+                newTasks[targetDateStr] = tasksToInsert;
+
+                const nextDay = new Date(targetDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                
+                return scheduleTasks(newTasks, formatDate(nextDay), displacedTasks);
+            };
+
+            const requestLeave = (studentId, leaveDateStr) => {
+                setStudentData(prev => {
+                    const studentSchedule = prev[studentId].tasks || {};
+                    const dayTasks = studentSchedule[leaveDateStr] || [];
+                    
+                    const incompleteTasks = dayTasks.filter(t => !t.completed && t.type !== 'leave' && t.type !== '休息');
+                    const completedTasks = dayTasks.filter(t => t.completed);
+
+                    const dayAfterLeave = new Date(leaveDateStr);
+                    dayAfterLeave.setDate(dayAfterLeave.getDate() + 1);
+                    
+                    const updatedSchedule = scheduleTasks(studentSchedule, formatDate(dayAfterLeave), incompleteTasks);
+
+                    return {
+                        ...prev,
+                        [studentId]: {
+                            ...prev[studentId],
+                            tasks: {
+                                ...updatedSchedule,
+                                [leaveDateStr]: [...completedTasks, { id: `leave-${leaveDateStr}`, title: '已请假', type: 'leave' }]
+                            },
+                            leaveDays: {
+                                ...(prev[studentId]?.leaveDays || {}),
+                                [leaveDateStr]: true,
+                            }
+                        }
+                    };
+                });
+            };
+            
+            const processEndOfDay = (studentId) => {
+                 setStudentData(prev => {
+                    const myData = prev[studentId];
+                    if (!myData || !myData.tasks) return prev;
+
+                    const todayStr = formatDate(systemDate);
+                    let currentTasks = { ...myData.tasks }; 
+
+                    const todayTasks = (currentTasks[todayStr] || []).filter(t => t.type !== '休息' && t.type !== 'leave');
+                    const uncompletedTasks = todayTasks.filter(t => !t.completed);
+
+                    if (uncompletedTasks.length > 0) {
+                        let nextWorkDate = new Date(systemDate);
+                        nextWorkDate.setDate(nextWorkDate.getDate() + 1);
+                        let nextWorkDateStr = formatDate(nextWorkDate);
+
+                        while (currentTasks[nextWorkDateStr] && currentTasks[nextWorkDateStr].every(t => t.type === '休息')) {
+                            nextWorkDate.setDate(nextWorkDate.getDate() + 1);
+                            nextWorkDateStr = formatDate(nextWorkDate);
+                        }
+
+                        const tasksToCarryOver = uncompletedTasks.map(t => ({...t, id: `${t.id}-carry-${Date.now()}`}));
+
+                        if (uncompletedTasks.length < 3) {
+                            const nextDayOriginalTasks = currentTasks[nextWorkDateStr] || [];
+                            currentTasks[nextWorkDateStr] = [...tasksToCarryOver, ...nextDayOriginalTasks];
+                        } else {
+                            currentTasks = scheduleTasks(currentTasks, nextWorkDateStr, tasksToCarryOver);
+                        }
+                    }
+                    
+                    return { ...prev, [studentId]: { ...myData, tasks: currentTasks } };
+                });
+
+                setSystemDate(prevDate => {
+                    const tomorrowDate = new Date(prevDate);
+                    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+                    return tomorrowDate;
+                });
+            };
+            
+            const bulkUploadTasks = (csvData) => {
+                try {
+                    const lines = csvData.trim().split('\n').slice(1);
+                    const parsedData = {};
+
+                    for (const line of lines) {
+                        if (!line.trim()) continue;
+                        const parts = line.split(',');
+                        if (parts.length < 4) continue;
+
+                        const [studentId, dateStr, type, ...contentParts] = parts.map(item => item.trim());
+                        const content = contentParts.join(',');
+
+                        if (!studentId || !dateStr || !content) continue;
+                        
+                        const date = formatDate(new Date(dateStr)); // Normalize date format
+                        if (date === "NaN-NaN-NaN") {
+                           console.warn(`Invalid date format found, skipping line: ${line}`);
+                           continue;
+                        }
+
+                        if (!parsedData[studentId]) parsedData[studentId] = {};
+                        if (!parsedData[studentId][date]) parsedData[studentId][date] = [];
+                        
+                        const taskCount = parsedData[studentId][date].length;
+                        parsedData[studentId][date].push({ id: `${studentId}-${date}-${taskCount}`, type, title: content, completed: false, duration: null, proof: null });
+                    }
+                    
+                    setStudentData(prev => {
+                        const mergedData = JSON.parse(JSON.stringify(prev));
+
+                        for (const sid in parsedData) {
+                            if (!mergedData[sid]) {
+                                mergedData[sid] = { profile: {...blankProfile, name: students.find(s=>s.id===sid)?.name || ''}, tasks: {}, leaveDays: {} };
+                            }
+                            for(const date in parsedData[sid]) {
+                                const existingTasks = mergedData[sid].tasks[date] || [];
+                                mergedData[sid].tasks[date] = [...existingTasks, ...parsedData[sid][date]];
+                            }
+                        }
+                        return mergedData;
+                    });
+                    return { success: true };
+                } catch (e) { console.error("CSV Parsing Error:", e); return { success: false, message: "解析失败，请检查CSV格式。" }; }
+            };
+
+            const resetState = () => {
+                setStudentData({});
+                setSystemDate(new Date()); 
+                setLoggedInStudent(null);
+                localStorage.removeItem('savedUser');
+            };
+
+            const value = { view, setView, students, addStudent, loggedInStudent, login, logout, forceChangePassword, studentChangePassword, adminResetPassword, studentData, updateProfile, updateTask, requestLeave, processEndOfDay, bulkUploadTasks, systemDate, setSystemDate, resetState };
+            return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+        };
+        
+        // --- STUDENT APP COMPONENTS ---
+        const LoginScreen = ({ onLoginSuccess }) => {
+            const { login } = useContext(AppContext);
+            const [id, setId] = useState('');
+            const [password, setPassword] = useState('');
+            const [rememberMe, setRememberMe] = useState(false);
+            const [error, setError] = useState('');
+            
+            useEffect(() => {
+                try {
+                    const savedUser = localStorage.getItem('savedUser');
+                    if (savedUser) {
+                        const { id, password } = JSON.parse(savedUser);
+                        setId(id);
+                        setPassword(password);
+                        setRememberMe(true);
+                    }
+                } catch (e) { console.error("Could not read saved user from localStorage", e); }
+            }, []);
+
+            const handleLogin = () => {
+                setError('');
+                const result = login(id.toUpperCase(), password);
+                if (result.success) {
+                    if (rememberMe) {
+                        localStorage.setItem('savedUser', JSON.stringify({ id: id.toUpperCase(), password }));
+                    } else {
+                        localStorage.removeItem('savedUser');
+                    }
+                } else {
+                    setError(result.message);
+                }
+            };
+            return (<div className="flex flex-col items-center justify-center h-full p-8 bg-gray-100"> <h1 className="text-3xl font-bold mb-8 text-gray-800">学生登录</h1> <div className="w-full"> <input type="text" placeholder="学生ID (例如: ST001)" value={id} onChange={e => setId(e.target.value)} className="w-full p-3 mb-4 border rounded-md" /> <input type="password" placeholder="密码" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-3 mb-4 border rounded-md" /> <div className="flex items-center mb-4"> <input id="remember-me" type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" /> <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">记住密码</label> </div> {error && <p className="text-red-500 text-sm mb-4">{error}</p>} <button onClick={handleLogin} className="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700">登录</button> </div> </div>);
+        };
+        const ChangePasswordScreen = () => {
+            const { loggedInStudent, forceChangePassword, logout } = useContext(AppContext);
+            const [newPassword, setNewPassword] = useState('');
+            const [confirmPassword, setConfirmPassword] = useState('');
+            const [error, setError] = useState('');
+            const handleChangePassword = () => { if (newPassword.length < 6) { setError('密码长度不能少于6位'); return; } if (newPassword !== confirmPassword) { setError('两次输入的密码不一致'); return; } forceChangePassword(loggedInStudent.id, newPassword); };
+            return (<div className="flex flex-col items-center justify-center h-full p-8 bg-gray-100"> <h1 className="text-2xl font-bold mb-2 text-gray-800">首次登录，请修改密码</h1> <div className="w-full mt-8"> <input type="password" placeholder="新密码" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full p-3 mb-4 border rounded-md" /> <input type="password" placeholder="确认新密码" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full p-3 mb-4 border rounded-md" /> {error && <p className="text-red-500 text-sm mb-4">{error}</p>} <button onClick={handleChangePassword} className="w-full bg-blue-600 text-white p-3 rounded-md font-semibold hover:bg-blue-700">确认修改</button> <button onClick={logout} className="w-full mt-4 text-sm text-gray-500 hover:underline">返回登录</button> </div> </div>)
+        };
+        
+        // MODALS
+        const StudentChangePasswordModal = ({ visible, onClose }) => {
+            if (!visible) return null;
+            const { loggedInStudent, studentChangePassword } = useContext(AppContext);
+            const [oldPassword, setOldPassword] = useState('');
+            const [newPassword, setNewPassword] = useState('');
+            const [confirmPassword, setConfirmPassword] = useState('');
+            const [message, setMessage] = useState({ type: '', text: ''});
+            
+            const handleSubmit = () => {
+                setMessage({ type: '', text: '' });
+                if (newPassword.length < 6) {
+                    setMessage({ type: 'error', text: '新密码长度不能少于6位' });
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    setMessage({ type: 'error', text: '两次输入的密码不一致' });
+                    return;
+                }
+                const result = studentChangePassword(loggedInStudent.id, oldPassword, newPassword);
+                setMessage({ type: result.success ? 'success' : 'error', text: result.message });
+                if (result.success) {
+                    setTimeout(onClose, 1500);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm">
+                        <h3 className="text-lg font-bold text-center mb-4">修改密码</h3>
+                        <div className="space-y-4">
+                             <input type="password" placeholder="旧密码" value={oldPassword} onChange={e => setOldPassword(e.target.value)} className="w-full p-3 border rounded-md" />
+                             <input type="password" placeholder="新密码" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="w-full p-3 border rounded-md" />
+                             <input type="password" placeholder="确认新密码" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className="w-full p-3 border rounded-md" />
+                        </div>
+                        {message.text && <p className={`mt-4 text-sm ${message.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>{message.text}</p>}
+                        <div className="flex justify-end space-x-2 mt-6">
+                            <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">取消</button>
+                            <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded">确认修改</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const WheelPicker = ({ items, onSelect, initialValue }) => {
+            const scrollRef = useRef(null);
+            
+            useEffect(() => {
+                const index = items.findIndex(item => item === initialValue);
+                if (scrollRef.current && index > -1) {
+                    scrollRef.current.scrollTop = index * 40;
+                }
+            }, [initialValue, items]);
+
+            const handleScroll = useMemo(() => {
+                let timeout;
+                return () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        if(!scrollRef.current) return;
+                        const scrollTop = scrollRef.current.scrollTop;
+                        const index = Math.round(scrollTop / 40);
+                        if (items[index] !== undefined) {
+                            onSelect(items[index]);
+                            scrollRef.current.scrollTo({ top: index * 40, behavior: 'smooth' });
+                        }
+                    }, 150);
+                }
+            }, [items, onSelect]);
+
+            return (
+                 <div className="relative h-40 flex-1">
+                     <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-t from-white/0 to-white z-10 pointer-events-none"></div>
+                     <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-white/0 to-white z-10 pointer-events-none"></div>
+                     <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 border-y border-gray-300 pointer-events-none"></div>
+                     <div ref={scrollRef} onScroll={handleScroll} className="h-full overflow-y-scroll snap-y snap-mandatory scroll-smooth no-scrollbar">
+                         <div className="h-16"></div>
+                         {items.map(item => (
+                             <div key={item} className="h-10 flex items-center justify-center snap-center text-lg">
+                                 {item}
+                             </div>
+                         ))}
+                         <div className="h-16"></div>
+                     </div>
+                 </div>
+            );
+        };
+        const TimePickerModal = ({ visible, onClose, onConfirm }) => {
+            if (!visible) return null;
+            const [hour, setHour] = useState(0);
+            const [minute, setMinute] = useState(30);
+            const hours = Array.from({length: 10}, (_, i) => i);
+            const minutes = Array.from({length: 12}, (_, i) => i * 5);
+
+            return (<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"> <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm"> <h3 className="text-lg font-bold text-center mb-4">选择完成时长</h3> <div className="flex gap-4"> <WheelPicker items={hours} initialValue={hour} onSelect={setHour} /> <WheelPicker items={minutes} initialValue={minute} onSelect={setMinute} /> </div> <div className="flex justify-end space-x-2 mt-6"> <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">取消</button> <button onClick={() => onConfirm({hour, minute})} className="px-4 py-2 bg-blue-600 text-white rounded">确认</button> </div> </div> </div>);
+        };
+        const ConfirmationModal = ({ visible, onClose, onConfirm, title, message }) => {
+            if (!visible) return null;
+            return (<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"> <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm"> <h3 className="text-lg font-bold">{title}</h3> <p className="text-gray-600 my-4">{message}</p> <div className="flex justify-end space-x-2"> <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">取消</button> <button onClick={onConfirm} className="px-4 py-2 bg-blue-600 text-white rounded">确认</button> </div> </div> </div>);
+        };
+        
+        // SCREENS
+        const AppLogo = ({ className }) => (
+             <img src="https://i.postimg.cc/pdmk3gkb/e9398b353525a8d77a431307d7e0cd1a.png" className={className} alt="Logo"/>
+        );
+
+        const Header = ({ title }) => (
+            <header className="p-4 bg-white border-b text-center flex items-center justify-center relative z-10">
+                <AppLogo className="w-10 h-10 object-contain mr-2" />
+                <h1 className="text-2xl font-bold">{title}</h1>
+            </header>
+        );
+        const TaskItem = ({ task, date, studentId }) => {
+            const { updateTask } = useContext(AppContext);
+            const [timeModalVisible, setTimeModalVisible] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const handleCheck = () => { if (!task.completed) { setTimeModalVisible(true); } else { updateTask(studentId, date, task.id, { completed: false, duration: null, proof: null }); } };
+            const handleTimeConfirm = (duration) => { updateTask(studentId, date, task.id, { completed: true, duration }); setTimeModalVisible(false); };
+            
+            const handleUploadClick = () => { fileInputRef.current.click(); };
+            const handleFileChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => updateTask(studentId, date, task.id, { proof: reader.result });
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            return (<> <TimePickerModal visible={timeModalVisible} onClose={() => setTimeModalVisible(false)} onConfirm={handleTimeConfirm} /> <div className="flex items-center bg-white/80 backdrop-blur-sm p-3 my-1.5 rounded-lg shadow-sm relative z-10"> <input type="checkbox" checked={!!task.completed} onChange={handleCheck} className="h-5 w-5" /> <div className="ml-3 flex-grow"> <p className={`${task.completed ? 'line-through text-gray-400' : ''}`}>{`[${task.type}] ${task.title}`}</p> {task.duration && <p className="text-xs text-gray-500">{`${task.duration.hour}h ${task.duration.minute}m`}</p>} </div> {task.proof && <img src={task.proof} className="w-10 h-10 rounded-md"/>} <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" /> <button onClick={handleUploadClick} disabled={!task.completed} className="ml-2 p-1 text-gray-500 disabled:text-gray-300">📸</button> </div> </>);
+        };
+        
+        const TodayScreen = () => {
+            const { studentData, loggedInStudent, systemDate, requestLeave, processEndOfDay } = useContext(AppContext);
+            const [leaveModalVisible, setLeaveModalVisible] = useState(false);
+            const scrollContainerRef = useRef(null);
+            const [viewingDateIndex, setViewingDateIndex] = useState(0);
+
+            const myData = studentData[loggedInStudent.id] || { tasks: {}, leaveDays: {} };
+
+            const displayDates = useMemo(() => {
+                return Array.from({ length: 6 }).map((_, i) => {
+                    const date = new Date(systemDate);
+                    date.setDate(date.getDate() + i);
+                    return date;
+                });
+            }, [systemDate]);
+
+            const handleScroll = useCallback(() => {
+                let timeout;
+                return () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => {
+                        if (scrollContainerRef.current) {
+                            const { scrollLeft, clientWidth } = scrollContainerRef.current;
+                            const newIndex = Math.round(scrollLeft / clientWidth);
+                            setViewingDateIndex(newIndex);
+                        }
+                    }, 150);
+                }
+            }, [])();
+            
+            const handleArrowClick = (direction) => {
+                if (scrollContainerRef.current) {
+                    const { scrollLeft, clientWidth } = scrollContainerRef.current;
+                    const newScrollLeft = direction === 'next' 
+                        ? scrollLeft + clientWidth 
+                        : scrollLeft - clientWidth;
+                    
+                    scrollContainerRef.current.scrollTo({
+                        left: newScrollLeft,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            const handleRequestLeave = () => { 
+                const todayStr = formatDate(systemDate);
+                requestLeave(loggedInStudent.id, todayStr); 
+                setLeaveModalVisible(false); 
+            };
+            const handleAdvanceDay = () => processEndOfDay(loggedInStudent.id);
+
+            const isViewingToday = viewingDateIndex === 0;
+
+            return (
+                <div className="flex flex-col h-full">
+                    <ConfirmationModal visible={leaveModalVisible} onClose={()=>setLeaveModalVisible(false)} onConfirm={handleRequestLeave} title="确认请假" message={`是否确认将 ${formatDate(systemDate)} 的任务顺延？`} /> 
+                    <Header title="每日任务" />
+                    <p className="text-center text-gray-500 bg-white pt-1 pb-2 relative z-10">
+                        当前日期: {formatDate(displayDates[viewingDateIndex])} {isViewingToday ? "(今天)" : ""}
+                    </p>
+                    
+                    <div className="flex-1 relative min-h-0">
+                        <div ref={scrollContainerRef} onScroll={handleScroll} className="h-full flex overflow-x-auto task-carousel no-scrollbar">
+                            {displayDates.map((date, index) => {
+                                const dateStr = formatDate(date);
+                                const tasks = myData.tasks[dateStr] || [];
+                                return (
+                                    <div key={dateStr} className="w-full h-full flex-shrink-0 p-2 overflow-y-auto no-scrollbar task-page">
+                                        {tasks.length > 0 
+                                            ? tasks.map(task => <TaskItem key={task.id} task={task} date={dateStr} studentId={loggedInStudent.id} />) 
+                                            : <p className="p-4 text-center text-gray-500">当天没有任务哦！</p>
+                                        }
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Desktop Arrow Buttons */}
+                        <button 
+                            onClick={() => handleArrowClick('prev')} 
+                            disabled={viewingDateIndex === 0}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/50 backdrop-blur-sm shadow-md hover:bg-white/80 disabled:opacity-0 disabled:cursor-not-allowed transition-opacity hidden md:flex"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <button 
+                            onClick={() => handleArrowClick('next')} 
+                            disabled={viewingDateIndex >= displayDates.length - 1}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full bg-white/50 backdrop-blur-sm shadow-md hover:bg-white/80 disabled:opacity-0 disabled:cursor-not-allowed transition-opacity hidden md:flex"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+
+                    <div className="flex justify-center items-center py-2 bg-white">
+                        {displayDates.map((_, index) => (
+                            <div key={index} className={`h-2 w-2 mx-1 rounded-full transition-colors ${viewingDateIndex === index ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                        ))}
+                    </div>
+
+                    <footer className="p-4 bg-white border-t relative z-10 min-h-[116px] flex flex-col justify-center">
+                        {isViewingToday && (
+                            <div className="space-y-2">
+                                <button onClick={() => setLeaveModalVisible(true)} className="w-full bg-red-500 text-white p-2 rounded-md font-semibold hover:bg-red-600">今日请假</button>
+                                <button onClick={handleAdvanceDay} className="w-full bg-purple-600 text-white p-2 rounded-md font-semibold hover:bg-purple-700">进入第二天 (模拟)</button>
+                            </div>
+                        )}
+                    </footer>
+                </div>
+            );
+        };
+        
+        const MonthScreen = () => {
+            const { studentData, loggedInStudent, systemDate } = useContext(AppContext);
+            const myData = studentData[loggedInStudent.id] || { tasks: {}, leaveDays: {} };
+            const [displayMonth, setDisplayMonth] = useState(new Date(systemDate));
+            const [selectedDate, setSelectedDate] = useState(formatDate(systemDate));
+
+            useEffect(() => {
+                setSelectedDate(formatDate(systemDate));
+                setDisplayMonth(new Date(systemDate));
+            },[systemDate]);
+            
+            const changeMonth = (offset) => setDisplayMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + offset, 1));
+            
+            const monthDays = useMemo(() => {
+                const daysInMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth() + 1, 0).getDate();
+                const firstDayOfMonth = new Date(displayMonth.getFullYear(), displayMonth.getMonth(), 1).getDay();
+                return Array.from({ length: firstDayOfMonth }, () => null).concat(Array.from({ length: daysInMonth }, (_, i) => i + 1));
+            }, [displayMonth]);
+            
+            const selectedDayTasks = (myData.tasks || {})[selectedDate] || [];
+            
+            const stats = useMemo(() => {
+                let leave = 0, rest = 0, study = 0;
+                Object.keys(myData.tasks || {}).forEach(dateStr => {
+                    const date = new Date(dateStr);
+                    if(date.getFullYear() === displayMonth.getFullYear() && date.getMonth() === displayMonth.getMonth()) {
+                       if(myData.tasks[dateStr].some(t => t.type === 'leave')) leave++;
+                       else if(myData.tasks[dateStr].every(t=>t.type === '休息')) rest++;
+                       else if(myData.tasks[dateStr].some(t=>t.completed)) study++;
+                    }
+                });
+                return {leave, rest, study};
+            }, [myData, displayMonth]);
+
+            const CalendarGrid = () => (
+                <div className="grid grid-cols-7 gap-1 text-center text-sm text-gray-500 mb-2">
+                    {['日', '一', '二', '三', '四', '五', '六'].map(day => <div key={day}>{day}</div>)}
+                    {monthDays.map((day, index) => {
+                        if (!day) return <div key={`empty-${index}`}></div>;
+                        const dateStr = formatDate(new Date(displayMonth.getFullYear(), displayMonth.getMonth(), day));
+                        const dayTasks = (myData.tasks || {})[dateStr] || [];
+                        const isCompleted = dayTasks.some(t => t.completed);
+                        const isLeave = dayTasks.some(t => t.type === 'leave');
+                        const isRest = dayTasks.length > 0 && dayTasks.every(t => t.type === '休息');
+                        
+                        let dayClass = 'w-9 h-9 flex items-center justify-center rounded-full cursor-pointer transition-all duration-200';
+                        if (isLeave) dayClass += ' bg-green-500 text-white';
+                        else if (isCompleted) dayClass += ' bg-blue-500 text-white';
+                        else if (isRest) dayClass += ' bg-yellow-400 text-white';
+                        else dayClass += ' hover:bg-gray-200';
+
+                        if (selectedDate === dateStr) dayClass += ' ring-2 ring-blue-500 ring-offset-2';
+                        
+                        return (
+                            <div key={day} className="flex justify-center items-center h-10">
+                                <div className={dayClass} onClick={() => setSelectedDate(dateStr)}>
+                                    {day}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+
+            const SelectedDayDetails = () => (
+                 <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
+                     <h4 className="font-bold mb-1">{selectedDate} 任务:</h4>
+                     {selectedDayTasks.length > 0 ? (
+                         selectedDayTasks.map(task => (
+                             <div key={task.id} className="flex items-center">
+                                 <span className={`mr-2 ${task.completed ? 'text-green-500' : task.type ==='leave' ? 'text-green-500' : 'text-gray-300'}`}>{task.type === 'leave' ? '✓' : '✔'}</span>
+                                 <p className={task.completed ? 'line-through text-gray-400' : ''}>{`[${task.type}] ${task.title}`}</p>
+                             </div>
+                         ))
+                     ) : <p>无任务</p>}
+                 </div>
+            );
+
+            return (<div className="flex flex-col h-full bg-gray-50"> <Header title="月度任务" /> <div className="p-4 bg-white flex-1 flex flex-col min-h-0 relative z-10"> <div className="flex justify-between items-center mb-4"> <button onClick={() => changeMonth(-1)}>&lt;</button> <h2 className="font-bold text-lg">{displayMonth.getFullYear()}年 {displayMonth.getMonth() + 1}月</h2> <button onClick={() => changeMonth(1)}>&gt;</button> </div> <div className="flex-1 overflow-y-auto no-scrollbar"> <CalendarGrid /> {selectedDate && <SelectedDayDetails />} </div> </div> <footer className="grid grid-cols-3 gap-2 text-center p-4 bg-white border-t mt-auto relative z-10"><div><p className="font-bold text-green-600">{stats.leave}</p><p className="text-sm">请假</p></div><div><p className="font-bold text-yellow-600">{stats.rest}</p><p className="text-sm">休息</p></div><div><p className="font-bold text-blue-600">{stats.study}</p><p className="text-sm">学习</p></div></footer> </div>);
+        };
+        
+        const FormRow = ({label, children}) => (<div className="py-3 border-b"><label className="text-sm font-medium text-gray-600">{label}</label>{children}</div>);
+        const inputClass = "w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500";
+        const targetScores = Array.from({length: (150-70)/5 + 1}, (_, i) => 70 + i * 5);
+        
+        const ProfileScreen = ({ isAdminView, studentIdForAdmin, onClose }) => {
+            const { studentData, loggedInStudent, updateProfile, students, logout } = useContext(AppContext);
+            const currentStudentId = isAdminView ? studentIdForAdmin : loggedInStudent.id;
+            
+            const [formData, setFormData] = useState({});
+            const [isEditable, setIsEditable] = useState(false);
+            const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+            const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
+
+            useEffect(() => {
+                let profile = studentData[currentStudentId]?.profile;
+                if (!profile) {
+                    const studentInfo = students.find(s => s.id === currentStudentId);
+                    profile = { ...blankProfile, name: studentInfo?.name || '', id: currentStudentId };
+                }
+                setFormData(profile);
+                setIsEditable(isAdminView ? true : !profile.isProfileSubmitted);
+            }, [studentData, currentStudentId, isAdminView, students]);
+
+            const handleChange = useCallback((e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({...prev, [name]: value}));
+            }, []);
+
+            const handleSave = () => { 
+                updateProfile(currentStudentId, formData, isAdminView); 
+                setConfirmModalVisible(false);
+                if (isAdminView) {
+                    onClose();
+                } else {
+                    setIsEditable(false);
+                }
+            };
+            
+            const formContent = (
+                <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <FormRow label="姓名"><input type="text" name="name" value={formData.name || ''} onChange={handleChange} disabled={!isAdminView} className={inputClass} /></FormRow>
+                    <FormRow label="性别"><select name="gender" value={formData.gender || ''} onChange={handleChange} disabled={!isEditable} className={inputClass}><option value="">请选择</option><option>男</option><option>女</option></select></FormRow>
+                    <FormRow label="年龄"><input type="number" name="age" value={formData.age || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} /></FormRow>
+                    <FormRow label="学习状态">
+                        <select name="studyStatus" value={formData.studyStatus || ''} onChange={handleChange} disabled={!isEditable} className={inputClass}>
+                            <option value="">请选择</option><option>在读应届考研</option><option>无业全职考研</option><option>在职考研</option><option>其他</option>
+                        </select>
+                        {formData.studyStatus === '其他' && <input type="text" name="studyStatusOther" placeholder="请输入具体状态" value={formData.studyStatusOther || ''} onChange={handleChange} disabled={!isEditable} className={inputClass + " mt-2"} />}
+                    </FormRow>
+                    <FormRow label="考研数学目标分">
+                        <select name="targetScore" value={formData.targetScore || ''} onChange={handleChange} disabled={!isEditable} className={inputClass}>
+                            <option value="">请选择</option>{targetScores.map(score => <option key={score} value={score}>{score}</option>)}
+                        </select>
+                    </FormRow>
+                    <FormRow label="历史高考信息">
+                        <select name="gaokaoYear" value={formData.gaokaoYear || '未参加'} onChange={handleChange} disabled={!isEditable} className={inputClass}>
+                            <option>未参加</option>{Array.from({length: 10}, (_, i) => new Date().getFullYear() - i).map(y => <option key={y}>{y}</option>)}
+                        </select>
+                        {formData.gaokaoYear !== '未参加' && <div className="mt-2 space-y-2"><input type="text" name="gaokaoProvince" placeholder="省份" value={formData.gaokaoProvince || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} /><input type="number" name="gaokaoScore" placeholder="具体分数" value={formData.gaokaoScore || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} /></div>}
+                    </FormRow>
+                    <FormRow label="历史考研信息">
+                        <select name="gradExamYear" value={formData.gradExamYear || '未参加'} onChange={handleChange} disabled={!isEditable} className={inputClass}>
+                            <option>未参加</option>{Array.from({length: 5}, (_, i) => new Date().getFullYear() - i).map(y => <option key={y}>{y}</option>)}
+                        </select>
+                        {formData.gradExamYear !== '未参加' && <div className="mt-2 space-y-2"><select name="gradExamMathType" value={formData.gradExamMathType || '未考'} onChange={handleChange} disabled={!isEditable} className={inputClass}><option>未考</option><option>数一</option><option>数二</option><option>数三</option></select><input type="number" name="gradExamScore" placeholder="具体分数" value={formData.gradExamScore || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} /></div>}
+                    </FormRow>
+                    <FormRow label="历史专升本信息">
+                        <select name="upgradeExamYear" value={formData.upgradeExamYear || '未参加'} onChange={handleChange} disabled={!isEditable} className={inputClass}>
+                            <option>未参加</option>{Array.from({length: 5}, (_, i) => new Date().getFullYear() - i).map(y => <option key={y}>{y}</option>)}
+                        </select>
+                        {formData.upgradeExamYear !== '未参加' && <div className="mt-2 space-y-2"><input type="text" name="upgradeExamProvince" placeholder="省份" value={formData.upgradeExamProvince || ''} onChange={handleChange} disabled={!isEditable} className={inputClass}/><select name="upgradeExamMathType" value={formData.upgradeExamMathType || '未分类'} onChange={handleChange} disabled={!isEditable} className={inputClass}><option>未分类</option><option>数一</option><option>数二</option><option>数三</option></select><input type="number" name="upgradeExamScore" placeholder="具体分数" value={formData.upgradeExamScore || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} /></div>}
+                    </FormRow>
+                     <FormRow label="目前已购买数学类图书"><textarea name="purchasedBooks" value={formData.purchasedBooks || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} rows="3"></textarea></FormRow>
+                     <FormRow label="特殊需求/备注"><textarea name="notes" value={formData.notes || ''} onChange={handleChange} disabled={!isEditable} className={inputClass} rows="3"></textarea></FormRow>
+                </div>
+            );
+            
+            if(isAdminView){
+                 return (<div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4"><div className="bg-white rounded-lg shadow-xl w-full max-w-2xl flex flex-col h-full max-h-[90vh]"><header className="p-4 border-b flex justify-between items-center"><h2 className="text-xl font-bold">编辑学生资料 ({formData.name})</h2><button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl">&times;</button></header><main className="flex-1 overflow-y-auto p-6">{formContent}</main><footer className="p-4 bg-gray-50 border-t flex justify-end"><button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700">保存更改</button></footer></div></div>)
+            }
+
+            return (
+                <div className="flex flex-col h-full">
+                    <StudentChangePasswordModal visible={changePasswordModalVisible} onClose={() => setChangePasswordModalVisible(false)} />
+                    <ConfirmationModal visible={confirmModalVisible} onClose={()=>setConfirmModalVisible(false)} onConfirm={handleSave} title="确认提交" message="信息仅可提交一次，确定后不可自行修改，是否继续？" />
+                    <Header title="个人中心"/>
+                    <main className="flex-1 overflow-y-auto p-4 bg-gray-50 relative z-10">{formContent}</main>
+                    <footer className="p-4 bg-white border-t text-center relative z-10 space-y-2">
+                        {isEditable && <button onClick={()=>setConfirmModalVisible(true)} className="w-full p-2 rounded-md font-semibold bg-blue-600 text-white">保存信息</button>}
+                        <button onClick={()=>setChangePasswordModalVisible(true)} className="w-full p-2 rounded-md font-semibold bg-gray-600 text-white">修改密码</button>
+                        <button onClick={logout} className="w-full p-2 rounded-md font-semibold bg-red-500 text-white hover:bg-red-600">退出登录</button>
+                    </footer>
+                </div>
+            );
+        };
+
+        const StudentApp = () => {
+            const { loggedInStudent, logout, studentData, systemDate } = useContext(AppContext);
+            const [activeTab, setActiveTab] = useState('当日任务');
+            const [reminderShown, setReminderShown] = useState(false);
+            const [alertVisible, setAlertVisible] = useState(false);
+
+            useEffect(() => {
+                if(loggedInStudent && !reminderShown){
+                    const todayStr = formatDate(systemDate);
+                    const myTasks = studentData[loggedInStudent.id]?.tasks[todayStr] || [];
+                    if(myTasks.length > 0 && myTasks.every(t => t.type !== '休息')) {
+                        setAlertVisible(true);
+                        setReminderShown(true);
+                    }
+                }
+            }, [loggedInStudent, reminderShown, studentData, systemDate]);
+            
+            useEffect(()=>{
+                if(!loggedInStudent) setReminderShown(false);
+            }, [loggedInStudent]);
+
+            if (!loggedInStudent) return <LoginScreen />;
+            if (loggedInStudent.forcePasswordChange) return <ChangePasswordScreen />;
+            
+            const NavItem = ({ name, icon }) => (<button onClick={() => setActiveTab(name)} className={`flex-1 flex flex-col items-center justify-center p-2 ${activeTab === name ? 'text-blue-500' : 'text-gray-500'}`}>{icon} <span className="text-xs mt-1">{name}</span></button>);
+            
+            return (
+                <div className="mobile-frame-container">
+                    <ConfirmationModal visible={alertVisible} onClose={()=>setAlertVisible(false)} onConfirm={()=>setAlertVisible(false)} title="每日提醒" message={`同学你好，今天的学习任务已经发布，请记得按时完成哦！`} />
+                    <div className="mobile-frame">
+                        <main className="flex-1 overflow-hidden flex flex-col relative z-10 bg-transparent">
+                            {activeTab === '当日任务' && <TodayScreen />}
+                            {activeTab === '月度任务' && <MonthScreen />}
+                            {activeTab === '个人中心' && <ProfileScreen />}
+                        </main>
+                        <nav className="flex bg-white border-t relative z-10"> <NavItem name="当日任务" icon={"📅"} /> <NavItem name="月度任务" icon={"🗓️"} /> <NavItem name="个人中心" icon={"👤"} /> </nav>
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- ADMIN APP COMPONENTS ---
+        const CreateStudentModal = ({ visible, onClose, onAddStudent }) => { 
+            if(!visible) return null;
+            const [name, setName] = useState(''); 
+            const handleAdd = () => { 
+                if (name) { 
+                    onAddStudent(name); 
+                    onClose(); 
+                } 
+            }; 
+            return (<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"> <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6"> <h2 className="text-xl font-bold mb-4">创建新学生</h2> <input type="text" placeholder="学生姓名" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 mb-4 border rounded" /> <p className="text-sm text-gray-500 mb-4">初始密码将自动设置为 "Hello888"</p> <div className="flex justify-end space-x-2"> <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">取消</button> <button onClick={handleAdd} className="px-4 py-2 bg-blue-600 text-white rounded">创建</button> </div> </div> </div>); 
+        };
+        const TaskUploadScreen = () => {
+            const { bulkUploadTasks } = useContext(AppContext);
+            const sampleTasks = `学员ID,任务日期,任务类型,任务内容
+ST001,2025-06-01,休息,全天休息
+ST002,2025-06-01,休息,全天休息
+ST001,2025-06-02,数学,高数第二章: 导数与微分
+ST001,2025-06-02,英语,考研单词 (List 2)
+ST001,2025-06-02,政治,马原第一章 (上)
+ST002,2025-06-02,数学,线代第一章: 行列式
+ST002,2025-06-02,英语,阅读理解一篇
+ST002,2025-06-02,专业课,专业课第一章复习
+ST001,2025-06-03,数学,高数第二章练习
+ST001,2025-06-03,英语,长难句分析5句
+ST001,2025-06-03,政治,马原第一章 (下)
+ST002,2025-06-03,数学,线代第一章练习
+ST002,2025-06-03,英语,完形填空一篇
+ST002,2025-06-03,专业课,专业课第二章预习
+ST001,2025-06-04,数学,高数第二章错题整理
+ST001,2025-06-04,英语,考研单词 (List 3)
+ST001,2025-06-04,政治,马原第二章 (上)
+ST002,2025-06-04,数学,线代第二章: 矩阵
+ST002,2025-06-04,英语,阅读理解一篇
+ST002,2025-06-04,专业课,专业课第二章复习
+ST001,2025-06-05,数学,高数第三章: 中值定理
+ST001,2025-06-05,英语,作文模板 (小作文)
+ST001,2025-06-05,政治,马原第二章 (下)
+ST002,2025-06-05,数学,线代第二章练习
+ST002,2025-06-05,英语,新题型一篇
+ST002,2025-06-05,专业课,专业课第三章预习
+ST001,2025-06-06,数学,高数第三章练习
+ST001,2025-06-06,英语,考研单词 (List 4)
+ST001,2025-06-06,政治,史纲第一章 (上)
+ST002,2025-06-06,数学,概率论第一章: 基本概念
+ST002,2025-06-06,英语,翻译练习
+ST002,2025-06-06,专业课,专业课第三章复习
+ST001,2025-06-07,复习,数学本周复习
+ST001,2025-06-07,复习,英语本周复习
+ST001,2025-06-07,复习,政治本周复习
+ST002,2025-06-07,复习,数学本周复习
+ST002,2025-06-07,复习,英语本周复习
+ST002,2025-06-07,复习,专业课本周复习
+ST001,2025-06-08,休息,全天休息
+ST002,2025-06-08,休息,全天休息
+ST001,2025-06-09,数学,高数第四章: 不定积分
+ST001,2025-06-09,英语,考研单词 (List 5)
+ST001,2025-06-09,政治,史纲第一章 (下)
+ST002,2025-06-09,数学,概率论第一章练习
+ST002,2025-06-09,英语,阅读理解一篇
+ST002,2025-06-09,专业课,专业课第四章预习
+ST001,2025-06-10,数学,不定积分计算练习
+ST001,2025-06-10,英语,长难句分析5句
+ST001,2025-06-10,政治,史纲第二章 (上)
+ST002,2025-06-10,数学,概率论第二章: 随机变量
+ST002,2025-06-10,英语,完形填空一篇
+ST002,2025-06-10,专业课,专业课第四章复习
+ST001,2025-06-11,数学,高数第五章: 定积分
+ST001,2025-06-11,英语,考研单词 (List 6)
+ST001,2025-06-11,政治,史纲第二章 (下)
+ST002,2025-06-11,数学,概率论第二章练习
+ST002,2025-06-11,英语,新题型一篇
+ST002,2025-06-11,专业课,专业课第五章预习
+ST001,2025-06-12,数学,定积分应用题
+ST001,2025-06-12,英语,作文模板 (大作文)
+ST001,2025-06-12,政治,毛中特第一章 (上)
+ST002,2025-06-12,数学,线代第三章: 向量
+ST002,2025-06-12,英语,翻译练习
+ST002,2025-06-12,专业课,专业课第五章复习
+ST001,2025-06-13,数学,线代第三章: 向量
+ST001,2025-06-13,英语,考研单词 (List 7)
+ST001,2025-06-13,政治,毛中特第一章 (下)
+ST002,2025-06-13,数学,向量组线性相关性判断
+ST002,2025-06-13,英语,阅读理解两篇
+ST002,2025-06-13,专业课,专业课第六章预习
+ST001,2025-06-14,复习,数学本周复习
+ST001,2025-06-14,复习,英语本周复习
+ST001,2025-06-14,复习,政治本周复习
+ST002,2025-06-14,复习,数学本周复习
+ST002,2025-06-14,复习,英语本周复习
+ST002,2025-06-14,复习,专业课本周复习
+ST001,2025-06-15,休息,全天休息
+ST002,2025-06-15,休息,全天休息
+ST001,2025-06-16,数学,线代第三章练习
+ST001,2025-06-16,英语,考研单词 (List 8)
+ST001,2025-06-16,政治,毛中特第二章
+ST002,2025-06-16,数学,概率论第三章: 多维随机变量
+ST002,2025-06-16,英语,完形填空一篇
+ST002,2025-06-16,专业课,专业课第六章复习
+ST001,2025-06-17,数学,高数第六章: 微分方程
+ST001,2025-06-17,英语,阅读理解两篇
+ST001,2025-06-17,政治,毛中特第三章
+ST002,2025-06-17,数学,概率论第三章练习
+ST002,2025-06-17,英语,新题型一篇
+ST002,2025-06-17,专业课,专业课第七章预习
+ST001,2025-06-18,数学,微分方程求解练习
+ST001,2025-06-18,英语,考研单词 (List 9)
+ST001,2025-06-18,政治,思修法基第一章
+ST002,2025-06-18,数学,线代第四章: 线性方程组
+ST002,2025-06-18,英语,翻译练习
+ST002,2025-06-18,专业课,专业课第七章复习
+ST001,2025-06-19,数学,线性代数第四章练习
+ST001,2025-06-19,英语,作文一篇 (小作文)
+ST001,2025-06-19,政治,思修法基第二章
+ST002,2025-06-19,数学,解线性方程组练习
+ST002,2025-06-19,英语,阅读理解两篇
+ST002,2025-06-19,专业课,专业课第八章预习
+ST001,2025-06-20,数学,概率论第一章复习
+ST001,2025-06-20,英语,考研单词 (List 10)
+ST001,2025-06-20,政治,思修法基第三章
+ST002,2025-06-20,数学,概率论第四章: 数字特征
+ST002,2025-06-20,英语,完形填空一篇
+ST002,2025-06-20,专业课,专业课第八章复习
+ST001,2025-06-21,复习,数学本周复习
+ST001,2025-06-21,复习,英语本周复习
+ST001,2025-06-21,复习,政治本周复习
+ST002,2025-06-21,复习,数学本周复习
+ST002,2025-06-21,复习,英语本周复习
+ST002,2025-06-21,复习,专业课本周复习
+ST001,2025-06-22,休息,全天休息
+ST002,2025-06-22,休息,全天休息
+ST001,2025-06-23,数学,高数总复习 (上)
+ST001,2025-06-23,英语,模拟题阅读部分
+ST001,2025-06-23,政治,政治半月复习
+ST002,2025-06-23,数学,线代总复习
+ST002,2025-06-23,英语,模拟题翻译部分
+ST002,2025-06-23,专业课,专业课半月复习
+ST001,2025-06-24,数学,高数总复习 (下)
+ST001,2025-06-24,英语,模拟题完形部分
+ST001,2025-06-24,政治,错题整理
+ST002,2025-06-24,数学,概率论总复习
+ST002,2025-06-24,英语,新题型一篇
+ST002,2025-06-24,专业课,错题整理
+ST001,2025-06-25,数学,错题整理
+ST001,2025-06-25,英语,模拟题作文
+ST001,2025-06-25,政治,热点话题梳理
+ST002,2025-06-25,数学,错题整理
+ST002,2025-06-25,英语,模拟题作文
+ST002,2025-06-25,专业课,案例分析
+ST001,2025-06-26,调整,复习薄弱环节
+ST001,2025-06-26,英语,复习薄弱环节
+ST001,2025-06-26,政治,复习薄弱环节
+ST002,2025-06-26,数学,复习薄弱环节
+ST002,2025-06-26,英语,复习薄弱环节
+ST002,2025-06-26,专业课,复习薄弱环节
+ST001,2025-06-27,数学,高数难题
+ST001,2025-06-27,英语,翻译练习
+ST001,2025-06-27,政治,冲刺背诵
+ST002,2025-06-27,数学,线代难题
+ST002,2025-06-27,英语,新题型练习
+ST002,2025-06-27,专业课,冲刺背诵
+ST001,2025-06-28,复习,本月内容复习
+ST001,2025-06-28,复习,本月内容复习
+ST002,2025-06-28,复习,本月内容复习
+ST002,2025-06-28,复习,本月内容复习
+ST001,2025-06-29,休息,全天休息
+ST002,2025-06-29,休息,全天休息
+ST001,2025-06-30,总结,六月学习月度总结
+ST001,2025-06-30,规划,七月学习计划制定
+ST002,2025-06-30,总结,六月学习月度总结
+ST002,2025-06-30,规划,七月学习计划制定`;
+
+            const [csvText, setCsvText] = useState(sampleTasks);
+            const [file, setFile] = useState(null);
+            const fileInputRef = useRef(null);
+            const [message, setMessage] = useState({ text: '', type: '' });
+            
+            const handleDownloadTemplate = () => {
+                const csvContent = "data:text/csv;charset=utf-8,\uFEFF" // BOM for Excel
+                    + "学员ID,任务日期,任务类型,任务内容\n"
+                    + 'ST001,2025-07-01,数学,"示例任务,内容可包含逗号"\n';
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "任务模板.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const handleFileChange = (e) => {
+                const selectedFile = e.target.files[0];
+                if (selectedFile) {
+                    setFile(selectedFile);
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        setCsvText(ev.target.result);
+                    };
+                    reader.readAsText(selectedFile);
+                    setMessage({text: '', type: ''});
+                }
+            };
+
+            const handleUpload = () => {
+                const result = bulkUploadTasks(csvText);
+                setMessage({ text: result.success ? '任务导入成功！' : result.message, type: result.success ? 'success' : 'error' });
+                if (result.success) {
+                    setFile(null); // Clear file selection
+                }
+            };
+
+            return (<div> <h1 className="text-3xl font-bold text-gray-800 mb-6">批量任务导入</h1> <div className="bg-white shadow-md rounded-lg p-8 space-y-6"> <div><button onClick={handleDownloadTemplate} className="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700">下载模板.csv</button></div> <div> <input type="file" accept=".csv" ref={fileInputRef} onChange={handleFileChange} className="hidden" /> <button onClick={() => fileInputRef.current.click()} className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">选择文件上传</button> <span className="mx-4 text-sm text-gray-500">或</span> <label htmlFor="task-data" className="text-sm font-medium text-gray-700">直接编辑下方文本:</label></div><textarea id="task-data" rows="12" value={csvText} onChange={(e) => { setCsvText(e.target.value); setFile(null); }} className="w-full mt-1 p-2 border border-gray-300 rounded-md font-mono text-sm"></textarea> {message.text && (<div className={`p-3 rounded-md text-sm ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{message.text}</div>)} <div className="border-t pt-6 text-right"><button onClick={handleUpload} className="inline-flex justify-center py-2 px-4 rounded-md text-white bg-blue-600 hover:bg-blue-700">解析并上传</button></div> </div> </div>);
+        };
+        
+        const TaskReportScreen = () => {
+            const { students, studentData, systemDate } = useContext(AppContext);
+            const [selectedDate, setSelectedDate] = useState(formatDate(systemDate));
+
+            const dailyTasks = useMemo(() => {
+                const allTasks = [];
+                students.forEach(student => {
+                    const studentTasks = studentData[student.id]?.tasks?.[selectedDate] || [];
+                    if (studentTasks.length > 0) {
+                        studentTasks.forEach(task => {
+                            if (task.type === '休息' || task.type === 'leave') return;
+                            allTasks.push({
+                                studentId: student.id,
+                                studentName: student.name,
+                                ...task
+                            });
+                        });
+                    }
+                });
+                return allTasks;
+            }, [students, studentData, selectedDate]);
+
+            return (
+                 <div>
+                     <h1 className="text-3xl font-bold text-gray-800 mb-6">任务完成情况报告</h1>
+                     <div className="bg-white shadow-md rounded-lg p-8">
+                         <div className="mb-6 flex items-center gap-4">
+                            <label htmlFor="report-date" className="font-medium text-gray-700">选择日期:</label>
+                            <input type="date" id="report-date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="p-2 border rounded-md shadow-sm"/>
+                         </div>
+                         <div className="overflow-x-auto">
+                             <table className="min-w-full divide-y divide-gray-200">
+                                 <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">任务内容</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">完成状态</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">耗时</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">完成凭证</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody className="bg-white divide-y divide-gray-200">
+                                    {dailyTasks.length > 0 ? dailyTasks.map(task => (
+                                        <tr key={task.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{task.studentName}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`[${task.type}] ${task.title}`}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${task.completed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {task.completed ? '已完成' : '未完成'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {task.duration ? `${task.duration.hour}h ${task.duration.minute}m` : '—'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {task.proof ? <a href={task.proof} target="_blank" rel="noopener noreferrer"><img src={task.proof} className="w-12 h-12 rounded-md object-cover hover:opacity-75" alt="proof"/></a> : '—'}
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr><td colSpan="5" className="text-center py-10 text-gray-500">该日期无学习任务记录</td></tr>
+                                    )}
+                                 </tbody>
+                             </table>
+                         </div>
+                     </div>
+                 </div>
+            )
+        };
+
+        const AdminDashboard = () => {
+            const { students, addStudent, adminResetPassword } = useContext(AppContext);
+            const [activeView, setActiveView] = useState('students');
+            const [showCreateModal, setShowCreateModal] = useState(false);
+            const [selectedStudentForProfile, setSelectedStudentForProfile] = useState(null);
+            const [studentToReset, setStudentToReset] = useState(null);
+            
+            const handleResetPassword = () => {
+                if (studentToReset) {
+                    adminResetPassword(studentToReset.id);
+                    setStudentToReset(null);
+                }
+            }
+
+            return (
+                <div className="flex h-screen w-full bg-gray-100">
+                    <CreateStudentModal visible={showCreateModal} onClose={() => setShowCreateModal(false)} onAddStudent={addStudent} />
+                    {selectedStudentForProfile && <ProfileScreen isAdminView={true} studentIdForAdmin={selectedStudentForProfile} onClose={() => setSelectedStudentForProfile(null)} />}
+                    <ConfirmationModal 
+                        visible={!!studentToReset}
+                        onClose={() => setStudentToReset(null)}
+                        onConfirm={handleResetPassword}
+                        title="确认重置密码"
+                        message={`您确定要将学生 ${studentToReset?.name} 的密码重置为初始密码 (Hello888) 吗？`}
+                    />
+
+                    <div className="w-64 bg-gray-800 text-white flex flex-col">
+                        <div className="h-16 flex items-center justify-center text-2xl font-bold border-b border-gray-700 gap-2"><div className="bg-white p-1 rounded-md"><AppLogo className="h-8 w-8 object-contain"/></div>后台管理</div>
+                        <nav className="flex-1 px-2 py-4 space-y-2">
+                            <a href="#" onClick={() => setActiveView('students')} className={`flex items-center px-4 py-2 rounded-md ${activeView === 'students' ? 'bg-gray-900' : 'hover:bg-gray-700'}`}>学生管理</a>
+                            <a href="#" onClick={() => setActiveView('upload')} className={`flex items-center px-4 py-2 rounded-md ${activeView === 'upload' ? 'bg-gray-900' : 'hover:bg-gray-700'}`}>任务上传</a>
+                            <a href="#" onClick={() => setActiveView('report')} className={`flex items-center px-4 py-2 rounded-md ${activeView === 'report' ? 'bg-gray-900' : 'hover:bg-gray-700'}`}>完成情况</a>
+                        </nav>
+                    </div>
+                    <main className="flex-1 p-8 overflow-y-auto">
+                        {activeView === 'students' && (
+                            <div>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h1 className="text-3xl font-bold text-gray-800">学生管理</h1>
+                                    <button onClick={() => setShowCreateModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-blue-700">创建学生</button>
+                                </div>
+                                <div className="bg-white shadow-md rounded-lg">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">学生ID</th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">姓名</th>
+                                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">{
+                                            students.map(s => (
+                                                <tr key={s.id}>
+                                                    <td className="px-6 py-4 text-sm font-mono text-gray-700">{s.id}</td>
+                                                    <td className="px-6 py-4 text-sm">{s.name}</td>
+                                                    <td className="px-6 py-4 text-right space-x-4">
+                                                        <button onClick={() => setSelectedStudentForProfile(s.id)} className="text-indigo-600 hover:text-indigo-900">查看详情</button>
+                                                        <button onClick={() => setStudentToReset(s)} className="text-red-600 hover:text-red-900">重置密码</button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        }</tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                        {activeView === 'upload' && <TaskUploadScreen />}
+                        {activeView === 'report' && <TaskReportScreen />}
+                    </main>
+                </div>
+            );
+        };
+        
+        // --- TOP-LEVEL APP SWITCHER ---
+        const App = () => { 
+            const { view, setView, resetState } = useContext(AppContext);
+            return (
+                <div className="w-full">
+                    <header className="w-full bg-white p-4 shadow-md flex justify-center items-center space-x-4 sticky top-0 z-20">
+                        <h1 className="text-xl font-bold text-gray-800">统一模拟平台</h1>
+                        <div className="p-1 bg-gray-200 rounded-lg flex items-center">
+                           <button onClick={() => setView('student')} className={`px-4 py-1 rounded-md text-sm font-semibold ${view === 'student' ? 'bg-white shadow' : 'bg-transparent text-gray-600'}`}>学生端</button>
+                           <button onClick={() => setView('admin')} className={`px-4 py-1 rounded-md text-sm font-semibold ${view === 'admin' ? 'bg-white shadow' : 'bg-transparent text-gray-600'}`}>管理员端</button>
+                        </div>
+                        <button onClick={resetState} className="ml-4 text-sm bg-red-500 text-white font-semibold py-1.5 px-3 rounded-md hover:bg-red-600">重置模拟状态</button>
+                    </header>
+                    {view === 'student' ? <StudentApp /> : <AdminDashboard />}
+                </div>
+            );
+        };
+        
+        ReactDOM.createRoot(document.getElementById('root')).render(<AppProvider><App /></AppProvider>);
+    </script>
+</body>
+</html>
