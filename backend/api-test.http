@@ -1,0 +1,69 @@
+### 任务管理系统API测试文件
+### 使用VS Code REST Client扩展运行这些测试
+
+### 1. 健康检查
+GET http://localhost:3001/health
+
+### 2. 数据库状态检查
+GET http://localhost:3001/api/db-status
+
+### 3. 用户登录 (ST002)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ST002",
+  "password": "Hello888"
+}
+
+### 4. 用户登录 (ST001 - 可能需要新密码)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ST001",
+  "password": "NewPassword123"
+}
+
+### 5. 强制修改密码 (需要先登录获取token)
+POST http://localhost:3001/api/auth/force-change-password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+{
+  "newPassword": "NewPassword123"
+}
+
+### 6. 获取任务列表
+GET http://localhost:3001/api/tasks
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+### 7. 获取学生档案
+GET http://localhost:3001/api/profiles
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+### 8. 更新学生档案
+PUT http://localhost:3001/api/profiles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+{
+  "gender": "男",
+  "age": 22,
+  "studyStatus": "在读应届考研",
+  "mathType": "数学一",
+  "targetScore": 400,
+  "dailyHours": 8.5,
+  "gaokaoYear": "2020",
+  "gaokaoProvince": "北京",
+  "gaokaoScore": 580,
+  "notes": "这是测试档案"
+}
+
+### 9. 管理员 - 获取学生列表 (需要管理员权限)
+GET http://localhost:3001/api/admin/students
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+### 10. 验证Token
+GET http://localhost:3001/api/auth/verify
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
