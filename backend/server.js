@@ -166,4 +166,10 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-startServer();
+// 只在非测试环境下启动服务器
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+// 导出app供测试使用
+module.exports = app;

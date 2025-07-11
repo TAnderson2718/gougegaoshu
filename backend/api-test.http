@@ -7,40 +7,49 @@ GET http://localhost:3001/health
 ### 2. 数据库状态检查
 GET http://localhost:3001/api/db-status
 
-### 3. 用户登录 (ST002)
-POST http://localhost:3001/api/auth/login
-Content-Type: application/json
-
-{
-  "studentId": "ST002",
-  "password": "Hello888"
-}
-
-### 4. 用户登录 (ST001 - 可能需要新密码)
+### 3. 普通学生登录 (ST001)
 POST http://localhost:3001/api/auth/login
 Content-Type: application/json
 
 {
   "studentId": "ST001",
-  "password": "NewPassword123"
+  "password": "TestPass123"
 }
 
-### 5. 强制修改密码 (需要先登录获取token)
+### 4. 需要修改密码的学生登录 (ST002)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ST002",
+  "password": "TestPass123"
+}
+
+### 5. 管理员登录 (ADMIN001)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ADMIN001",
+  "password": "AdminPass123"
+}
+
+### 6. 强制修改密码 (ST002用户，需要先登录获取token)
 POST http://localhost:3001/api/auth/force-change-password
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+Authorization: Bearer YOUR_TOKEN_HERE
 
 {
   "newPassword": "NewPassword123"
 }
 
-### 6. 获取任务列表
+### 7. 获取任务列表 (需要登录token)
 GET http://localhost:3001/api/tasks
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+Authorization: Bearer YOUR_TOKEN_HERE
 
-### 7. 获取学生档案
+### 8. 获取学生档案 (需要登录token)
 GET http://localhost:3001/api/profiles
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+Authorization: Bearer YOUR_TOKEN_HERE
 
 ### 8. 更新学生档案
 PUT http://localhost:3001/api/profiles
@@ -60,7 +69,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTV
   "notes": "这是测试档案"
 }
 
-### 9. 管理员 - 获取学生列表 (需要管理员权限)
+### 10. 管理员 - 获取学生列表 (需要管理员权限)
 GET http://localhost:3001/api/admin/students
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
 

@@ -1,29 +1,41 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// 数据库连接配置
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'task_manager_db',
-  charset: 'utf8mb4',
-  timezone: '+08:00',
-  multipleStatements: true // 允许执行多条SQL语句
-};
+// 获取数据库配置（动态获取，支持测试环境）
+function getDbConfig() {
+  return {
+    host: process.env.DB_HOST || 'localhost',
+    port: process.env.DB_PORT || 3306,
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'task_manager_db',
+    charset: 'utf8mb4',
+    timezone: '+08:00',
+    multipleStatements: true // 允许执行多条SQL语句
+  };
+}
 
-// 创建连接池
-const pool = mysql.createPool({
-  ...dbConfig,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+// 创建连接池（延迟创建，确保环境变量已设置）
+let pool = null;
+
+function getPool() {
+  if (!pool) {
+    const dbConfig = getDbConfig();
+    console.log(`🔗 创建数据库连接池，目标数据库: ${dbConfig.database}`);
+    pool = mysql.createPool({
+      ...dbConfig,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+  }
+  return pool;
+}
 
 // 创建数据库（如果不存在）
 async function createDatabaseIfNotExists() {
   try {
+    const dbConfig = getDbConfig();
     const tempConfig = { ...dbConfig };
     delete tempConfig.database; // 临时移除数据库名
 
@@ -45,7 +57,8 @@ async function testConnection() {
     // 先确保数据库存在
     await createDatabaseIfNotExists();
 
-    const connection = await pool.getConnection();
+    const currentPool = getPool();
+    const connection = await currentPool.getConnection();
     console.log('✅ 数据库连接成功');
     connection.release();
     return true;
@@ -58,7 +71,8 @@ async function testConnection() {
 // 执行查询的通用方法
 async function query(sql, params = []) {
   try {
-    const [rows] = await pool.execute(sql, params);
+    const currentPool = getPool();
+    const [rows] = await currentPool.execute(sql, params);
     return rows;
   } catch (error) {
     console.error('数据库查询错误:', error);
@@ -68,7 +82,8 @@ async function query(sql, params = []) {
 
 // 执行事务
 async function transaction(callback) {
-  const connection = await pool.getConnection();
+  const currentPool = getPool();
+  const connection = await currentPool.getConnection();
   await connection.beginTransaction();
   
   try {
@@ -84,9 +99,10 @@ async function transaction(callback) {
 }
 
 module.exports = {
-  pool,
+  get pool() { return getPool(); }, // 动态获取连接池
   query,
   transaction,
   testConnection,
-  createDatabaseIfNotExists
+  createDatabaseIfNotExists,
+  getDbConfig
 };
