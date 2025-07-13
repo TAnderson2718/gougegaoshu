@@ -98,11 +98,29 @@ async function transaction(callback) {
   }
 }
 
+// 重置连接池（用于测试环境）
+function resetPool() {
+  if (pool) {
+    pool.end();
+    pool = null;
+  }
+}
+
+// 连接池关闭函数
+async function closePool() {
+  if (pool) {
+    await pool.end();
+    pool = null;
+  }
+}
+
 module.exports = {
   get pool() { return getPool(); }, // 动态获取连接池
   query,
   transaction,
   testConnection,
   createDatabaseIfNotExists,
-  getDbConfig
+  getDbConfig,
+  resetPool,
+  closePool
 };

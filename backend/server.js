@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const { testConnection } = require('./config/database');
 const { initializeDatabase } = require('./scripts/initDatabase');
+const { startCronJobs, start: startCron } = require('./services/cronService');
 
 // 导入路由
 const authRoutes = require('./routes/auth');
@@ -21,16 +22,16 @@ app.use(helmet());
 
 // CORS配置
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.com'] 
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://your-frontend-domain.com']
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3002', 'http://127.0.0.1:3002'],
   credentials: true
 }));
 
-// 请求限制
+// 请求限制 - 为测试环境放宽限制
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15分钟
-  max: 100, // 限制每个IP 15分钟内最多100个请求
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 生产环境100个请求，开发环境1000个请求
   message: {
     success: false,
     message: '请求过于频繁，请稍后再试'
@@ -134,6 +135,11 @@ async function startServer() {
     // 初始化数据库（包含连接测试、建表、初始数据）
     console.log('📊 初始化数据库...');
     await initializeDatabase();
+
+    // 初始化并启动定时任务
+    console.log('⏰ 初始化定时任务...');
+    startCronJobs();
+    startCron();
 
     app.listen(PORT, () => {
       console.log('');

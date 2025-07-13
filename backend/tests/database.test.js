@@ -19,7 +19,7 @@ describe('数据库连接和健康检查模块测试', () => {
       expect(response.body.database).toBe('连接正常');
       expect(response.body).toHaveProperty('timestamp');
       expect(response.body).toHaveProperty('environment');
-      expect(response.body.environment).toBe('development');
+      expect(response.body.environment).toBe('test');
     });
 
     test('Edge Case - 多次连续健康检查', async () => {
@@ -131,28 +131,32 @@ describe('数据库连接和健康检查模块测试', () => {
     });
 
     test('Happy Path - 数据库事务功能', async () => {
-      // 测试简单的插入和回滚
+      // 测试事务功能使用transaction helper
+      const { transaction } = require('../config/database');
+      
       try {
-        await query('START TRANSACTION');
-        
-        // 插入测试数据
-        await query('INSERT INTO students (id, name, password) VALUES (?, ?, ?)', 
-          ['TEST_TRANS', '事务测试', 'password']);
-        
-        // 验证数据存在
-        const result = await query('SELECT * FROM students WHERE id = ?', ['TEST_TRANS']);
-        expect(result).toHaveLength(1);
-        
-        // 回滚事务
-        await query('ROLLBACK');
-        
-        // 验证数据已被回滚
+        await transaction(async (connection) => {
+          // 插入测试数据
+          await connection.execute(
+            'INSERT INTO students (id, name, password) VALUES (?, ?, ?)', 
+            ['TEST_TRANS', '事务测试', 'password']
+          );
+          
+          // 验证数据在事务中存在
+          const [result] = await connection.execute(
+            'SELECT * FROM students WHERE id = ?', 
+            ['TEST_TRANS']
+          );
+          expect(result).toHaveLength(1);
+          
+          // 抛出错误触发回滚
+          throw new Error('测试回滚');
+        });
+      } catch (error) {
+        // 验证回滚成功
         const afterRollback = await query('SELECT * FROM students WHERE id = ?', ['TEST_TRANS']);
         expect(afterRollback).toHaveLength(0);
-        
-      } catch (error) {
-        await query('ROLLBACK');
-        throw error;
+        expect(error.message).toBe('测试回滚');
       }
     });
 

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>调试任务数据</title>
+</head>
+<body>
+    <h1>任务数据调试</h1>
+    <div id="output"></div>
+    
+    <script>
+        async function debugTasks() {
+            try {
+                // 先登录获取token
+                const loginResponse = await fetch('http://localhost:3001/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId: 'ST001', password: 'Hello888' })
+                });
+                
+                const loginData = await loginResponse.json();
+                const token = loginData.data.token;
+                
+                // 获取任务数据
+                const tasksResponse = await fetch('http://localhost:3001/api/tasks?startDate=2025-07-01&endDate=2025-07-31', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const tasksData = await tasksResponse.json();
+                
+                // 模拟前端数据转换
+                const tasksByDate = tasksData.data || {};
+                const allTasks = [];
+                
+                Object.keys(tasksByDate).forEach(date => {
+                    const dateTasks = tasksByDate[date] || [];
+                    dateTasks.forEach(task => {
+                        allTasks.push({
+                            ...task,
+                            date: date
+                        });
+                    });
+                });
+                
+                // 测试特定日期
+                const testDates = ['2025-07-01', '2025-07-08', '2025-07-15', '2025-07-22', '2025-07-29'];
+                const results = {};
+                
+                testDates.forEach(dateStr => {
+                    const tasksForDate = allTasks.filter(task => task.date === dateStr);
+                    results[dateStr] = {
+                        count: tasksForDate.length,
+                        tasks: tasksForDate.map(t => ({ type: t.type, title: t.title }))
+                    };
+                });
+                
+                document.getElementById('output').innerHTML = `
+                    <h2>调试结果</h2>
+                    <p>总任务数: ${allTasks.length}</p>
+                    <p>API返回的日期数: ${Object.keys(tasksByDate).length}</p>
+                    <h3>特定日期任务数:</h3>
+                    <pre>${JSON.stringify(results, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                document.getElementById('output').innerHTML = `错误: ${error.message}`;
+            }
+        }
+        
+        debugTasks();
+    </script>
+</body>
+</html>

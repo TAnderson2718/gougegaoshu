@@ -290,9 +290,10 @@ ST002,2024-02-01,政治,毛概第一章`;
           csvData: invalidCSV
         });
 
-      // 应该部分成功或返回错误信息
-      expect(response.status).toBe(200); // 可能部分成功
-      expect(response.body.success).toBe(true);
+      // 应该返回错误信息
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('没有有效的任务数据');
     });
 
     test('Edge Case - 缺少csvData字段', async () => {
@@ -322,6 +323,9 @@ ST002,2024-02-01,政治,毛概第一章`;
 
   describe('GET /api/admin/reports/tasks - 获取任务报告', () => {
     beforeEach(async () => {
+      // 清理测试数据
+      await query(`DELETE FROM tasks WHERE id LIKE 'report-test-%'`);
+      
       // 为报告测试准备数据
       await query(`
         INSERT INTO tasks (id, student_id, task_date, task_type, title, completed) VALUES 
@@ -329,6 +333,11 @@ ST002,2024-02-01,政治,毛概第一章`;
         ('report-test-2', 'ST001', '2024-03-01', '英语', '测试任务2', FALSE),
         ('report-test-3', 'ST002', '2024-03-01', '政治', '测试任务3', TRUE)
       `);
+    });
+
+    afterEach(async () => {
+      // 清理测试数据
+      await query(`DELETE FROM tasks WHERE id LIKE 'report-test-%'`);
     });
 
     test('Happy Path - 获取指定日期的任务报告', async () => {

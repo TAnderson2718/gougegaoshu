@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './contexts/AppContext';
 import Login from './components/Login';
+import AdminLogin from './components/AdminLogin';
 import ChangePassword from './components/ChangePassword';
 import StudentApp from './components/StudentApp';
 import AdminDashboard from './components/AdminDashboard';
@@ -22,11 +23,12 @@ const ProtectedRoute = ({ children }) => {
     );
   }
   
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? children : <Navigate to="/student" replace />;
 };
 
-// 主应用组件
-const AppContent = () => {
+
+// 学生端页面
+const StudentPage = () => {
   const { user, isAuthenticated, loading } = useApp();
 
   if (loading) {
@@ -40,84 +42,117 @@ const AppContent = () => {
     );
   }
 
-  // 如果已登录但需要强制修改密码
-  if (isAuthenticated && user?.forcePasswordChange) {
-    return <ChangePassword />;
-  }
-
-  return (
-    <Routes>
-      <Route 
-        path="/login" 
-        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
-      />
-      
-      <Route 
-        path="/admin/*" 
-        element={
-          <ProtectedRoute>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } 
-      />
-      
-      <Route 
-        path="/" 
-        element={
-          <ProtectedRoute>
-            <StudentApp />
-          </ProtectedRoute>
-        } 
-      />
-      
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+  // 检查是否是管理员 - 与AdminPage保持一致
+  const isAdmin = user && (
+    user.userType === 'admin' ||
+    user.studentId?.startsWith('ADMIN') ||
+    ['ADMIN001', 'ADMIN002'].includes(user.studentId)
   );
-};
 
-// 应用切换器（学生端/管理员端）
-const AppSwitcher = () => {
-  const [view, setView] = React.useState('student');
-  const { logout } = useApp();
-
-  const resetState = () => {
-    logout();
-    // 清除其他本地存储
-    localStorage.clear();
-    window.location.reload();
-  };
+  // 调试信息
+  console.log('StudentPage - 用户信息:', user);
+  console.log('StudentPage - 是否管理员:', isAdmin);
+  console.log('StudentPage - 是否已认证:', isAuthenticated);
 
   return (
     <div className="w-full min-h-screen">
-      <header className="w-full bg-white p-4 shadow-md flex justify-center items-center space-x-4 sticky top-0 z-20">
-        <h1 className="text-xl font-bold text-gray-800">统一模拟平台</h1>
-        <div className="p-1 bg-gray-200 rounded-lg flex items-center">
-          <button
-            onClick={() => setView('student')}
-            className={`px-4 py-1 rounded-md text-sm font-semibold ${
-              view === 'student' ? 'bg-white shadow' : 'bg-transparent text-gray-600'
-            }`}
-          >
-            学生端
-          </button>
-          <button
-            onClick={() => setView('admin')}
-            className={`px-4 py-1 rounded-md text-sm font-semibold ${
-              view === 'admin' ? 'bg-white shadow' : 'bg-transparent text-gray-600'
-            }`}
-          >
-            管理员端
-          </button>
-        </div>
-        <button
-          onClick={resetState}
-          className="ml-4 text-sm bg-red-500 text-white font-semibold py-1.5 px-3 rounded-md hover:bg-red-600"
-        >
-          重置模拟状态
-        </button>
+      <header className="w-full bg-white p-4 shadow-md flex justify-center items-center sticky top-0 z-20">
+        <h1 className="text-xl font-bold text-gray-800">考研任务管理系统 - 学生端</h1>
       </header>
-      
-      {view === 'student' ? <AppContent /> : <AdminDashboard />}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            // 如果已登录且是管理员，重定向到管理员端；如果是学生，重定向到学生端主页；否则显示登录
+            isAuthenticated ? (
+              isAdmin ? <Navigate to="/admin" replace /> : <Navigate to="/student/home" replace />
+            ) : <Login />
+          }
+        />
+
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              {isAdmin ? (
+                <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+                  <div className="text-center p-8">
+                    <h2 className="text-2xl font-bold text-blue-600 mb-4">管理员账号</h2>
+                    <p className="text-gray-600 mb-4">您使用的是管理员账号，请访问管理员端。</p>
+                    <button
+                      onClick={() => window.location.href = '/admin'}
+                      className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      前往管理员端
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <StudentApp />
+              )}
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<Navigate to="/student" replace />} />
+      </Routes>
+    </div>
+  );
+};
+
+// 管理员端页面
+const AdminPage = () => {
+  const { user, isAuthenticated, refreshAuth } = useApp();
+
+  // 检查是否是管理员 - 更严格的检查
+  const isAdmin = user && (
+    user.userType === 'admin' ||
+    user.studentId?.startsWith('ADMIN') ||
+    ['ADMIN001', 'ADMIN002'].includes(user.studentId)
+  );
+
+  // 如果未登录，显示管理员登录页面
+  if (!isAuthenticated) {
+    return <AdminLogin />;
+  }
+
+  return (
+    <div className="w-full min-h-screen">
+      <header className="w-full bg-white p-4 shadow-md flex justify-center items-center sticky top-0 z-20">
+        <h1 className="text-xl font-bold text-gray-800">考研任务管理系统 - 管理员端</h1>
+      </header>
+
+      {isAdmin ? (
+        <AdminDashboard />
+      ) : (
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <div className="text-center p-8">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">访问被拒绝</h2>
+            <p className="text-gray-600 mb-4">您没有管理员权限访问此页面。</p>
+            <p className="text-sm text-gray-500 mb-4">当前登录的是学生账号 ({user?.studentId})，请使用管理员账号登录：ADMIN001 或 ADMIN002</p>
+            <div className="space-y-2 mb-4">
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  window.location.reload();
+                }}
+                className="block mx-auto px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              >
+                清除登录信息并重新登录
+              </button>
+              <button
+                onClick={() => window.location.href = '/student'}
+                className="block mx-auto px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                返回学生端
+              </button>
+            </div>
+            <div className="text-xs text-gray-400 mt-4">
+              调试信息: 当前用户ID: {user?.studentId}, 是否为管理员: {isAdmin ? '是' : '否'}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -126,7 +161,19 @@ function App() {
   return (
     <AppProvider>
       <Router>
-        <AppSwitcher />
+        <Routes>
+          {/* 根路径重定向到学生端 */}
+          <Route path="/" element={<Navigate to="/student" replace />} />
+
+          {/* 管理员端路由 */}
+          <Route path="/admin/*" element={<AdminPage />} />
+
+          {/* 学生端路由 */}
+          <Route path="/student/*" element={<StudentPage />} />
+
+          {/* 其他路径重定向到学生端 */}
+          <Route path="*" element={<Navigate to="/student" replace />} />
+        </Routes>
       </Router>
     </AppProvider>
   );

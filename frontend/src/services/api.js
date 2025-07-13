@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
+  baseURL: process.env.REACT_APP_API_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
@@ -48,28 +48,32 @@ api.interceptors.response.use(
 
 // 认证相关API
 export const authAPI = {
-  // 登录
-  login: (studentId, password) => 
+  // 学生登录
+  login: (studentId, password) =>
     api.post('/auth/login', { studentId, password }),
-  
+
+  // 管理员登录
+  adminLogin: (adminId, password) =>
+    api.post('/auth/admin/login', { studentId: adminId, password }),
+
   // 强制修改密码
-  forceChangePassword: (newPassword) => 
+  forceChangePassword: (newPassword) =>
     api.post('/auth/force-change-password', { newPassword }),
-  
+
   // 修改密码
-  changePassword: (oldPassword, newPassword) => 
+  changePassword: (oldPassword, newPassword) =>
     api.post('/auth/change-password', { oldPassword, newPassword }),
-  
+
   // 验证token
-  verify: () => 
+  verify: () =>
     api.get('/auth/verify')
 };
 
 // 任务相关API
 export const taskAPI = {
   // 获取任务列表
-  getTasks: (startDate, endDate) => 
-    api.get('/tasks', { params: { startDate, endDate } }),
+  getTasks: (startDate, endDate, view) =>
+    api.get('/tasks', { params: { startDate, endDate, view } }),
   
   // 更新任务
   updateTask: (taskId, updates) => 
@@ -81,7 +85,15 @@ export const taskAPI = {
   
   // 获取请假记录
   getLeaveRecords: () => 
-    api.get('/tasks/leave-records')
+    api.get('/tasks/leave-records'),
+  
+  // 24:00任务处理
+  processMidnightTasks: (date) => 
+    api.post('/tasks/midnight-process', { date }),
+  
+  // 重置任务到初始状态
+  resetToInitial: () => 
+    api.post('/tasks/reset-to-initial')
 };
 
 // 档案相关API
@@ -113,6 +125,12 @@ export const adminAPI = {
   getStudentProfile: (studentId) => 
     api.get(`/admin/students/${studentId}/profile`),
   
+  // 创建单个任务
+  createTask: (taskData) => 
+    api.post('/admin/tasks/bulk-import', { 
+      csvData: `学生ID,日期,任务类型,任务标题\n${taskData.studentId},${taskData.date},${taskData.type || '学习'},${taskData.title}`
+    }),
+
   // 批量导入任务
   bulkImportTasks: (csvData) => 
     api.post('/admin/tasks/bulk-import', { csvData }),

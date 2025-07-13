@@ -27,6 +27,80 @@ const changePasswordSchema = Joi.object({
   })
 });
 
+// 管理员登录
+router.post('/admin/login', async (req, res) => {
+  try {
+    // 验证输入
+    const { error, value } = loginSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message
+      });
+    }
+
+    const { studentId: adminId, password } = value;
+
+    // 查询管理员信息
+    const admins = await query(
+      'SELECT id, name, password, role, force_password_change FROM admins WHERE id = ?',
+      [adminId.toUpperCase()]
+    );
+
+    if (admins.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: '管理员账号或密码错误'
+      });
+    }
+
+    const admin = admins[0];
+
+    // 验证密码
+    const isPasswordValid = await bcrypt.compare(password, admin.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: '管理员账号或密码错误'
+      });
+    }
+
+    // 生成JWT token，包含管理员角色信息
+    const token = jwt.sign(
+      {
+        userId: admin.id,
+        name: admin.name,
+        role: admin.role,
+        userType: 'admin'
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // 返回登录成功信息
+    res.json({
+      success: true,
+      message: '管理员登录成功',
+      data: {
+        token,
+        admin: {
+          id: admin.id,
+          name: admin.name,
+          role: admin.role,
+          forcePasswordChange: admin.force_password_change
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('管理员登录错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+});
+
 // 学生登录
 router.post('/login', async (req, res) => {
   try {
@@ -40,6 +114,14 @@ router.post('/login', async (req, res) => {
     }
 
     const { studentId, password } = value;
+
+    // 检查是否是管理员账号尝试通过学生端登录
+    if (studentId.toUpperCase().startsWith('ADMIN')) {
+      return res.status(401).json({
+        success: false,
+        message: '管理员账号请使用管理员端登录'
+      });
+    }
 
     // 查询学生信息
     const students = await query(
@@ -65,9 +147,14 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // 生成JWT token
+    // 生成JWT token，包含用户类型标识
     const token = jwt.sign(
-      { studentId: student.id },
+      {
+        userId: student.id,
+        studentId: student.id, // 保持向后兼容
+        name: student.name,
+        userType: 'student'
+      },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );

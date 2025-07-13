@@ -10,7 +10,7 @@ const { query } = require('../config/database');
 
 describe('学生档案模块测试', () => {
   let validToken;
-  let st002Token;
+  let noProfileToken;
 
   beforeAll(async () => {
     // 生成有效的测试token
@@ -20,11 +20,20 @@ describe('学生档案模块测试', () => {
       { expiresIn: '1h' }
     );
 
-    st002Token = jwt.sign(
-      { studentId: 'ST002' },
+    // 创建一个没有档案数据且不需要强制修改密码的用户
+    await query('INSERT IGNORE INTO students (id, name, password, force_password_change) VALUES (?, ?, ?, ?)', 
+      ['ST003', '无档案测试用户', 'hashedpass', false]);
+
+    noProfileToken = jwt.sign(
+      { studentId: 'ST003' },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+  });
+
+  afterAll(async () => {
+    // 清理测试用户
+    await query('DELETE FROM students WHERE id = ?', ['ST003']);
   });
 
   describe('GET /api/profiles - 获取学生档案', () => {
@@ -45,7 +54,7 @@ describe('学生档案模块测试', () => {
     test('Edge Case - 无档案数据的新用户', async () => {
       const response = await request(app)
         .get('/api/profiles')
-        .set('Authorization', `Bearer ${st002Token}`); // ST002没有档案数据
+        .set('Authorization', `Bearer ${noProfileToken}`); // ST003没有档案数据
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -97,7 +106,7 @@ describe('学生档案模块测试', () => {
     test('Happy Path - 完整档案更新', async () => {
       const response = await request(app)
         .put('/api/profiles')
-        .set('Authorization', `Bearer ${st002Token}`) // 使用没有档案的用户
+        .set('Authorization', `Bearer ${noProfileToken}`) // 使用没有档案的用户
         .send(validProfileData);
 
       expect(response.status).toBe(200);
@@ -105,7 +114,7 @@ describe('学生档案模块测试', () => {
       expect(response.body.message).toBe('档案更新成功');
 
       // 验证数据库中的数据
-      const profiles = await query('SELECT * FROM student_profiles WHERE student_id = ?', ['ST002']);
+      const profiles = await query('SELECT * FROM student_profiles WHERE student_id = ?', ['ST003']);
       expect(profiles).toHaveLength(1);
       expect(profiles[0].gender).toBe('女');
       expect(profiles[0].age).toBe(23);

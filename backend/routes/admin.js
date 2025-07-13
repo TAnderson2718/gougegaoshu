@@ -4,6 +4,7 @@ const Joi = require('joi');
 const moment = require('moment');
 const { query, transaction } = require('../config/database');
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { manualReschedule, getStatus } = require('../services/cronService');
 
 const router = express.Router();
 
@@ -140,10 +141,12 @@ router.get('/students/:studentId/profile', async (req, res) => {
     res.json({
       success: true,
       data: {
-        id: student.id,
-        name: student.name,
-        forcePasswordChange: student.force_password_change,
-        createdAt: student.created_at,
+        student: {
+          id: student.id,
+          name: student.name,
+          forcePasswordChange: student.force_password_change,
+          createdAt: student.created_at
+        },
         profile: profile ? {
           gender: profile.gender,
           age: profile.age,
@@ -237,19 +240,35 @@ router.post('/tasks/bulk-import', async (req, res) => {
       });
     }
 
-    // 批量插入任务
+    // 批量插入任务，避免重复
+    let imported = 0;
     await transaction(async (connection) => {
       for (const task of tasks) {
-        await connection.execute(
-          'INSERT INTO tasks (id, student_id, task_date, task_type, title, completed) VALUES (?, ?, ?, ?, ?, ?)',
-          [task.id, task.student_id, task.task_date, task.task_type, task.title, task.completed]
+        // 检查是否已存在相同的任务
+        const [existingTasks] = await connection.execute(
+          'SELECT id FROM tasks WHERE student_id = ? AND task_date = ? AND task_type = ? AND title = ?',
+          [task.student_id, task.task_date, task.task_type, task.title]
         );
+        
+        // 如果不存在，则插入
+        if (existingTasks.length === 0) {
+          await connection.execute(
+            'INSERT INTO tasks (id, student_id, task_date, task_type, title, completed) VALUES (?, ?, ?, ?, ?, ?)',
+            [task.id, task.student_id, task.task_date, task.task_type, task.title, task.completed]
+          );
+          imported++;
+        }
       }
     });
 
     res.json({
       success: true,
-      message: `成功导入 ${tasks.length} 个任务`
+      message: `任务导入成功，共导入 ${imported} 个新任务，跳过 ${tasks.length - imported} 个重复任务`,
+      data: {
+        imported: imported,
+        skipped: tasks.length - imported,
+        total: tasks.length
+      }
     });
 
   } catch (error) {
@@ -264,24 +283,40 @@ router.post('/tasks/bulk-import', async (req, res) => {
 // 获取任务完成报告
 router.get('/reports/tasks', async (req, res) => {
   try {
-    const { date } = req.query;
-    
-    if (!date) {
+    const { date, startDate, endDate } = req.query;
+
+    let whereClause = '';
+    let params = [];
+
+    if (date) {
+      // 单日查询
+      whereClause = 'WHERE t.task_date = ? AND t.task_type NOT IN (\'休息\', \'leave\')';
+      params = [date];
+    } else if (startDate && endDate) {
+      // 日期范围查询
+      whereClause = 'WHERE t.task_date BETWEEN ? AND ?';
+      params = [startDate, endDate];
+    } else if (startDate) {
+      // 从指定日期开始的月份查询
+      const startMonth = startDate.substring(0, 7); // 获取年-月部分
+      whereClause = 'WHERE t.task_date LIKE ?';
+      params = [`${startMonth}%`];
+    } else {
       return res.status(400).json({
         success: false,
-        message: '日期参数不能为空'
+        message: '需要提供date、startDate或startDate+endDate参数'
       });
     }
 
     const tasks = await query(`
-      SELECT 
+      SELECT
         t.id, t.student_id, s.name as student_name, t.task_type, t.title,
-        t.completed, t.duration_hour, t.duration_minute, t.proof_image
+        t.task_date, t.completed, t.duration_hour, t.duration_minute, t.proof_image
       FROM tasks t
       JOIN students s ON t.student_id = s.id
-      WHERE t.task_date = ? AND t.task_type NOT IN ('休息', 'leave')
-      ORDER BY s.name, t.created_at
-    `, [date]);
+      ${whereClause}
+      ORDER BY t.task_date, s.name, t.created_at
+    `, params);
 
     res.json({
       success: true,
@@ -291,6 +326,7 @@ router.get('/reports/tasks', async (req, res) => {
         studentName: task.student_name,
         type: task.task_type,
         title: task.title,
+        date: task.task_date.toISOString().split('T')[0], // 格式化日期
         completed: task.completed,
         duration: task.duration_hour || task.duration_minute ? {
           hour: task.duration_hour || 0,
@@ -302,6 +338,54 @@ router.get('/reports/tasks', async (req, res) => {
 
   } catch (error) {
     console.error('获取任务报告错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+});
+
+// 手动触发任务重新调度（测试用）
+router.post('/reschedule-tasks', async (req, res) => {
+  try {
+    const { studentId, targetDate } = req.body;
+
+    if (!studentId || !targetDate) {
+      return res.status(400).json({
+        success: false,
+        message: '学生ID和目标日期不能为空'
+      });
+    }
+
+    const result = await manualReschedule(studentId, targetDate);
+    
+    res.json({
+      success: result.success,
+      message: result.success ? '任务重新调度成功' : '任务重新调度失败',
+      data: result
+    });
+
+  } catch (error) {
+    console.error('手动任务重新调度错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+});
+
+// 获取定时任务状态
+router.get('/cron-status', async (req, res) => {
+  try {
+    const status = getStatus();
+    
+    res.json({
+      success: true,
+      data: status
+    });
+
+  } catch (error) {
+    console.error('获取定时任务状态错误:', error);
     res.status(500).json({
       success: false,
       message: '服务器内部错误'

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 
-const Login = () => {
+const Login = ({ adminMode = false }) => {
   const { login, loading, error } = useApp();
   const [formData, setFormData] = useState({
     studentId: '',
@@ -56,6 +56,27 @@ const Login = () => {
     }
   };
 
+  // 快速登录功能
+  const handleQuickLogin = async (studentId, password) => {
+    console.log(`🚀 快速登录开始: ${studentId}`);
+    setLoginError('');
+    
+    try {
+      const result = await login(studentId, password, false);
+      console.log(`📊 登录结果:`, result);
+      
+      if (!result.success) {
+        console.error(`❌ 登录失败: ${result.message}`);
+        setLoginError(result.message);
+      } else {
+        console.log(`✅ 登录成功: ${studentId}`);
+      }
+    } catch (error) {
+      console.error(`❌ 登录异常:`, error);
+      setLoginError(error.message || '登录过程中发生错误');
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-full p-8 bg-gray-100">
       <div className="w-full max-w-md">
@@ -65,7 +86,7 @@ const Login = () => {
             alt="Logo" 
             className="w-16 h-16 mx-auto mb-4 object-contain"
           />
-          <h1 className="text-3xl font-bold text-gray-800">学生登录</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{adminMode ? '管理员登录' : '学生登录'}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -73,7 +94,7 @@ const Login = () => {
             <input
               type="text"
               name="studentId"
-              placeholder="学生ID (例如: ST001)"
+              placeholder={adminMode ? "管理员ID (例如: ADMIN001)" : "学生ID (例如: ST001)"}
               value={formData.studentId}
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -124,8 +145,50 @@ const Login = () => {
         </form>
 
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>初始密码: Hello888</p>
-          <p>首次登录需要修改密码</p>
+          <p>学生初始密码: TestPass123</p>
+          <p>管理员初始密码: AdminPass123</p>
+        </div>
+
+        {/* 快速登录按钮 - 仅用于测试 */}
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+          <p className="text-sm text-yellow-800 mb-3 font-medium">🧪 测试快速登录</p>
+          <div className="space-y-2">
+            {adminMode ? (
+              <>
+                <button
+                  onClick={() => handleQuickLogin('ADMIN001', 'AdminPass123')}
+                  disabled={loading}
+                  className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
+                >
+                  管理员ADMIN001 (初始密码)
+                </button>
+                <button
+                  onClick={() => handleQuickLogin('ADMIN002', 'AdminPass123')}
+                  disabled={loading}
+                  className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
+                >
+                  管理员ADMIN002 (初始密码)
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => handleQuickLogin('ST001', 'Hello888')}
+                  disabled={loading}
+                  className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
+                >
+                  学生ST001 (初始密码)
+                </button>
+                <button
+                  onClick={() => handleQuickLogin('ST002', 'Hello888')}
+                  disabled={loading}
+                  className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
+                >
+                  学生ST002 (初始密码)
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

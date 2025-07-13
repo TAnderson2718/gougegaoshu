@@ -3,13 +3,16 @@
  * 配置测试数据库连接和全局测试工具
  */
 
-const { query, testConnection } = require('../config/database');
+const { query, testConnection, resetPool } = require('../config/database');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 // 设置测试环境变量
 process.env.NODE_ENV = 'test';
 process.env.DB_NAME = 'task_manager_test_db';
+
+// 重置连接池以确保使用正确的数据库
+resetPool();
 
 // 测试数据库配置
 const TEST_DB_NAME = 'task_manager_test_db';
@@ -49,19 +52,43 @@ async function initTestTables() {
       )
     `);
 
-    // 创建学生档案表
+    // 创建学生档案表 (先删除再创建以确保结构正确)
+    await query(`SET FOREIGN_KEY_CHECKS = 0`);
+    await query(`DROP TABLE IF EXISTS ${TEST_DB_NAME}.student_profiles`);
+    await query(`SET FOREIGN_KEY_CHECKS = 1`);
     await query(`
-      CREATE TABLE IF NOT EXISTS ${TEST_DB_NAME}.student_profiles (
+      CREATE TABLE ${TEST_DB_NAME}.student_profiles (
         id INT AUTO_INCREMENT PRIMARY KEY,
         student_id VARCHAR(20) NOT NULL,
         gender ENUM('男', '女', '') DEFAULT '',
         age INT,
         study_status ENUM('在读应届考研', '无业全职考研', '在职考研', '其他', '') DEFAULT '',
+        study_status_other VARCHAR(100),
+        math_type VARCHAR(50),
+        math_type_other VARCHAR(100),
         target_score INT,
         daily_hours DECIMAL(3,1),
+        gaokao_year VARCHAR(10) DEFAULT '未参加',
+        gaokao_province VARCHAR(50),
+        gaokao_score INT,
+        grad_exam_year VARCHAR(10) DEFAULT '未参加',
+        grad_exam_province VARCHAR(50),
+        grad_exam_major VARCHAR(100),
+        grad_exam_math_type ENUM('未考', '数一', '数二', '数三') DEFAULT '未考',
+        grad_exam_score INT,
+        upgrade_exam ENUM('是', '否', '') DEFAULT '否',
+        upgrade_exam_year VARCHAR(10) DEFAULT '未参加',
+        upgrade_exam_province VARCHAR(50),
+        upgrade_exam_major VARCHAR(100),
+        upgrade_exam_math_type ENUM('未分类', '高等数学', '数一', '数二', '数三') DEFAULT '未分类',
+        upgrade_exam_score INT,
+        purchased_books TEXT,
+        notes TEXT,
+        is_profile_submitted BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (student_id) REFERENCES ${TEST_DB_NAME}.students(id) ON DELETE CASCADE
+        FOREIGN KEY (student_id) REFERENCES ${TEST_DB_NAME}.students(id) ON DELETE CASCADE,
+        UNIQUE KEY uk_student_profile (student_id)
       )
     `);
 
@@ -119,11 +146,11 @@ async function initTestTables() {
  * 初始化测试密码哈希
  */
 async function initTestPasswords() {
-  if (!TEST_PASSWORD_HASH) {
-    TEST_PASSWORD_HASH = await bcrypt.hash('TestPass123', 10);
-    ADMIN_PASSWORD_HASH = await bcrypt.hash('AdminPass123', 10);
-    console.log('🔑 测试密码哈希已生成');
-  }
+  // 强制重新生成密码哈希以确保一致性
+  TEST_PASSWORD_HASH = await bcrypt.hash('TestPass123', 10);
+  ADMIN_PASSWORD_HASH = await bcrypt.hash('AdminPass123', 10);
+  console.log('🔑 测试密码哈希已生成');
+  console.log('  TestPass123 hash:', TEST_PASSWORD_HASH.substring(0, 20) + '...');
 }
 
 /**
@@ -215,19 +242,9 @@ beforeAll(async () => {
   await createTestDatabase();
   await initTestTables();
 
-  // 检查是否已有正确的测试数据
-  try {
-    const students = await query(`SELECT id, name FROM ${TEST_DB_NAME}.students WHERE id = ?`, ['ST001']);
-    if (students.length === 0 || students[0].name !== '测试学生1') {
-      console.log('🔄 需要插入测试数据...');
-      await insertTestData();
-    } else {
-      console.log('✅ 测试数据已存在且正确');
-    }
-  } catch (error) {
-    console.log('🔄 数据检查失败，插入测试数据...');
-    await insertTestData();
-  }
+  // 强制重新插入测试数据以确保密码一致性
+  console.log('🔄 强制重新插入测试数据以确保密码一致性...');
+  await insertTestData();
 
   console.log('✅ 测试环境设置完成');
 });

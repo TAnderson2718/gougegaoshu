@@ -76,7 +76,19 @@ const createTablesSQL = [
     UNIQUE KEY uk_student_leave_date (student_id, leave_date)
   ) COMMENT '学生请假记录表'`,
 
-  // 5. 系统配置表
+  // 5. 管理员表
+  `CREATE TABLE IF NOT EXISTS admins (
+    id VARCHAR(20) PRIMARY KEY COMMENT '管理员ID，如ADMIN001',
+    name VARCHAR(50) NOT NULL COMMENT '管理员姓名',
+    password VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
+    role ENUM('super_admin', 'admin') DEFAULT 'admin' COMMENT '管理员角色',
+    force_password_change BOOLEAN DEFAULT FALSE COMMENT '是否强制修改密码',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_name (name)
+  ) COMMENT '管理员信息表'`,
+
+  // 6. 系统配置表
   `CREATE TABLE IF NOT EXISTS system_config (
     id INT AUTO_INCREMENT PRIMARY KEY,
     config_key VARCHAR(100) NOT NULL COMMENT '配置键',
@@ -104,10 +116,21 @@ async function insertInitialData() {
 
     // 插入初始学生数据
     await query(`
-      INSERT INTO students (id, name, password, force_password_change) VALUES 
+      INSERT INTO students (id, name, password, force_password_change) VALUES
       ('ST001', '张三', ?, TRUE),
       ('ST002', '李四', ?, TRUE)
     `, [hashedPassword, hashedPassword]);
+
+    // 加密管理员密码
+    const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPass123';
+    const hashedAdminPassword = await bcrypt.hash(adminPassword, 10);
+
+    // 插入初始管理员数据
+    await query(`
+      INSERT INTO admins (id, name, password, role, force_password_change) VALUES
+      ('ADMIN001', '系统管理员', ?, 'super_admin', FALSE),
+      ('ADMIN002', '普通管理员', ?, 'admin', FALSE)
+    `, [hashedAdminPassword, hashedAdminPassword]);
 
     // 插入系统配置
     await query(`
@@ -118,7 +141,9 @@ async function insertInitialData() {
 
     console.log('✅ 初始数据插入成功');
     console.log(`📝 默认学生账户: ST001, ST002`);
-    console.log(`🔑 初始密码: ${initialPassword}`);
+    console.log(`🔑 学生初始密码: ${initialPassword}`);
+    console.log(`👨‍💼 默认管理员账户: ADMIN001, ADMIN002`);
+    console.log(`🔐 管理员密码: ${adminPassword}`);
 
   } catch (error) {
     console.error('❌ 插入初始数据失败:', error.message);
@@ -166,7 +191,7 @@ async function initializeDatabase() {
     // 创建表结构
     console.log('📋 创建数据库表结构...');
     for (let i = 0; i < createTablesSQL.length; i++) {
-      const tableName = ['students', 'student_profiles', 'tasks', 'leave_records', 'system_config'][i];
+      const tableName = ['students', 'student_profiles', 'tasks', 'leave_records', 'admins', 'system_config'][i];
       console.log(`   创建表: ${tableName}`);
       await query(createTablesSQL[i]);
     }

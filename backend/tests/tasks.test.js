@@ -62,9 +62,9 @@ describe('任务管理模块测试', () => {
         { expiresIn: '1h' }
       );
 
-      // 先创建用户
-      await query('INSERT INTO students (id, name, password) VALUES (?, ?, ?)', 
-        ['ST999', '新用户', 'hashedpass']);
+      // 先创建用户 (设置为不需要强制修改密码)
+      await query('INSERT INTO students (id, name, password, force_password_change) VALUES (?, ?, ?, ?)', 
+        ['ST999', '新用户', 'hashedpass', false]);
 
       const response = await request(app)
         .get('/api/tasks')
@@ -274,8 +274,16 @@ describe('任务管理模块测试', () => {
 
   describe('GET /api/tasks/leave-records - 获取请假记录', () => {
     beforeEach(async () => {
-      // 为测试准备一些请假记录
+      // 清理并准备测试请假记录
+      await query('DELETE FROM leave_records WHERE student_id = ? AND leave_date = ?', 
+        ['ST001', '2024-01-10']);
       await query('INSERT INTO leave_records (student_id, leave_date) VALUES (?, ?)', 
+        ['ST001', '2024-01-10']);
+    });
+
+    afterEach(async () => {
+      // 清理测试数据
+      await query('DELETE FROM leave_records WHERE student_id = ? AND leave_date = ?', 
         ['ST001', '2024-01-10']);
     });
 
@@ -297,6 +305,74 @@ describe('任务管理模块测试', () => {
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
       expect(response.body.message).toBe('访问令牌缺失');
+    });
+  });
+
+  describe('POST /api/tasks/reset-to-initial - 清空所有任务数据', () => {
+    test('Happy Path - 成功清空所有任务数据', async () => {
+      // 先创建一些任务数据（使用测试数据库的字段名）
+      await query(`
+        INSERT INTO tasks (id, student_id, task_date, task_type, title, completed) VALUES
+        ('test-task-1', 'ST001', '2025-07-15', '学习', '测试任务1', TRUE),
+        ('test-task-2', 'ST001', '2025-07-16', '学习', '测试任务2', FALSE)
+      `);
+
+      // 创建一些请假记录（测试数据库没有reason字段）
+      await query(`
+        INSERT INTO leave_records (student_id, leave_date) VALUES
+        ('ST001', '2025-07-17')
+      `);
+
+      const response = await request(app)
+        .post('/api/tasks/reset-to-initial')
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('所有任务数据已清空');
+      expect(response.body.data).toHaveProperty('studentId', 'ST001');
+      expect(response.body.data).toHaveProperty('action', '所有任务、请假记录和调度历史已完全删除，可重新导入任务');
+
+      // 验证任务已被完全删除
+      const tasks = await query('SELECT * FROM tasks WHERE student_id = ?', ['ST001']);
+      expect(tasks.length).toBe(0);
+
+      // 验证请假记录已被删除
+      const leaveRecords = await query('SELECT * FROM leave_records WHERE student_id = ?', ['ST001']);
+      expect(leaveRecords.length).toBe(0);
+    });
+
+    test('Error Handling - 无token', async () => {
+      const response = await request(app)
+        .post('/api/tasks/reset-to-initial');
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('访问令牌缺失');
+    });
+
+    test('Error Handling - 无效token', async () => {
+      const response = await request(app)
+        .post('/api/tasks/reset-to-initial')
+        .set('Authorization', 'Bearer invalid_token');
+
+      expect(response.status).toBe(403);
+      expect(response.body.success).toBe(false);
+      expect(response.body.message).toBe('访问令牌无效');
+    });
+
+    test('Edge Case - 清空空数据', async () => {
+      // 确保没有数据
+      await query('DELETE FROM tasks WHERE student_id = ?', ['ST001']);
+      await query('DELETE FROM leave_records WHERE student_id = ?', ['ST001']);
+
+      const response = await request(app)
+        .post('/api/tasks/reset-to-initial')
+        .set('Authorization', `Bearer ${validToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBe('所有任务数据已清空');
     });
   });
 });
