@@ -214,9 +214,9 @@ ST002,2025-07-13,休息,今日休息调整状态`);
 
     try {
       setError(null);
-      
+
       const response = await adminAPI.bulkImportTasks(csvData);
-      
+
       if (response.success) {
         setCsvData('');
         setShowImportForm(false);
@@ -226,6 +226,31 @@ ST002,2025-07-13,休息,今日休息调整状态`);
       }
     } catch (err) {
       setError(err.message || '导入任务失败');
+    }
+  };
+
+  // 管理员重置所有任务数据
+  const resetAllTasks = async () => {
+    if (!window.confirm('⚠️ 警告：此操作将删除所有学生的任务数据、请假记录和调度历史，且无法恢复！\n\n确定要继续吗？')) {
+      return;
+    }
+
+    if (!window.confirm('🔴 最后确认：您确定要清空整个系统的所有任务数据吗？')) {
+      return;
+    }
+
+    try {
+      setError(null);
+
+      const response = await adminAPI.resetAllTasks();
+
+      if (response.success) {
+        alert('✅ 所有任务数据已清空，可以重新导入任务了');
+      } else {
+        setError(response.message || '重置失败');
+      }
+    } catch (err) {
+      setError(err.message || '重置失败');
     }
   };
 
@@ -297,7 +322,7 @@ ST002,2025-07-13,休息,今日休息调整状态`);
   const handleAdminLogin = async () => {
     try {
       setError(null);
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch('http://localhost:3001/api/auth/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +336,11 @@ ST002,2025-07-13,休息,今日休息调整状态`);
       const data = await response.json();
       if (data.success) {
         localStorage.setItem('token', data.data.token);
-        localStorage.setItem('user', JSON.stringify(data.data.student));
+        localStorage.setItem('user', JSON.stringify({
+          ...data.data.admin,
+          studentId: data.data.admin.id, // 为了兼容性
+          userType: 'admin'
+        }));
         window.location.reload(); // 重新加载页面以更新认证状态
       } else {
         setError('管理员登录失败: ' + data.message);
@@ -526,6 +555,12 @@ ST002,2025-07-13,休息,今日休息调整状态`);
                 className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
               >
                 批量导入任务
+              </button>
+              <button
+                onClick={resetAllTasks}
+                className="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
+              >
+                🗑️ 重置所有任务数据
               </button>
 
               <button

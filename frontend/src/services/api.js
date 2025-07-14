@@ -132,12 +132,16 @@ export const adminAPI = {
     }),
 
   // 批量导入任务
-  bulkImportTasks: (csvData) => 
+  bulkImportTasks: (csvData) =>
     api.post('/admin/tasks/bulk-import', { csvData }),
-  
+
   // 获取任务报告
-  getTaskReport: (date) => 
-    api.get('/admin/reports/tasks', { params: { date } })
+  getTaskReport: (date) =>
+    api.get('/admin/reports/tasks', { params: { date } }),
+
+  // 管理员清理所有任务数据
+  resetAllTasks: () =>
+    api.post('/admin/reset-all-tasks')
 };
 
 export default api;

@@ -358,7 +358,7 @@ router.post('/reschedule-tasks', async (req, res) => {
     }
 
     const result = await manualReschedule(studentId, targetDate);
-    
+
     res.json({
       success: result.success,
       message: result.success ? '任务重新调度成功' : '任务重新调度失败',
@@ -370,6 +370,55 @@ router.post('/reschedule-tasks', async (req, res) => {
     res.status(500).json({
       success: false,
       message: '服务器内部错误'
+    });
+  }
+});
+
+// 管理员清理所有任务数据（重置系统）
+router.post('/reset-all-tasks', async (req, res) => {
+  try {
+    console.log(`🔄 管理员 ${req.user.studentId} 请求清空所有任务数据`);
+
+    await transaction(async (connection) => {
+      // 1. 删除所有请假记录
+      const [leaveResult] = await connection.execute('DELETE FROM leave_records');
+
+      // 2. 删除所有任务调度历史（如果表存在）
+      let historyResult = { affectedRows: 0 };
+      try {
+        [historyResult] = await connection.execute('DELETE FROM task_schedule_history');
+      } catch (error) {
+        if (error.code === 'ER_NO_SUCH_TABLE') {
+          console.log('   - task_schedule_history 表不存在，跳过删除');
+        } else {
+          throw error;
+        }
+      }
+
+      // 3. 删除所有任务
+      const [tasksResult] = await connection.execute('DELETE FROM tasks');
+
+      console.log(`✅ 所有任务数据清空完成:`);
+      console.log(`   - 删除了 ${leaveResult.affectedRows} 条请假记录`);
+      console.log(`   - 删除了 ${historyResult.affectedRows} 条任务调度历史`);
+      console.log(`   - 删除了 ${tasksResult.affectedRows} 个任务`);
+    });
+
+    res.json({
+      success: true,
+      message: '所有任务数据已清空',
+      data: {
+        adminId: req.user.studentId,
+        resetAt: new Date().toISOString(),
+        action: '所有学生的任务、请假记录和调度历史已完全删除，可重新导入任务'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 清空所有任务数据失败:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || '服务器内部错误'
     });
   }
 });

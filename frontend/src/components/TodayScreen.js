@@ -197,6 +197,13 @@ const TodayScreen = () => {
           </div>
           <div className="flex space-x-2">
             <button
+              onClick={fetchTodayTasks}
+              className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm"
+              disabled={loading}
+            >
+              {loading ? '刷新中...' : '🔄 刷新'}
+            </button>
+            <button
               onClick={() => setShowFutureDays(true)}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
             >
