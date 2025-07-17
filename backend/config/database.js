@@ -11,7 +11,8 @@ function getDbConfig() {
     database: process.env.DB_NAME || 'task_manager_db',
     charset: 'utf8mb4',
     timezone: '+08:00',
-    multipleStatements: true // 允许执行多条SQL语句
+    multipleStatements: true, // 允许执行多条SQL语句
+    socketPath: '/tmp/mysql.sock' // 使用socket连接
   };
 }
 
@@ -22,11 +23,23 @@ function getPool() {
   if (!pool) {
     const dbConfig = getDbConfig();
     console.log(`🔗 创建数据库连接池，目标数据库: ${dbConfig.database}`);
+    console.log('🔍 数据库配置:', {
+      host: dbConfig.host,
+      port: dbConfig.port,
+      user: dbConfig.user,
+      password: dbConfig.password ? '***' : '(empty)',
+      database: dbConfig.database
+    });
+
     pool = mysql.createPool({
       ...dbConfig,
       waitForConnections: true,
       connectionLimit: 10,
-      queueLimit: 0
+      queueLimit: 0,
+      // 添加额外的连接选项
+      authPlugins: {
+        mysql_clear_password: () => () => Buffer.from(dbConfig.password + '\0')
+      }
     });
   }
   return pool;
@@ -36,10 +49,15 @@ function getPool() {
 async function createDatabaseIfNotExists() {
   try {
     const dbConfig = getDbConfig();
+    console.log('🔍 数据库配置:', { ...dbConfig, password: dbConfig.password ? '***' : '(empty)' });
+
     const tempConfig = { ...dbConfig };
     delete tempConfig.database; // 临时移除数据库名
 
+    console.log('🔗 尝试连接MySQL服务器...');
     const tempConnection = await mysql.createConnection(tempConfig);
+    console.log('✅ MySQL服务器连接成功');
+
     await tempConnection.execute(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
     await tempConnection.end();
 
@@ -47,6 +65,7 @@ async function createDatabaseIfNotExists() {
     return true;
   } catch (error) {
     console.error('❌ 创建数据库失败:', error.message);
+    console.error('❌ 错误详情:', error);
     return false;
   }
 }

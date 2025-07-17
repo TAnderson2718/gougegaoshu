@@ -30,9 +30,12 @@ const changePasswordSchema = Joi.object({
 // 管理员登录
 router.post('/admin/login', async (req, res) => {
   try {
+    console.log('🔐 管理员登录请求:', req.body);
+
     // 验证输入
     const { error, value } = loginSchema.validate(req.body);
     if (error) {
+      console.log('❌ 输入验证失败:', error.details[0].message);
       return res.status(400).json({
         success: false,
         message: error.details[0].message
@@ -40,14 +43,22 @@ router.post('/admin/login', async (req, res) => {
     }
 
     const { studentId: adminId, password } = value;
+    console.log('📝 解析的管理员ID:', adminId);
 
     // 查询管理员信息
     const admins = await query(
-      'SELECT id, name, password, role, force_password_change FROM admins WHERE id = ?',
+      'SELECT id, name, password, role FROM admins WHERE id = ?',
       [adminId.toUpperCase()]
     );
 
+    console.log('🔍 查询管理员结果:', {
+      searchId: adminId.toUpperCase(),
+      found: admins.length > 0,
+      count: admins.length
+    });
+
     if (admins.length === 0) {
+      console.log('❌ 管理员不存在');
       return res.status(401).json({
         success: false,
         message: '管理员账号或密码错误'
@@ -55,17 +66,33 @@ router.post('/admin/login', async (req, res) => {
     }
 
     const admin = admins[0];
+    console.log('👤 找到管理员:', { id: admin.id, name: admin.name, role: admin.role });
 
     // 验证密码
+    console.log('🔐 开始验证密码...');
     const isPasswordValid = await bcrypt.compare(password, admin.password);
+    console.log('✅ 密码验证结果:', isPasswordValid);
+
     if (!isPasswordValid) {
+      console.log('❌ 密码验证失败');
       return res.status(401).json({
         success: false,
         message: '管理员账号或密码错误'
       });
     }
 
+    console.log('🎯 密码验证成功，准备生成token...');
+
+    // 检查响应是否已经发送
+    if (res.headersSent) {
+      console.log('⚠️ 响应头已发送，无法继续');
+      return;
+    }
+
     // 生成JWT token，包含管理员角色信息
+    console.log('🔑 开始生成JWT token...');
+    console.log('🔐 JWT_SECRET存在:', !!process.env.JWT_SECRET);
+
     const token = jwt.sign(
       {
         userId: admin.id,
@@ -77,7 +104,10 @@ router.post('/admin/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    console.log('✅ JWT token生成成功:', token.substring(0, 20) + '...');
+
     // 返回登录成功信息
+    console.log('📤 准备返回成功响应...');
     res.json({
       success: true,
       message: '管理员登录成功',
@@ -86,14 +116,15 @@ router.post('/admin/login', async (req, res) => {
         admin: {
           id: admin.id,
           name: admin.name,
-          role: admin.role,
-          forcePasswordChange: admin.force_password_change
+          role: admin.role
         }
       }
     });
 
+    console.log('🎉 管理员登录成功完成!');
+
   } catch (error) {
-    console.error('管理员登录错误:', error);
+    console.error('❌ 管理员登录错误:', error);
     res.status(500).json({
       success: false,
       message: '服务器内部错误'
@@ -104,6 +135,8 @@ router.post('/admin/login', async (req, res) => {
 // 学生登录
 router.post('/login', async (req, res) => {
   try {
+    console.log('👨‍🎓 学生登录请求:', req.body);
+
     // 验证输入
     const { error, value } = loginSchema.validate(req.body);
     if (error) {
@@ -125,7 +158,7 @@ router.post('/login', async (req, res) => {
 
     // 查询学生信息
     const students = await query(
-      'SELECT id, name, password, force_password_change FROM students WHERE id = ?',
+      'SELECT id, name, password FROM students WHERE id = ?',
       [studentId.toUpperCase()]
     );
 
@@ -166,8 +199,7 @@ router.post('/login', async (req, res) => {
         token,
         student: {
           id: student.id,
-          name: student.name,
-          forcePasswordChange: student.force_password_change
+          name: student.name
         }
       }
     });
@@ -181,40 +213,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// 强制修改密码（首次登录）
-router.post('/force-change-password', authenticateToken, async (req, res) => {
-  try {
-    const { newPassword } = req.body;
 
-    if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: '新密码长度不能少于6位'
-      });
-    }
-
-    // 加密新密码
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // 更新密码
-    await query(
-      'UPDATE students SET password = ?, force_password_change = FALSE WHERE id = ?',
-      [hashedPassword, req.user.studentId]
-    );
-
-    res.json({
-      success: true,
-      message: '密码修改成功'
-    });
-
-  } catch (error) {
-    console.error('修改密码错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '服务器内部错误'
-    });
-  }
-});
 
 // 学生修改密码
 router.post('/change-password', authenticateToken, async (req, res) => {

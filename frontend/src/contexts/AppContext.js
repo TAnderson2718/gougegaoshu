@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authAPI, taskAPI } from '../services/api';
+import axios from 'axios';
 
 const AppContext = createContext();
 
@@ -33,9 +34,13 @@ function appReducer(state, action) {
       return { ...state, loading: action.payload };
     
     case actionTypes.SET_USER:
-      return { 
-        ...state, 
-        user: action.payload, 
+      console.log('🔄 Reducer SET_USER 执行:', {
+        payload: action.payload,
+        isAuthenticated: !!action.payload
+      });
+      return {
+        ...state,
+        user: action.payload,
         isAuthenticated: !!action.payload,
         loading: false,
         error: null
@@ -106,30 +111,50 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: actionTypes.SET_LOADING, payload: true });
       dispatch({ type: actionTypes.SET_ERROR, payload: null });
 
-      const response = await authAPI.login(studentId, password);
+      // 判断是管理员还是学生登录
+      const isAdmin = studentId.toUpperCase().startsWith('ADMIN');
+      const loginEndpoint = isAdmin
+        ? '/api/auth/admin/login'
+        : '/api/auth/login';
+
+      console.log(`🌐 使用 axios 调用${isAdmin ? '管理员' : '学生'}登录接口: ${loginEndpoint}`);
+      const { data: response } = await axios.post(loginEndpoint, {
+        studentId,
+        password
+      });
+
       console.log(`📨 API 响应:`, response);
-      
+
       if (response.success) {
-        const { token, student } = response.data;
-        console.log(`👤 学生信息:`, student);
-        
+        // 根据登录类型获取用户信息
+        const userData = isAdmin ? response.data.admin : response.data.student;
+        const { token } = response.data;
+
+        console.log(`👤 用户信息:`, userData);
+        console.log(`🔑 Token:`, token);
+
         // 保存到localStorage
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(student));
+        localStorage.setItem('user', JSON.stringify(userData));
         console.log(`💾 用户信息已保存到 localStorage`);
-        
+        console.log(`💾 localStorage token:`, localStorage.getItem('token'));
+        console.log(`💾 localStorage user:`, localStorage.getItem('user'));
+
         if (rememberMe) {
-          localStorage.setItem('savedCredentials', JSON.stringify({ 
-            studentId, 
-            password 
+          localStorage.setItem('savedCredentials', JSON.stringify({
+            studentId,
+            password
           }));
         } else {
           localStorage.removeItem('savedCredentials');
         }
 
-        dispatch({ type: actionTypes.SET_USER, payload: student });
-        console.log(`✅ 登录成功，用户状态已更新: ${student.studentId}`);
-        return { success: true };
+        dispatch({ type: actionTypes.SET_USER, payload: userData });
+        console.log(`✅ 登录成功，用户状态已更新: ${userData.id}`);
+        console.log(`🔄 Dispatch SET_USER 完成`);
+        console.log(`🔍 用户数据:`, userData);
+        console.log(`🔍 即将返回登录结果...`);
+        return { success: true, user: userData };
       } else {
         console.error(`❌ API 返回登录失败: ${response.message}`);
         return { success: false, message: response.message };
@@ -148,21 +173,7 @@ export const AppProvider = ({ children }) => {
     dispatch({ type: actionTypes.LOGOUT });
   };
 
-  // 强制修改密码
-  const forceChangePassword = async (newPassword) => {
-    try {
-      const response = await authAPI.forceChangePassword(newPassword);
-      if (response.success) {
-        // 更新用户状态
-        const updatedUser = { ...state.user, forcePasswordChange: false };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        dispatch({ type: actionTypes.SET_USER, payload: updatedUser });
-        return { success: true };
-      }
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  };
+
 
   // 修改密码
   const changePassword = async (oldPassword, newPassword) => {
@@ -348,7 +359,6 @@ export const AppProvider = ({ children }) => {
     ...state,
     login,
     logout,
-    forceChangePassword,
     changePassword,
     refreshAuth,
     setSystemDate,

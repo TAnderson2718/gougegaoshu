@@ -1,13 +1,12 @@
 const express = require('express');
 const Joi = require('joi');
 const { query } = require('../config/database');
-const { authenticateToken, checkPasswordChange } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
 // 应用认证中间件
 router.use(authenticateToken);
-router.use(checkPasswordChange);
 
 // 学生档案验证schema
 const profileSchema = Joi.object({

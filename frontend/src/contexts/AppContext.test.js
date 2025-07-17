@@ -212,29 +212,7 @@ describe('AppContext', () => {
     expect(localStorage.getItem('user')).toBeNull();
   });
 
-  test('handles force password change successfully', async () => {
-    const { authAPI } = require('../services/api');
-    const mockUser = { id: 'ST001', name: '测试用户', forcePasswordChange: true };
-    
-    authAPI.verify.mockResolvedValue({ success: true });
-    authAPI.forceChangePassword.mockResolvedValue({
-      success: true
-    });
 
-    // Set initial user state
-    localStorage.setItem('token', 'test-token');
-    localStorage.setItem('user', JSON.stringify(mockUser));
-
-    render(
-      <AppProvider>
-        <TestComponent />
-      </AppProvider>
-    );
-
-    // Wait for initialization
-    await waitFor(() => {
-      expect(screen.getByTestId('loading')).toHaveTextContent('false');
-    });
 
     const forceChangeButton = screen.getByText('Force Change Password');
     await userEvent.click(forceChangeButton);

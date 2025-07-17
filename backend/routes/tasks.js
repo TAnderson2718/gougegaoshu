@@ -2,14 +2,13 @@ const express = require('express');
 const Joi = require('joi');
 const moment = require('moment');
 const { query, transaction } = require('../config/database');
-const { authenticateToken, checkPasswordChange } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 const { handleLeaveDefer, handleMidnightTaskReschedule } = require('../services/taskScheduleService');
 
 const router = express.Router();
 
 // 应用认证中间件
 router.use(authenticateToken);
-router.use(checkPasswordChange);
 
 // 获取学生任务（按日期范围）
 router.get('/', async (req, res) => {
@@ -39,9 +38,13 @@ router.get('/', async (req, res) => {
       const tasksByCurrentDate = {};
 
       tasks.forEach(task => {
-        const currentDateStr = moment(task.task_date).format('YYYY-MM-DD');
+        const currentDateStr = task.task_date instanceof Date
+          ? task.task_date.toISOString().split('T')[0]
+          : task.task_date;
         const originalDateStr = task.original_date
-          ? moment(task.original_date).format('YYYY-MM-DD')
+          ? (task.original_date instanceof Date
+             ? task.original_date.toISOString().split('T')[0]
+             : task.original_date)
           : currentDateStr;
 
         // 按当前日期分组（用于显示任务）
@@ -93,7 +96,9 @@ router.get('/', async (req, res) => {
       // 普通视图，按当前日期分组
       const tasksByDate = {};
       tasks.forEach(task => {
-        const dateStr = moment(task.task_date).format('YYYY-MM-DD');
+        const dateStr = task.task_date instanceof Date
+          ? task.task_date.toISOString().split('T')[0]
+          : task.task_date;
         if (!tasksByDate[dateStr]) {
           tasksByDate[dateStr] = [];
         }

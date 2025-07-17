@@ -2,8 +2,9 @@ import axios from 'axios';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api',
+  baseURL: 'http://localhost:3001/api',
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -56,9 +57,7 @@ export const authAPI = {
   adminLogin: (adminId, password) =>
     api.post('/auth/admin/login', { studentId: adminId, password }),
 
-  // 强制修改密码
-  forceChangePassword: (newPassword) =>
-    api.post('/auth/force-change-password', { newPassword }),
+
 
   // 修改密码
   changePassword: (oldPassword, newPassword) =>

@@ -62,13 +62,12 @@ const authenticateToken = async (req, res, next) => {
         userId: decoded.userId,
         name: admins[0].name,
         role: decoded.role,
-        userType: 'admin',
-        forcePasswordChange: admins[0].force_password_change || false
+        userType: 'admin'
       };
     } else {
       // 验证学生是否仍然存在
       const users = await query(
-        'SELECT id, name, force_password_change FROM students WHERE id = ?',
+        'SELECT id, name FROM students WHERE id = ?',
         [decoded.studentId]
       );
 
@@ -82,8 +81,7 @@ const authenticateToken = async (req, res, next) => {
       req.user = {
         studentId: decoded.studentId,
         name: users[0].name,
-        userType: 'student',
-        forcePasswordChange: users[0].force_password_change
+        userType: 'student'
       };
     }
 
@@ -112,23 +110,9 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-// 检查是否需要强制修改密码
-const checkPasswordChange = (req, res, next) => {
-  if (req.user.forcePasswordChange && 
-      req.path !== '/api/auth/change-password' && 
-      req.path !== '/api/auth/force-change-password') {
-    return res.status(403).json({ 
-      success: false, 
-      message: '请先修改初始密码',
-      requirePasswordChange: true
-    });
-  }
-  
-  next();
-};
+
 
 module.exports = {
   authenticateToken,
-  requireAdmin,
-  checkPasswordChange
+  requireAdmin
 };

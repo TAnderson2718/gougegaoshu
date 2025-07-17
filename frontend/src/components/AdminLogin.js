@@ -164,7 +164,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
           <div className="flex space-x-3">
             <button
               type="button"
-              onClick={() => handleQuickLogin('ADMIN001', 'AdminPass123')}
+              onClick={() => handleQuickLogin('ADMIN001', 'Hello888')}
               disabled={loading}
               className="flex-1 py-2 px-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
@@ -189,7 +189,7 @@ const AdminLogin = ({ onLoginSuccess }) => {
 
         <div className="mt-4 text-center text-xs text-gray-500">
           <p>默认管理员账户: ADMIN001, ADMIN002</p>
-          <p>默认密码: AdminPass123</p>
+          <p>默认密码: ADMIN001-Hello888, ADMIN002-AdminPass123</p>
         </div>
       </div>
     </div>

@@ -97,7 +97,7 @@ router.post('/students/:studentId/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
     await query(
-      'UPDATE students SET password = ?, force_password_change = TRUE WHERE id = ?',
+      'UPDATE students SET password = ? WHERE id = ?',
       [hashedPassword, studentId]
     );
 
@@ -209,9 +209,9 @@ router.post('/tasks/bulk-import', async (req, res) => {
 
       if (!studentId || !dateStr || !content) continue;
 
-      // 验证日期格式
-      const taskDate = moment(dateStr);
-      if (!taskDate.isValid()) {
+      // 验证日期格式 (YYYY-MM-DD)
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(dateStr)) {
         console.warn(`无效日期格式，跳过行: ${line}`);
         continue;
       }
@@ -224,9 +224,9 @@ router.post('/tasks/bulk-import', async (req, res) => {
       }
 
       tasks.push({
-        id: `${studentId}-${taskDate.format('YYYY-MM-DD')}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `${studentId}-${dateStr}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         student_id: studentId,
-        task_date: taskDate.format('YYYY-MM-DD'),
+        task_date: dateStr,
         task_type: taskType,
         title: content,
         completed: false
