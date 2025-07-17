@@ -38,14 +38,30 @@ router.get('/', async (req, res) => {
       const tasksByCurrentDate = {};
 
       tasks.forEach(task => {
-        const currentDateStr = task.task_date instanceof Date
-          ? task.task_date.toISOString().split('T')[0]
-          : task.task_date;
-        const originalDateStr = task.original_date
-          ? (task.original_date instanceof Date
-             ? task.original_date.toISOString().split('T')[0]
-             : task.original_date)
-          : currentDateStr;
+        // 修复时区问题：使用本地时间格式化日期，避免UTC转换导致的日期偏移
+        let currentDateStr;
+        if (task.task_date instanceof Date) {
+          const year = task.task_date.getFullYear();
+          const month = String(task.task_date.getMonth() + 1).padStart(2, '0');
+          const day = String(task.task_date.getDate()).padStart(2, '0');
+          currentDateStr = `${year}-${month}-${day}`;
+        } else {
+          currentDateStr = task.task_date;
+        }
+
+        let originalDateStr;
+        if (task.original_date) {
+          if (task.original_date instanceof Date) {
+            const year = task.original_date.getFullYear();
+            const month = String(task.original_date.getMonth() + 1).padStart(2, '0');
+            const day = String(task.original_date.getDate()).padStart(2, '0');
+            originalDateStr = `${year}-${month}-${day}`;
+          } else {
+            originalDateStr = task.original_date;
+          }
+        } else {
+          originalDateStr = currentDateStr;
+        }
 
         // 按当前日期分组（用于显示任务）
         if (!tasksByCurrentDate[currentDateStr]) {
@@ -96,9 +112,18 @@ router.get('/', async (req, res) => {
       // 普通视图，按当前日期分组
       const tasksByDate = {};
       tasks.forEach(task => {
-        const dateStr = task.task_date instanceof Date
-          ? task.task_date.toISOString().split('T')[0]
-          : task.task_date;
+        // 修复时区问题：使用本地时间格式化日期，避免UTC转换导致的日期偏移
+        let dateStr;
+        if (task.task_date instanceof Date) {
+          // 使用本地时间格式化，避免时区偏移
+          const year = task.task_date.getFullYear();
+          const month = String(task.task_date.getMonth() + 1).padStart(2, '0');
+          const day = String(task.task_date.getDate()).padStart(2, '0');
+          dateStr = `${year}-${month}-${day}`;
+        } else {
+          dateStr = task.task_date;
+        }
+
         if (!tasksByDate[dateStr]) {
           tasksByDate[dateStr] = [];
         }

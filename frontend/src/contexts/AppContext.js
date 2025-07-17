@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authAPI, taskAPI } from '../services/api';
-import axios from 'axios';
 
 const AppContext = createContext();
 
@@ -113,15 +112,11 @@ export const AppProvider = ({ children }) => {
 
       // 判断是管理员还是学生登录
       const isAdmin = studentId.toUpperCase().startsWith('ADMIN');
-      const loginEndpoint = isAdmin
-        ? '/api/auth/admin/login'
-        : '/api/auth/login';
 
-      console.log(`🌐 使用 axios 调用${isAdmin ? '管理员' : '学生'}登录接口: ${loginEndpoint}`);
-      const { data: response } = await axios.post(loginEndpoint, {
-        studentId,
-        password
-      });
+      console.log(`🌐 使用 authAPI 调用${isAdmin ? '管理员' : '学生'}登录接口`);
+      const response = isAdmin
+        ? await authAPI.adminLogin(studentId, password)
+        : await authAPI.login(studentId, password);
 
       console.log(`📨 API 响应:`, response);
 
