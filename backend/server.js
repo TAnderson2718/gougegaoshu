@@ -23,8 +23,18 @@ app.use(helmet());
 // CORS配置
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://your-frontend-domain.com']
-    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3002', 'http://127.0.0.1:3002', 'http://localhost:3003', 'http://127.0.0.1:3003'],
+    ? [process.env.FRONTEND_URL || 'https://your-frontend-domain.com']
+    : [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:3002',
+        'http://127.0.0.1:3002',
+        'http://localhost:3003',
+        'http://127.0.0.1:3003',
+        'http://124.221.113.102:3000',  // 云服务器前端地址
+        'http://124.221.113.102:3002',
+        'http://124.221.113.102:3003'
+      ],
   credentials: true
 }));
 
