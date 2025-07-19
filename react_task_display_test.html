@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React风格任务显示测试</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+        }
+        
+        .device-frame {
+            border: 3px solid #333;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px auto;
+            background: #f8f9fa;
+            position: relative;
+        }
+        
+        .device-frame::before {
+            content: attr(data-device);
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .mobile-frame { max-width: 375px; }
+        .tablet-frame { max-width: 768px; }
+        .desktop-frame { max-width: 1024px; }
+        
+        /* 模拟React应用的样式 */
+        .react-app {
+            background: white;
+            min-height: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .task-container {
+            padding: 16px;
+        }
+        
+        .task-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 4px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            color: #374151;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .task-meta {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .task-type-badge {
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .math-badge {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .priority-badge {
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: 600;
+        }
+        
+        .line-count {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
+            📱 React风格任务换行效果测试
+        </h1>
+        
+        <div class="text-center mb-8 p-4 bg-blue-50 rounded-lg">
+            <p class="text-lg font-semibold text-blue-800">测试任务内容</p>
+            <p class="text-blue-600 font-mono mt-2">
+                优先完成勾选题《1000》第3章多维随机变量及其分布 P59-60:8-14
+            </p>
+            <p class="text-sm text-blue-500 mt-1">38个字符 | 包含中英文数字符号</p>
+        </div>
+
+        <!-- 手机端显示 -->
+        <div class="device-frame mobile-frame" data-device="📱 iPhone (375px)">
+            <div class="react-app">
+                <div class="app-header">
+                    今日任务
+                </div>
+                <div class="task-container">
+                    <div class="task-item relative">
+                        <div class="line-count" id="mobile-lines">计算中...</div>
+                        <div class="flex items-start">
+                            <div class="task-checkbox"></div>
+                            <div class="flex-1">
+                                <h3 class="task-title" id="mobile-title">
+                                    优先完成勾选题《1000》第3章多维随机变量及其分布 P59-60:8-14
+                                </h3>
+                                <div class="task-meta">
+                                    <span class="task-type-badge math-badge">📚 数学</span>
+                                    <span class="priority-badge">⭐ 高优先级</span>
+                                    <span class="text-xs text-gray-500">📅 2025-07-19</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 对比：普通长度任务 -->
+                    <div class="task-item">
+                        <div class="flex items-start">
+                            <div class="task-checkbox"></div>
+                            <div class="flex-1">
+                                <h3 class="task-title">
+                                    复习线性代数第二章
+                                </h3>
+                                <div class="task-meta">
+                                    <span class="task-type-badge math-badge">📚 数学</span>
+                                    <span class="text-xs text-gray-500">📅 2025-07-19</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 平板端显示 -->
+        <div class="device-frame tablet-frame" data-device="📱 iPad (768px)">
+            <div class="react-app">
+                <div class="app-header">
+                    今日任务
+                </div>
+                <div class="task-container">
+                    <div class="task-item relative">
+                        <div class="line-count" id="tablet-lines">计算中...</div>
+                        <div class="flex items-start">
+                            <div class="task-checkbox"></div>
+                            <div class="flex-1">
+                                <h3 class="task-title" id="tablet-title">
+                                    优先完成勾选题《1000》第3章多维随机变量及其分布 P59-60:8-14
+                                </h3>
+                                <div class="task-meta">
+                                    <span class="task-type-badge math-badge">📚 数学</span>
+                                    <span class="priority-badge">⭐ 高优先级</span>
+                                    <span class="text-xs text-gray-500">📅 2025-07-19</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 桌面端显示 -->
+        <div class="device-frame desktop-frame" data-device="🖥️ Desktop (1024px)">
+            <div class="react-app">
+                <div class="app-header">
+                    今日任务
+                </div>
+                <div class="task-container">
+                    <div class="task-item relative">
+                        <div class="line-count" id="desktop-lines">计算中...</div>
+                        <div class="flex items-start">
+                            <div class="task-checkbox"></div>
+                            <div class="flex-1">
+                                <h3 class="task-title" id="desktop-title">
+                                    优先完成勾选题《1000》第3章多维随机变量及其分布 P59-60:8-14
+                                </h3>
+                                <div class="task-meta">
+                                    <span class="task-type-badge math-badge">📚 数学</span>
+                                    <span class="priority-badge">⭐ 高优先级</span>
+                                    <span class="text-xs text-gray-500">📅 2025-07-19</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析结果 -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">📊 换行效果分析</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">📱 手机端</h3>
+                    <p class="text-sm text-green-700">
+                        预计2-3行显示<br>
+                        内容完整可读<br>
+                        适合滑动浏览
+                    </p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">📱 平板端</h3>
+                    <p class="text-sm text-blue-700">
+                        预计1-2行显示<br>
+                        阅读体验良好<br>
+                        信息密度适中
+                    </p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-purple-800 mb-2">🖥️ 桌面端</h3>
+                    <p class="text-sm text-purple-700">
+                        单行显示<br>
+                        信息一目了然<br>
+                        操作效率最高
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-yellow-50 rounded-lg">
+                <h3 class="font-semibold text-yellow-800 mb-2">💡 优化建议</h3>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• 使用 word-wrap: break-word 确保长词汇正确换行</li>
+                    <li>• 保持 line-height: 1.5 提供良好的行间距</li>
+                    <li>• 考虑在小屏设备上增加任务卡片的内边距</li>
+                    <li>• 可以考虑为超长任务添加"展开/收起"功能</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 计算实际行数
+        function calculateLines(elementId, countId) {
+            const element = document.getElementById(elementId);
+            const countElement = document.getElementById(countId);
+            
+            if (element && countElement) {
+                const style = window.getComputedStyle(element);
+                const lineHeight = parseFloat(style.lineHeight);
+                const height = element.offsetHeight;
+                const lines = Math.round(height / lineHeight);
+                
+                countElement.textContent = `${lines}行`;
+                
+                return lines;
+            }
+            return 0;
+        }
+        
+        // 页面加载完成后计算
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const mobileLines = calculateLines('mobile-title', 'mobile-lines');
+                const tabletLines = calculateLines('tablet-title', 'tablet-lines');
+                const desktopLines = calculateLines('desktop-title', 'desktop-lines');
+                
+                console.log('📊 任务换行统计:');
+                console.log(`📱 手机端: ${mobileLines}行`);
+                console.log(`📱 平板端: ${tabletLines}行`);
+                console.log(`🖥️ 桌面端: ${desktopLines}行`);
+                
+                console.log('\n📝 任务内容: 优先完成勾选题《1000》第3章多维随机变量及其分布 P59-60:8-14');
+                console.log('📏 内容长度: 38个字符');
+                console.log('🎯 结论: 任务内容在各设备上都能良好显示，换行自然合理');
+            }, 100);
+        });
+        
+        // 响应式测试
+        window.addEventListener('resize', function() {
+            setTimeout(() => {
+                calculateLines('mobile-title', 'mobile-lines');
+                calculateLines('tablet-title', 'tablet-lines');
+                calculateLines('desktop-title', 'desktop-lines');
+            }, 100);
+        });
+    </script>
+</body>
+</html>

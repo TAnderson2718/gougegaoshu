@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务显示效果测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .task-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #4CAF50;
+        }
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .task-date {
+            color: #666;
+            font-size: 14px;
+        }
+        .task-priority {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .priority-high {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .priority-medium {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+        .priority-low {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        .task-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+            margin: 12px 0;
+        }
+        .task-subject {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .task-type {
+            color: #666;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .book-title {
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        .page-info {
+            font-weight: bold;
+            color: #1976d2;
+        }
+        .chapter-info {
+            font-weight: bold;
+            color: #388e3c;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .analysis {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .analysis h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .check-item {
+            margin: 8px 0;
+            padding: 4px 0;
+        }
+        .check-item.pass {
+            color: #28a745;
+        }
+        .check-item.fail {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>📚 学习任务显示效果测试</h1>
+    
+    <div class="task-card">
+        <div class="task-header">
+            <span class="task-date">📅 2025-07-19</span>
+            <span class="task-priority priority-high">高优先级</span>
+        </div>
+        
+        <div class="task-subject">📚 数学</div>
+        
+        <div class="task-content">
+            <span class="highlight">优先完成</span>勾选题<span class="book-title">《1000》</span><span class="chapter-info">第3章多维随机变量及其分布</span> <span class="page-info">P59-60:8-14</span>
+        </div>
+        
+        <div class="task-type">📝 类型: 学习任务</div>
+    </div>
+
+    <div class="analysis">
+        <h3>📋 任务内容结构分析</h3>
+        <div class="check-item pass">✅ 包含优先级标识: "优先完成"</div>
+        <div class="check-item pass">✅ 包含任务类型: "勾选题"</div>
+        <div class="check-item pass">✅ 包含教材信息: "《1000》"</div>
+        <div class="check-item pass">✅ 包含章节信息: "第3章多维随机变量及其分布"</div>
+        <div class="check-item pass">✅ 包含页码范围: "P59-60"</div>
+        <div class="check-item pass">✅ 包含题目范围: "8-14"</div>
+        
+        <h3>📏 显示特点</h3>
+        <ul>
+            <li><strong>内容长度:</strong> 38个字符</li>
+            <li><strong>显示方式:</strong> 单行显示，关键信息高亮</li>
+            <li><strong>可读性:</strong> 优秀，结构清晰</li>
+            <li><strong>信息密度:</strong> 高，包含完整的学习指导信息</li>
+        </ul>
+        
+        <h3>🎨 视觉效果</h3>
+        <ul>
+            <li><strong>优先级标识:</strong> 黄色高亮背景</li>
+            <li><strong>书籍名称:</strong> 红色加粗显示</li>
+            <li><strong>章节信息:</strong> 绿色加粗显示</li>
+            <li><strong>页码信息:</strong> 蓝色加粗显示</li>
+            <li><strong>科目标签:</strong> 蓝色圆角背景</li>
+        </ul>
+    </div>
+
+    <div class="analysis">
+        <h3>💡 实际应用建议</h3>
+        <p>这种任务内容格式非常适合考研学习管理：</p>
+        <ul>
+            <li>📌 <strong>明确优先级:</strong> "优先完成"让学生知道任务重要性</li>
+            <li>📖 <strong>精确定位:</strong> 书籍、章节、页码、题目范围一目了然</li>
+            <li>⏰ <strong>高效执行:</strong> 学生可以直接定位到具体内容</li>
+            <li>📊 <strong>进度跟踪:</strong> 明确的范围便于完成度评估</li>
+        </ul>
+    </div>
+
+    <script>
+        // 模拟任务数据
+        const taskData = {
+            date: '2025-07-19',
+            subject: '数学',
+            content: '优先完成勾选题《1000》第3章多维随机变量及其分布 P59-60:8-14',
+            type: '学习',
+            priority: 'high',
+            completed: false
+        };
+
+        console.log('📊 任务数据结构:', taskData);
+        console.log('📝 任务内容:', taskData.content);
+        console.log('📏 内容长度:', taskData.content.length);
+        
+        // 内容解析
+        const content = taskData.content;
+        const analysis = {
+            hasHighPriority: content.includes('优先完成'),
+            hasTaskType: content.includes('勾选题'),
+            hasBookInfo: content.includes('《1000》'),
+            hasChapterInfo: content.includes('第3章'),
+            hasPageInfo: content.includes('P59-60'),
+            hasQuestionRange: content.includes('8-14')
+        };
+        
+        console.log('🔍 内容分析:', analysis);
+    </script>
+</body>
+</html>

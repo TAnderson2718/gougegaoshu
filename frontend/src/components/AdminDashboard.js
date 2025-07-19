@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { adminAPI } from '../services/api';
 import { useApp } from '../contexts/AppContext';
+import { performAdminReset, syncPasswordReset } from '../utils/dataConsistency';
+import * as XLSX from 'xlsx';
 
 const AdminDashboard = () => {
   const { user, logout } = useApp();
@@ -12,6 +14,9 @@ const AdminDashboard = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newStudentName, setNewStudentName] = useState('');
   const [showImportForm, setShowImportForm] = useState(false);
+  const [showExcelImportForm, setShowExcelImportForm] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelData, setExcelData] = useState([]);
   const [csvData, setCsvData] = useState(`学生ID,日期,任务类型,任务标题
 ST001,2025-07-01,专业课,数据结构与算法基础
 ST001,2025-07-01,数学,高等数学微分学
@@ -249,7 +254,7 @@ ST001,2025-07-13,休息,今日休息调整状态
 ST002,2025-07-13,休息,今日休息调整状态`);
 
   const [taskReport, setTaskReport] = useState(null);
-  const [reportDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportDate, setReportDate] = useState(new Date().toISOString().split('T')[0]);
   const [testMode, setTestMode] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [newTask, setNewTask] = useState({
@@ -327,15 +332,23 @@ ST002,2025-07-13,休息,今日休息调整状态`);
 
     try {
       setError(null);
-      
+
+      console.log(`🔄 重置学生 ${studentId} 的密码...`);
+
       const response = await adminAPI.resetPassword(studentId);
-      
+
       if (response.success) {
-        alert(`密码重置成功。新密码：${response.data.newPassword}`);
+        console.log('✅ 密码重置成功:', response.data);
+
+        // 使用数据一致性工具同步状态
+        syncPasswordReset(studentId, setStudents, setSelectedStudent);
+
+        alert(`✅ 密码重置成功！\n新密码：${response.data.initialPassword}\n该学生下次登录时需要修改密码。`);
       } else {
         setError(response.message || '重置密码失败');
       }
     } catch (err) {
+      console.error('❌ 重置密码失败:', err);
       setError(err.message || '重置密码失败');
     }
   };
@@ -369,6 +382,121 @@ ST002,2025-07-13,休息,今日休息调整状态`);
     }
   };
 
+  // 处理Excel文件上传
+  const handleExcelFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setExcelFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // 读取第一个工作表
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+
+        // 转换为JSON格式
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // 过滤空行并格式化数据
+        const formattedData = jsonData
+          .filter(row => row.length > 0 && row.some(cell => cell !== undefined && cell !== ''))
+          .map(row => ({
+            studentId: row[0] || '',
+            date: row[1] || '',
+            taskType: row[2] || '',
+            title: row[3] || ''
+          }));
+
+        setExcelData(formattedData);
+        setError(null);
+      } catch (err) {
+        setError('Excel文件解析失败: ' + err.message);
+        setExcelFile(null);
+        setExcelData([]);
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+
+  // 下载Excel模板
+  const downloadExcelTemplate = () => {
+    // 创建示例数据
+    const templateData = [
+      ['学生ID', '日期', '任务类型', '任务标题'],
+      ['ST001', '2025-07-19', '数学', '高等数学微分学'],
+      ['ST001', '2025-07-19', '英语', '考研词汇Unit1-10'],
+      ['ST001', '2025-07-19', '休息', '午休'],
+      ['ST001', '2025-07-19', '专业课', '数据结构与算法基础'],
+      ['ST001', '2025-07-19', '休息', '晚间放松'],
+      ['ST002', '2025-07-19', '数学', '线性代数矩阵运算'],
+      ['ST002', '2025-07-19', '休息', '课间休息'],
+      ['ST002', '2025-07-19', '英语', '阅读理解专项训练'],
+      ['ST002', '2025-07-19', '专业课', '计算机网络TCP/IP'],
+      ['ST002', '2025-07-19', '休息', '运动时间']
+    ];
+
+    // 创建工作簿
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(templateData);
+
+    // 设置列宽
+    ws['!cols'] = [
+      { width: 12 }, // 学生ID
+      { width: 15 }, // 日期
+      { width: 12 }, // 任务类型
+      { width: 30 }  // 任务标题
+    ];
+
+    // 添加工作表
+    XLSX.utils.book_append_sheet(wb, ws, '任务导入模板');
+
+    // 下载文件
+    XLSX.writeFile(wb, '任务导入模板.xlsx');
+  };
+
+  // 从Excel数据导入任务
+  const importFromExcel = async () => {
+    if (!excelData || excelData.length === 0) {
+      setError('请先选择并解析Excel文件');
+      return;
+    }
+
+    try {
+      setError(null);
+
+      // 将Excel数据转换为CSV格式
+      const csvContent = excelData
+        .filter(row => row.studentId && row.date && row.taskType && row.title)
+        .map(row => `${row.studentId},${row.date},${row.taskType},${row.title}`)
+        .join('\n');
+
+      if (!csvContent) {
+        setError('Excel文件中没有有效的任务数据');
+        return;
+      }
+
+      const fullCsvData = '学生ID,日期,任务类型,任务标题\n' + csvContent;
+      const response = await adminAPI.bulkImportTasks(fullCsvData);
+
+      if (response.success) {
+        setExcelFile(null);
+        setExcelData([]);
+        setShowExcelImportForm(false);
+        alert(`成功从Excel导入 ${response.data.imported} 个任务`);
+      } else {
+        setError(response.message || '导入任务失败');
+      }
+    } catch (err) {
+      setError(err.message || '导入任务失败');
+    }
+  };
+
   // 批量导入任务
   const bulkImportTasks = async () => {
     if (!csvData.trim()) {
@@ -395,26 +523,21 @@ ST002,2025-07-13,休息,今日休息调整状态`);
 
   // 管理员重置所有任务数据
   const resetAllTasks = async () => {
-    if (!window.confirm('⚠️ 警告：此操作将删除所有学生的任务数据、请假记录和调度历史，且无法恢复！\n\n确定要继续吗？')) {
-      return;
-    }
+    // 使用专用的管理员重置工具
+    const result = await performAdminReset(
+      adminAPI.resetAllTasks,
+      setStudents,
+      setSelectedStudent,
+      setTaskReport
+    );
 
-    if (!window.confirm('🔴 最后确认：您确定要清空整个系统的所有任务数据吗？')) {
-      return;
-    }
-
-    try {
-      setError(null);
-
-      const response = await adminAPI.resetAllTasks();
-
-      if (response.success) {
-        alert('✅ 所有任务数据已清空，可以重新导入任务了');
-      } else {
-        setError(response.message || '重置失败');
-      }
-    } catch (err) {
-      setError(err.message || '重置失败');
+    if (result.success) {
+      console.log('✅ 管理员重置成功:', result.data);
+      // 重置报告日期
+      setReportDate(new Date().toISOString().split('T')[0]);
+    } else if (!result.cancelled) {
+      console.error('❌ 管理员重置失败:', result.error);
+      setError(result.error);
     }
   };
 
@@ -718,7 +841,13 @@ ST002,2025-07-13,休息,今日休息调整状态`);
                 onClick={() => setShowImportForm(true)}
                 className="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
               >
-                批量导入任务
+                📄 CSV批量导入任务
+              </button>
+              <button
+                onClick={() => setShowExcelImportForm(true)}
+                className="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm"
+              >
+                📊 Excel批量导入任务
               </button>
               <button
                 onClick={resetAllTasks}
@@ -726,6 +855,19 @@ ST002,2025-07-13,休息,今日休息调整状态`);
               >
                 🗑️ 重置所有任务数据
               </button>
+
+              {/* 报告日期选择 */}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  报告日期
+                </label>
+                <input
+                  type="date"
+                  value={reportDate}
+                  onChange={(e) => setReportDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                />
+              </div>
 
               <button
                 onClick={fetchTaskReport}
@@ -745,25 +887,60 @@ ST002,2025-07-13,休息,今日休息调整状态`);
           {/* 任务报告 */}
           {taskReport && (
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">任务报告</h3>
-              <div className="space-y-3 text-sm">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                任务报告 ({reportDate})
+              </h3>
+
+              {/* 总体统计 */}
+              <div className="space-y-3 text-sm mb-6">
                 <div className="flex justify-between">
                   <span className="text-gray-600">总任务数</span>
-                  <span className="font-semibold">{taskReport.totalTasks}</span>
+                  <span className="font-semibold">{taskReport.totalTasks || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">已完成</span>
-                  <span className="font-semibold text-green-600">{taskReport.completedTasks}</span>
+                  <span className="font-semibold text-green-600">{taskReport.completedTasks || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">完成率</span>
-                  <span className="font-semibold">{taskReport.completionRate}%</span>
+                  <span className="font-semibold">{taskReport.completionRate || 0}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">活跃学生</span>
-                  <span className="font-semibold">{taskReport.activeStudents}</span>
+                  <span className="font-semibold">{taskReport.activeStudents || 0}</span>
                 </div>
               </div>
+
+              {/* 学生统计 */}
+              {taskReport.studentStats && taskReport.studentStats.length > 0 && (
+                <div>
+                  <h4 className="text-md font-medium text-gray-700 mb-3">学生完成情况</h4>
+                  <div className="space-y-2">
+                    {taskReport.studentStats.map(student => (
+                      <div key={student.studentId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <span className="text-sm text-gray-700">{student.studentName}</span>
+                        <div className="text-sm">
+                          <span className="text-gray-600">{student.completedTasks}/{student.totalTasks}</span>
+                          <span className={`ml-2 font-medium ${
+                            student.completionRate >= 80 ? 'text-green-600' :
+                            student.completionRate >= 60 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {student.completionRate}%
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 如果没有数据 */}
+              {taskReport.totalTasks === 0 && (
+                <div className="text-center py-4 text-gray-500">
+                  <p>该日期没有任务数据</p>
+                  <p className="text-sm mt-1">请选择其他日期或先导入任务数据</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -839,12 +1016,12 @@ ST002,2025-07-13,休息,今日休息调整状态`);
         </div>
       )}
 
-      {/* 批量导入模态框 */}
+      {/* CSV批量导入模态框 */}
       {showImportForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">批量导入任务</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">📄 CSV批量导入任务</h3>
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -859,7 +1036,7 @@ ST002,2025-07-13,休息,今日休息调整状态`);
 
                 />
               </div>
-              
+
               <div className="flex space-x-3">
                 <button
                   onClick={bulkImportTasks}
@@ -871,6 +1048,123 @@ ST002,2025-07-13,休息,今日休息调整状态`);
                   onClick={() => {
                     setShowImportForm(false);
                     setCsvData('');
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Excel批量导入模态框 */}
+      {showExcelImportForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Excel批量导入任务</h3>
+
+            <div className="space-y-4">
+              {/* 模板下载和文件上传区域 */}
+              <div className="space-y-3">
+                {/* 模板下载按钮 */}
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-medium text-gray-700">
+                    选择Excel文件 (.xlsx, .xls)
+                  </label>
+                  <button
+                    onClick={downloadExcelTemplate}
+                    className="px-3 py-1 bg-blue-500 text-white text-sm rounded-md hover:bg-blue-600 flex items-center space-x-1"
+                  >
+                    <span>📥</span>
+                    <span>下载模板</span>
+                  </button>
+                </div>
+
+                {/* 文件选择器 */}
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleExcelFileChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                />
+
+                {/* 格式说明 */}
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                  <p className="text-xs text-blue-700 font-medium mb-1">📋 Excel文件格式要求：</p>
+                  <ul className="text-xs text-blue-600 space-y-1">
+                    <li>• 第一列：学生ID（如：ST001）</li>
+                    <li>• 第二列：日期（格式：YYYY-MM-DD，如：2025-07-19）</li>
+                    <li>• 第三列：任务类型（如：数学、英语、专业课、休息）</li>
+                    <li>• 第四列：任务标题（如：高等数学微分学、午休、课间休息）</li>
+                  </ul>
+                  <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded">
+                    <p className="text-xs text-green-700 font-medium">🌟 休息任务示例：</p>
+                    <p className="text-xs text-green-600">任务类型填写"休息"，标题可以是：午休、课间休息、晚间放松、运动时间等</p>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-2">
+                    💡 建议先下载模板文件，参考示例数据格式进行填写
+                  </p>
+                </div>
+              </div>
+
+              {/* 数据预览 */}
+              {excelData.length > 0 && (
+                <div>
+                  <h4 className="text-md font-medium text-gray-700 mb-2">
+                    数据预览 (共 {excelData.length} 行)
+                  </h4>
+                  <div className="max-h-64 overflow-y-auto border border-gray-300 rounded-md">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th className="px-3 py-2 text-left">学生ID</th>
+                          <th className="px-3 py-2 text-left">日期</th>
+                          <th className="px-3 py-2 text-left">任务类型</th>
+                          <th className="px-3 py-2 text-left">任务标题</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {excelData.slice(0, 10).map((row, index) => (
+                          <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                            <td className="px-3 py-2 border-t">{row.studentId}</td>
+                            <td className="px-3 py-2 border-t">{row.date}</td>
+                            <td className="px-3 py-2 border-t">{row.taskType}</td>
+                            <td className="px-3 py-2 border-t">{row.title}</td>
+                          </tr>
+                        ))}
+                        {excelData.length > 10 && (
+                          <tr>
+                            <td colSpan="4" className="px-3 py-2 text-center text-gray-500 border-t">
+                              ... 还有 {excelData.length - 10} 行数据
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 操作按钮 */}
+              <div className="flex space-x-3">
+                <button
+                  onClick={importFromExcel}
+                  disabled={!excelData.length}
+                  className={`flex-1 px-4 py-2 rounded-md ${
+                    excelData.length
+                      ? 'bg-green-500 text-white hover:bg-green-600'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  导入 ({excelData.length} 条记录)
+                </button>
+                <button
+                  onClick={() => {
+                    setShowExcelImportForm(false);
+                    setExcelFile(null);
+                    setExcelData([]);
                   }}
                   className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 >

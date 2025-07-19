@@ -16,7 +16,12 @@ router.get('/', async (req, res) => {
     const { startDate, endDate, view } = req.query;
     const studentId = req.user.studentId;
 
-    let sql = 'SELECT * FROM tasks WHERE student_id = ?';
+    let sql = `SELECT
+      id, student_id,
+      DATE_FORMAT(task_date, '%Y-%m-%d') as task_date,
+      task_type, title, completed,
+      duration_hour, duration_minute, proof_image, created_at
+    FROM tasks WHERE student_id = ?`;
     let params = [studentId];
 
     if (startDate && endDate) {
@@ -38,30 +43,9 @@ router.get('/', async (req, res) => {
       const tasksByCurrentDate = {};
 
       tasks.forEach(task => {
-        // 修复时区问题：使用本地时间格式化日期，避免UTC转换导致的日期偏移
-        let currentDateStr;
-        if (task.task_date instanceof Date) {
-          const year = task.task_date.getFullYear();
-          const month = String(task.task_date.getMonth() + 1).padStart(2, '0');
-          const day = String(task.task_date.getDate()).padStart(2, '0');
-          currentDateStr = `${year}-${month}-${day}`;
-        } else {
-          currentDateStr = task.task_date;
-        }
-
-        let originalDateStr;
-        if (task.original_date) {
-          if (task.original_date instanceof Date) {
-            const year = task.original_date.getFullYear();
-            const month = String(task.original_date.getMonth() + 1).padStart(2, '0');
-            const day = String(task.original_date.getDate()).padStart(2, '0');
-            originalDateStr = `${year}-${month}-${day}`;
-          } else {
-            originalDateStr = task.original_date;
-          }
-        } else {
-          originalDateStr = currentDateStr;
-        }
+        // 日期现在已经是格式化的字符串，直接使用
+        const currentDateStr = task.task_date;
+        const originalDateStr = currentDateStr; // 暂时使用当前日期作为原始日期
 
         // 按当前日期分组（用于显示任务）
         if (!tasksByCurrentDate[currentDateStr]) {
@@ -112,17 +96,8 @@ router.get('/', async (req, res) => {
       // 普通视图，按当前日期分组
       const tasksByDate = {};
       tasks.forEach(task => {
-        // 修复时区问题：使用本地时间格式化日期，避免UTC转换导致的日期偏移
-        let dateStr;
-        if (task.task_date instanceof Date) {
-          // 使用本地时间格式化，避免时区偏移
-          const year = task.task_date.getFullYear();
-          const month = String(task.task_date.getMonth() + 1).padStart(2, '0');
-          const day = String(task.task_date.getDate()).padStart(2, '0');
-          dateStr = `${year}-${month}-${day}`;
-        } else {
-          dateStr = task.task_date;
-        }
+        // 日期现在已经是格式化的字符串，直接使用
+        const dateStr = task.task_date;
 
         if (!tasksByDate[dateStr]) {
           tasksByDate[dateStr] = [];

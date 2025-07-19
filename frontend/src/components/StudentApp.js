@@ -17,7 +17,13 @@ const StudentApp = () => {
     const checkTodayTasks = async () => {
       if (user && !reminderShown) {
         try {
-          const today = systemDate.toISOString().split('T')[0];
+          // 格式化日期避免时区问题
+          const today = (() => {
+            const year = systemDate.getFullYear();
+            const month = String(systemDate.getMonth() + 1).padStart(2, '0');
+            const day = String(systemDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+          })();
           const response = await taskAPI.getTasks(today, today);
           
           if (response.success && response.data) {

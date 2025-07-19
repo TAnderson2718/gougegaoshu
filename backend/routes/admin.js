@@ -294,20 +294,21 @@ router.get('/reports/tasks', async (req, res) => {
       params = [date];
     } else if (startDate && endDate) {
       // 日期范围查询
-      whereClause = 'WHERE t.task_date BETWEEN ? AND ?';
+      whereClause = 'WHERE t.task_date BETWEEN ? AND ? AND t.task_type NOT IN (\'休息\', \'leave\')';
       params = [startDate, endDate];
     } else if (startDate) {
       // 从指定日期开始的月份查询
       const startMonth = startDate.substring(0, 7); // 获取年-月部分
-      whereClause = 'WHERE t.task_date LIKE ?';
+      whereClause = 'WHERE t.task_date LIKE ? AND t.task_type NOT IN (\'休息\', \'leave\')';
       params = [`${startMonth}%`];
     } else {
-      return res.status(400).json({
-        success: false,
-        message: '需要提供date、startDate或startDate+endDate参数'
-      });
+      // 如果没有提供日期参数，默认查询今天的数据
+      const today = new Date().toISOString().split('T')[0];
+      whereClause = 'WHERE t.task_date = ? AND t.task_type NOT IN (\'休息\', \'leave\')';
+      params = [today];
     }
 
+    // 获取任务详细数据
     const tasks = await query(`
       SELECT
         t.id, t.student_id, s.name as student_name, t.task_type, t.title,
@@ -318,22 +319,66 @@ router.get('/reports/tasks', async (req, res) => {
       ORDER BY t.task_date, s.name, t.created_at
     `, params);
 
+    // 计算统计数据
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+    // 获取活跃学生数（有任务的学生）
+    const activeStudents = new Set(tasks.map(task => task.student_id)).size;
+
+    // 按学生分组统计
+    const studentStats = {};
+    tasks.forEach(task => {
+      if (!studentStats[task.student_id]) {
+        studentStats[task.student_id] = {
+          studentId: task.student_id,
+          studentName: task.student_name,
+          totalTasks: 0,
+          completedTasks: 0
+        };
+      }
+      studentStats[task.student_id].totalTasks++;
+      if (task.completed) {
+        studentStats[task.student_id].completedTasks++;
+      }
+    });
+
+    // 计算每个学生的完成率
+    Object.values(studentStats).forEach(student => {
+      student.completionRate = student.totalTasks > 0
+        ? Math.round((student.completedTasks / student.totalTasks) * 100)
+        : 0;
+    });
+
     res.json({
       success: true,
-      data: tasks.map(task => ({
-        id: task.id,
-        studentId: task.student_id,
-        studentName: task.student_name,
-        type: task.task_type,
-        title: task.title,
-        date: task.task_date.toISOString().split('T')[0], // 格式化日期
-        completed: task.completed,
-        duration: task.duration_hour || task.duration_minute ? {
-          hour: task.duration_hour || 0,
-          minute: task.duration_minute || 0
-        } : null,
-        proof: task.proof_image
-      }))
+      data: {
+        // 总体统计
+        totalTasks,
+        completedTasks,
+        completionRate,
+        activeStudents,
+
+        // 学生统计
+        studentStats: Object.values(studentStats),
+
+        // 任务详细列表
+        tasks: tasks.map(task => ({
+          id: task.id,
+          studentId: task.student_id,
+          studentName: task.student_name,
+          type: task.task_type,
+          title: task.title,
+          date: task.task_date instanceof Date ? task.task_date.toISOString().split('T')[0] : task.task_date, // 安全格式化日期
+          completed: task.completed,
+          duration: task.duration_hour || task.duration_minute ? {
+            hour: task.duration_hour || 0,
+            minute: task.duration_minute || 0
+          } : null,
+          proof: task.proof_image
+        }))
+      }
     });
 
   } catch (error) {

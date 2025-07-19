@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authAPI, taskAPI } from '../services/api';
+import { performStudentReset } from '../utils/dataConsistency';
 
 const AppContext = createContext();
 
@@ -245,31 +246,24 @@ export const AppProvider = ({ children }) => {
 
   // 重置到初始日期并清空所有任务数据
   const resetToInitialDate = async () => {
-    try {
-      console.log('🔄 开始重置到初始状态...');
+    // 只有用户已登录才能重置
+    if (!state.user) {
+      console.warn('⚠️ 用户未登录，无法执行重置操作');
+      return;
+    }
 
-      // 如果用户已登录，先清空任务数据
-      if (state.user) {
-        console.log('🗑️ 清空所有任务数据...');
-        const response = await taskAPI.resetToInitial();
-        if (response.success) {
-          console.log('✅ 任务数据清空成功:', response.data);
-        } else {
-          console.warn('⚠️ 任务数据清空失败:', response.message);
-        }
-      }
+    // 使用专用的学生重置工具
+    const result = await performStudentReset(
+      taskAPI.resetToInitial,
+      setSystemDate,
+      state.initialDate
+    );
 
-      // 重置日期
-      console.log('📅 重置日期到初始状态...');
-      localStorage.removeItem('systemDate');
-      setSystemDate(new Date(state.initialDate));
-
-      console.log('✅ 重置完成！所有任务数据已清空，可重新导入任务');
-    } catch (error) {
-      console.error('❌ 重置失败:', error);
-      // 即使API调用失败，仍然重置日期
-      localStorage.removeItem('systemDate');
-      setSystemDate(new Date(state.initialDate));
+    if (result.success) {
+      console.log('✅ 学生端重置成功:', result.data);
+    } else if (!result.cancelled) {
+      console.error('❌ 学生端重置失败:', result.error);
+      alert('重置失败: ' + result.error);
     }
   };
 

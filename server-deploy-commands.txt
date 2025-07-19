@@ -1,0 +1,99 @@
+# 服务器端部署命令
+# 请在服务器上逐步执行以下命令
+
+# 1. 解压项目文件
+cd /home/dev_user
+tar -xzf gougegaoshu-deploy.tar.gz
+mkdir -p gougegaoshu
+mv backend frontend database docs scripts *.md *.js *.sh *.csv *.html gougegaoshu/ 2>/dev/null || true
+cd gougegaoshu
+
+# 2. 安装后端依赖
+cd backend
+npm install --production
+
+# 3. 安装前端依赖并构建
+cd ../frontend
+npm install
+npm run build
+
+# 4. 创建环境配置文件
+cd ../backend
+cat > .env << 'EOF'
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=taskapp
+DB_PASSWORD=password
+DB_NAME=task_manager_db
+PORT=3001
+NODE_ENV=production
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+CORS_ORIGIN=http://124.221.113.102:3000
+EOF
+
+# 5. 初始化数据库
+node setup.js
+
+# 6. 创建 PM2 配置文件
+cd ..
+mkdir -p logs
+
+cat > ecosystem.config.js << 'EOF'
+module.exports = {
+  apps: [
+    {
+      name: 'task-manager-backend',
+      script: './backend/server.js',
+      cwd: '/home/dev_user/gougegaoshu',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3001
+      },
+      error_file: './logs/backend-error.log',
+      out_file: './logs/backend-out.log',
+      log_file: './logs/backend-combined.log',
+      time: true,
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s'
+    },
+    {
+      name: 'task-manager-frontend',
+      script: 'serve',
+      args: '-s build -l 3000',
+      cwd: '/home/dev_user/gougegaoshu/frontend',
+      instances: 1,
+      exec_mode: 'fork',
+      env: {
+        NODE_ENV: 'production'
+      },
+      error_file: './logs/frontend-error.log',
+      out_file: './logs/frontend-out.log',
+      log_file: './logs/frontend-combined.log',
+      time: true,
+      autorestart: true,
+      max_restarts: 10,
+      min_uptime: '10s'
+    }
+  ]
+};
+EOF
+
+# 7. 启动服务
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+
+# 8. 查看服务状态
+pm2 status
+pm2 logs
+
+# 9. 测试服务
+curl http://localhost:3001/api/health
+curl http://localhost:3000
+
+echo "部署完成！"
+echo "前端地址: http://124.221.113.102:3000"
+echo "后端地址: http://124.221.113.102:3001"

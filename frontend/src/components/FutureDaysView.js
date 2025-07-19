@@ -8,36 +8,26 @@ const FutureDaysView = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
+  const [futureDates, setFutureDates] = useState([]);
 
-  // 生成未来5天的日期
-  const generateFutureDates = () => {
-    const dates = [];
-    for (let i = 1; i <= 5; i++) {
-      const date = new Date(systemDate);
-      date.setDate(date.getDate() + i);
-      dates.push({
-        date: date,
-        dateStr: date.toISOString().split('T')[0],
-        displayName: `${date.getMonth() + 1}月${date.getDate()}日`,
-        dayName: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()]
-      });
-    }
-    return dates;
-  };
 
-  const futureDates = generateFutureDates();
 
   // 获取未来几天的任务
-  const fetchFutureTasks = async () => {
+  const fetchFutureTasks = async (dates) => {
     try {
       setLoading(true);
       setError(null);
 
-      const startDate = futureDates[0].dateStr;
-      const endDate = futureDates[futureDates.length - 1].dateStr;
-      
+      if (!dates || dates.length === 0) {
+        setFutureTasks({});
+        return;
+      }
+
+      const startDate = dates[0].dateStr;
+      const endDate = dates[dates.length - 1].dateStr;
+
       const response = await taskAPI.getTasks(startDate, endDate);
-      
+
       if (response.success) {
         setFutureTasks(response.data || {});
       } else {
@@ -56,13 +46,18 @@ const FutureDaysView = ({ onClose }) => {
       const response = await taskAPI.updateTask(taskId, { 
         completed,
         completedAt: completed ? new Date().toISOString() : null,
-        completed_date: completed ? systemDate.toISOString().split('T')[0] : null,
+        completed_date: completed ? (() => {
+          const year = systemDate.getFullYear();
+          const month = String(systemDate.getMonth() + 1).padStart(2, '0');
+          const day = String(systemDate.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        })() : null,
         is_future_task: completed // 标记为提前完成的未来任务
       });
       
       if (response.success) {
         // 重新获取任务数据
-        await fetchFutureTasks();
+        await fetchFutureTasks(futureDates);
       } else {
         setError(response.message || '更新任务失败');
       }
@@ -72,7 +67,92 @@ const FutureDaysView = ({ onClose }) => {
   };
 
   useEffect(() => {
-    fetchFutureTasks();
+    const initializeFutureDates = async () => {
+      try {
+        // 生成未来工作日的日期（跳过休息日）
+        const generateFutureDatesLocal = async () => {
+          try {
+            const dates = [];
+            let checkDate = new Date(systemDate);
+            let daysAdded = 0;
+            const maxDays = 5; // 最多显示5个工作日
+            const maxCheck = 15; // 最多检查15天，避免无限循环
+            let checkCount = 0;
+
+            while (daysAdded < maxDays && checkCount < maxCheck) {
+              checkCount++;
+              checkDate.setDate(checkDate.getDate() + 1);
+
+              const dateStr = (() => {
+                const year = checkDate.getFullYear();
+                const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+                const day = String(checkDate.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+              })();
+
+              // 检查这一天是否有任务（包括休息日任务）
+              const response = await taskAPI.getTasks(dateStr, dateStr);
+              if (response.success && response.data[dateStr]) {
+                const dayTasks = response.data[dateStr];
+                // 如果这一天只有休息任务，则跳过
+                const hasNonRestTasks = dayTasks.some(task => task.type !== '休息');
+
+                if (hasNonRestTasks) {
+                  dates.push({
+                    date: new Date(checkDate),
+                    dateStr: dateStr,
+                    displayName: `${checkDate.getMonth() + 1}月${checkDate.getDate()}日`,
+                    dayName: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][checkDate.getDay()]
+                  });
+                  daysAdded++;
+                }
+              } else {
+                // 如果没有任务数据，假设是工作日
+                dates.push({
+                  date: new Date(checkDate),
+                  dateStr: dateStr,
+                  displayName: `${checkDate.getMonth() + 1}月${checkDate.getDate()}日`,
+                  dayName: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][checkDate.getDay()]
+                });
+                daysAdded++;
+              }
+            }
+
+            return dates;
+          } catch (error) {
+            console.error('生成未来日期失败:', error);
+            // 如果出错，回退到简单的日期生成
+            const dates = [];
+            for (let i = 1; i <= 5; i++) {
+              const date = new Date(systemDate);
+              date.setDate(date.getDate() + i);
+              dates.push({
+                date: date,
+                dateStr: (() => {
+                  const year = date.getFullYear();
+                  const month = String(date.getMonth() + 1).padStart(2, '0');
+                  const day = String(date.getDate()).padStart(2, '0');
+                  return `${year}-${month}-${day}`;
+                })(),
+                displayName: `${date.getMonth() + 1}月${date.getDate()}日`,
+                dayName: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()]
+              });
+            }
+            return dates;
+          }
+        };
+
+        const dates = await generateFutureDatesLocal();
+        setFutureDates(dates);
+        setCurrentDayIndex(0); // 重置到第一天
+        await fetchFutureTasks(dates);
+      } catch (error) {
+        console.error('初始化未来日期失败:', error);
+        setError('初始化失败');
+      }
+    };
+
+    initializeFutureDates();
   }, [systemDate]);
 
   // 滑动处理
@@ -91,7 +171,7 @@ const FutureDaysView = ({ onClose }) => {
   const currentDay = futureDates[currentDayIndex];
   const currentTasks = futureTasks[currentDay?.dateStr] || [];
 
-  if (loading) {
+  if (loading || futureDates.length === 0) {
     return (
       <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
         <div className="text-center">
@@ -175,8 +255,8 @@ const FutureDaysView = ({ onClose }) => {
           <div className="space-y-4">
             <div className="mb-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-blue-800 text-sm">
-                💡 <strong>提前完成说明：</strong> 您可以提前完成未来5天内的任务。
-                完成的任务将记录为今天完成，但不会影响原定的任务安排。
+                💡 <strong>提前完成说明：</strong> 您可以提前完成未来工作日的任务。
+                完成的任务将记录为今天完成，但不会影响原定的任务安排。系统会自动跳过休息日。
               </p>
             </div>
             
@@ -196,7 +276,7 @@ const FutureDaysView = ({ onClose }) => {
       {/* 底部提示 */}
       <div className="bg-gray-50 p-4 border-t">
         <p className="text-center text-sm text-gray-600">
-          左右滑动查看其他日期的任务 • 最多可提前完成5天内的任务
+          左右滑动查看其他工作日的任务 • 可提前完成未来工作日的任务 • 自动跳过休息日
         </p>
       </div>
     </div>

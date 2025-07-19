@@ -12,9 +12,12 @@ const TodayScreen = () => {
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showFutureDays, setShowFutureDays] = useState(false);
 
-  // 格式化日期为YYYY-MM-DD
+  // 格式化日期为YYYY-MM-DD（避免时区问题）
   const formatDate = (date) => {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   // 获取今日任务
