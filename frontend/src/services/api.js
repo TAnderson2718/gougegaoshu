@@ -2,11 +2,12 @@ import axios from 'axios';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api',
-  timeout: 10000,
-  withCredentials: true,
+  baseURL: process.env.REACT_APP_API_BASE_URL || '/api',
+  timeout: 15000,
+  withCredentials: false, // 修复CORS问题
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   }
 });
 
@@ -30,32 +31,41 @@ api.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    console.error('API请求错误:', error);
+
     if (error.response) {
       const { status, data } = error.response;
-      
+      console.error('响应错误:', { status, data });
+
       // token过期或无效
       if (status === 401 || status === 403) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
-      
+
       return Promise.reject(data || { message: '请求失败' });
+    } else if (error.request) {
+      // 请求发出但没有收到响应
+      console.error('网络请求错误:', error.request);
+      return Promise.reject({ message: '网络连接失败，请检查网络或稍后重试' });
+    } else {
+      // 请求配置错误
+      console.error('请求配置错误:', error.message);
+      return Promise.reject({ message: '请求配置错误: ' + error.message });
     }
-    
-    return Promise.reject({ message: '网络错误，请检查网络连接' });
   }
 );
 
 // 认证相关API
 export const authAPI = {
-  // 学生登录
-  login: (studentId, password) =>
-    api.post('/auth/login', { studentId, password }),
+  // 统一登录 - 支持学生和管理员
+  login: (userId, password) =>
+    api.post('/auth/login', { userId, password }),
 
-  // 管理员登录
+  // 管理员登录 (向后兼容)
   adminLogin: (adminId, password) =>
-    api.post('/auth/admin/login', { studentId: adminId, password }),
+    api.post('/auth/login', { userId: adminId, password }),
 
 
 

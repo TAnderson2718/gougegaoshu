@@ -1,0 +1,78 @@
+### 任务管理系统API测试文件
+### 使用VS Code REST Client扩展运行这些测试
+
+### 1. 健康检查
+GET http://localhost:3001/health
+
+### 2. 数据库状态检查
+GET http://localhost:3001/api/db-status
+
+### 3. 普通学生登录 (ST001)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ST001",
+  "password": "TestPass123"
+}
+
+### 4. 需要修改密码的学生登录 (ST002)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ST002",
+  "password": "TestPass123"
+}
+
+### 5. 管理员登录 (ADMIN001)
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "studentId": "ADMIN001",
+  "password": "AdminPass123"
+}
+
+### 6. 强制修改密码 (ST002用户，需要先登录获取token)
+POST http://localhost:3001/api/auth/force-change-password
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "newPassword": "NewPassword123"
+}
+
+### 7. 获取任务列表 (需要登录token)
+GET http://localhost:3001/api/tasks
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 8. 获取学生档案 (需要登录token)
+GET http://localhost:3001/api/profiles
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### 8. 更新学生档案
+PUT http://localhost:3001/api/profiles
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+{
+  "gender": "男",
+  "age": 22,
+  "studyStatus": "在读应届考研",
+  "mathType": "数学一",
+  "targetScore": 400,
+  "dailyHours": 8.5,
+  "gaokaoYear": "2020",
+  "gaokaoProvince": "北京",
+  "gaokaoScore": 580,
+  "notes": "这是测试档案"
+}
+
+### 10. 管理员 - 获取学生列表 (需要管理员权限)
+GET http://localhost:3001/api/admin/students
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY
+
+### 10. 验证Token
+GET http://localhost:3001/api/auth/verify
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdHVkZW50SWQiOiJTVDAwMiIsImlhdCI6MTc1MjE2MjYxNCwiZXhwIjoxNzUyNzY3NDE0fQ.-yNjydnYiudZAXrlQ-yOKo7F7hF-Dm89Ab3KtcBmAJY

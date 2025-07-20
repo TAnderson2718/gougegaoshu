@@ -115,9 +115,8 @@ export const AppProvider = ({ children }) => {
       const isAdmin = studentId.toUpperCase().startsWith('ADMIN');
 
       console.log(`🌐 使用 authAPI 调用${isAdmin ? '管理员' : '学生'}登录接口`);
-      const response = isAdmin
-        ? await authAPI.adminLogin(studentId, password)
-        : await authAPI.login(studentId, password);
+      // 使用统一的登录接口
+      const response = await authAPI.login(studentId, password);
 
       console.log(`📨 API 响应:`, response);
 
