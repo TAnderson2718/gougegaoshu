@@ -7,16 +7,26 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// 登录验证schema
+// 登录验证schema - 支持userId和studentId两种字段名
 const loginSchema = Joi.object({
-  studentId: Joi.string().required().messages({
-    'string.empty': '学生ID不能为空',
-    'any.required': '学生ID是必填项'
-  }),
+  userId: Joi.string().optional(),
+  studentId: Joi.string().optional(),
   password: Joi.string().required().messages({
     'string.empty': '密码不能为空',
     'any.required': '密码是必填项'
   })
+}).custom((value, helpers) => {
+  // 确保userId或studentId至少有一个存在
+  if (!value.userId && !value.studentId) {
+    return helpers.error('any.required', { label: 'userId或studentId' });
+  }
+  // 统一使用userId字段
+  if (value.studentId && !value.userId) {
+    value.userId = value.studentId;
+  }
+  return value;
+}).messages({
+  'any.required': 'userId或studentId是必填项'
 });
 
 // 修改密码schema
@@ -42,7 +52,7 @@ router.post('/admin/login', async (req, res) => {
       });
     }
 
-    const { studentId: adminId, password } = value;
+    const { userId: adminId, password } = value;
     console.log('📝 解析的管理员ID:', adminId);
 
     // 查询管理员信息
@@ -132,10 +142,10 @@ router.post('/admin/login', async (req, res) => {
   }
 });
 
-// 学生登录
+// 统一登录端点 - 支持管理员和学生
 router.post('/login', async (req, res) => {
   try {
-    console.log('👨‍🎓 学生登录请求:', req.body);
+    console.log('🔐 登录请求:', req.body);
 
     // 验证输入
     const { error, value } = loginSchema.validate(req.body);
@@ -146,69 +156,156 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    const { studentId, password } = value;
+    const { userId, password } = value;
+    console.log('📝 解析的用户ID:', userId);
 
-    // 检查是否是管理员账号尝试通过学生端登录
-    if (studentId.toUpperCase().startsWith('ADMIN')) {
-      return res.status(401).json({
-        success: false,
-        message: '管理员账号请使用管理员端登录'
+    // 检查是否是管理员账号
+    if (userId.toUpperCase().startsWith('ADMIN')) {
+      console.log('👨‍💼 管理员登录流程...');
+
+      // 查询管理员信息
+      const admins = await query(
+        'SELECT id, name, password, role FROM admins WHERE id = ?',
+        [userId.toUpperCase()]
+      );
+
+      console.log('🔍 查询管理员结果:', {
+        searchId: userId.toUpperCase(),
+        found: admins.length > 0,
+        count: admins.length
       });
-    }
 
-    // 查询学生信息
-    const students = await query(
-      'SELECT id, name, password FROM students WHERE id = ?',
-      [studentId.toUpperCase()]
-    );
-
-    if (students.length === 0) {
-      return res.status(401).json({
-        success: false,
-        message: '学生ID或密码错误'
-      });
-    }
-
-    const student = students[0];
-
-    // 验证密码
-    const isValidPassword = await bcrypt.compare(password, student.password);
-    if (!isValidPassword) {
-      return res.status(401).json({
-        success: false,
-        message: '学生ID或密码错误'
-      });
-    }
-
-    // 更新最后登录时间
-    await query(
-      'UPDATE students SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?',
-      [student.id]
-    );
-
-    // 生成JWT token，包含用户类型标识
-    const token = jwt.sign(
-      {
-        userId: student.id,
-        studentId: student.id, // 保持向后兼容
-        name: student.name,
-        userType: 'student'
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-    );
-
-    res.json({
-      success: true,
-      message: '登录成功',
-      data: {
-        token,
-        student: {
-          id: student.id,
-          name: student.name
-        }
+      if (admins.length === 0) {
+        console.log('❌ 管理员不存在');
+        return res.status(401).json({
+          success: false,
+          message: '管理员账号或密码错误'
+        });
       }
-    });
+
+      const admin = admins[0];
+      console.log('👤 找到管理员:', { id: admin.id, name: admin.name, role: admin.role });
+
+      // 验证密码
+      console.log('🔐 开始验证管理员密码...');
+      const isPasswordValid = await bcrypt.compare(password, admin.password);
+      console.log('✅ 管理员密码验证结果:', isPasswordValid);
+
+      if (!isPasswordValid) {
+        console.log('❌ 管理员密码验证失败');
+        return res.status(401).json({
+          success: false,
+          message: '管理员账号或密码错误'
+        });
+      }
+
+      console.log('🎯 管理员密码验证成功，准备生成token...');
+
+      // 生成JWT token，包含管理员角色信息
+      const token = jwt.sign(
+        {
+          userId: admin.id,
+          name: admin.name,
+          role: admin.role,
+          userType: 'admin'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      console.log('✅ 管理员JWT token生成成功');
+
+      // 返回管理员登录成功信息
+      return res.json({
+        success: true,
+        message: '管理员登录成功',
+        token,
+        data: {
+          token,
+          admin: {
+            id: admin.id,
+            name: admin.name,
+            role: admin.role
+          },
+          userType: 'admin'
+        }
+      });
+    } else {
+      console.log('👨‍🎓 学生登录流程...');
+
+      // 查询学生信息
+      const students = await query(
+        'SELECT id, name, password FROM students WHERE id = ?',
+        [userId.toUpperCase()]
+      );
+
+      console.log('🔍 查询学生结果:', {
+        searchId: userId.toUpperCase(),
+        found: students.length > 0,
+        count: students.length
+      });
+
+      if (students.length === 0) {
+        console.log('❌ 学生不存在');
+        return res.status(401).json({
+          success: false,
+          message: '学生ID或密码错误'
+        });
+      }
+
+      const student = students[0];
+      console.log('👤 找到学生:', { id: student.id, name: student.name });
+
+      // 验证密码
+      console.log('🔐 开始验证学生密码...');
+      const isValidPassword = await bcrypt.compare(password, student.password);
+      console.log('✅ 学生密码验证结果:', isValidPassword);
+
+      if (!isValidPassword) {
+        console.log('❌ 学生密码验证失败');
+        return res.status(401).json({
+          success: false,
+          message: '学生ID或密码错误'
+        });
+      }
+
+      console.log('🎯 学生密码验证成功，准备生成token...');
+
+      // 更新最后登录时间
+      await query(
+        'UPDATE students SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [student.id]
+      );
+
+      // 生成JWT token，包含用户类型标识
+      const token = jwt.sign(
+        {
+          userId: student.id,
+          studentId: student.id, // 保持向后兼容
+          name: student.name,
+          userType: 'student'
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      );
+
+      console.log('✅ 学生JWT token生成成功');
+
+      // 返回学生登录成功信息
+      return res.json({
+        success: true,
+        message: '学生登录成功',
+        token,
+        data: {
+          token,
+          student: {
+            id: student.id,
+            name: student.name
+          },
+          userType: 'student'
+        }
+      });
+    }
 
   } catch (error) {
     console.error('登录错误:', error);

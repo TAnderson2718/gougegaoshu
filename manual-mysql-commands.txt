@@ -1,0 +1,70 @@
+# MySQL配置完成手册
+# 服务器: 124.221.113.102
+# 用户: ubuntu
+# 密码: ts*VK&2VK^5sjx7heLkB
+
+## 步骤1: 连接服务器
+ssh ubuntu@124.221.113.102
+
+## 步骤2: 重置MySQL
+sudo systemctl stop mysql
+sudo mysqld_safe --skip-grant-tables --skip-networking &
+sleep 5
+
+## 步骤3: 重置root权限
+mysql -u root << 'EOF'
+USE mysql;
+UPDATE user SET authentication_string='' WHERE User='root';
+UPDATE user SET plugin='mysql_native_password' WHERE User='root';
+FLUSH PRIVILEGES;
+EXIT;
+EOF
+
+## 步骤4: 重启MySQL
+sudo pkill mysqld
+sleep 3
+sudo systemctl start mysql
+
+## 步骤5: 创建数据库
+mysql -u root << 'EOF'
+CREATE DATABASE IF NOT EXISTS task_manager_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'taskapp'@'localhost' IDENTIFIED BY 'TaskApp2024!';
+GRANT ALL PRIVILEGES ON task_manager_db.* TO 'taskapp'@'localhost';
+FLUSH PRIVILEGES;
+SHOW DATABASES;
+SELECT User, Host FROM mysql.user WHERE User IN ('root', 'taskapp');
+EOF
+
+## 步骤6: 更新应用配置
+cd /home/ubuntu/gougegaoshu/backend
+cat > .env << 'EOF'
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_USER=taskapp
+DB_PASSWORD=TaskApp2024!
+DB_NAME=task_manager_db
+JWT_SECRET=your_super_secret_jwt_key_here_make_it_long_and_random_for_security_2024
+JWT_EXPIRES_IN=7d
+PORT=3001
+NODE_ENV=production
+INITIAL_PASSWORD=Hello888
+ADMIN_PASSWORD=AdminPass123
+EOF
+
+## 步骤7: 重启服务
+pm2 stop task-backend
+pm2 start server.js --name 'task-backend'
+pm2 status
+pm2 logs task-backend --lines 10
+
+## 步骤8: 测试API
+curl -X POST http://124.221.113.102:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"userId":"ADMIN","password":"AdminPass123"}'
+
+## 完成后的访问信息:
+# 前端: http://124.221.113.102:3000 (需要配置Nginx)
+# API: http://124.221.113.102:3001/api
+# 管理员: ADMIN / AdminPass123
+# 学生1: ST001 / Hello888
+# 学生2: ST002 / NewPass123
