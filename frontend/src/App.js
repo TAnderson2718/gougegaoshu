@@ -52,8 +52,8 @@ const HomePage = () => {
     user.role === 'admin' ||
     user.studentId?.startsWith('ADMIN') ||
     user.id?.startsWith('ADMIN') ||
-    ['ADMIN001', 'ADMIN002'].includes(user.studentId) ||
-    ['ADMIN001', 'ADMIN002'].includes(user.id)
+    ['ADMIN'].includes(user.studentId) ||
+    ['ADMIN'].includes(user.id)
   );
 
   // 根据用户角色自动重定向
@@ -74,8 +74,8 @@ const StudentPage = () => {
     user.role === 'admin' ||
     user.studentId?.startsWith('ADMIN') ||
     user.id?.startsWith('ADMIN') ||
-    ['ADMIN001', 'ADMIN002'].includes(user.studentId) ||
-    ['ADMIN001', 'ADMIN002'].includes(user.id)
+    ['ADMIN'].includes(user.studentId) ||
+    ['ADMIN'].includes(user.id)
   );
 
   return (
@@ -124,8 +124,8 @@ const AdminPage = () => {
     user.role === 'admin' ||
     user.studentId?.startsWith('ADMIN') ||
     user.id?.startsWith('ADMIN') ||
-    ['ADMIN001', 'ADMIN002'].includes(user.studentId) ||
-    ['ADMIN001', 'ADMIN002'].includes(user.id)
+    ['ADMIN'].includes(user.studentId) ||
+    ['ADMIN'].includes(user.id)
   );
 
   return (
@@ -141,7 +141,7 @@ const AdminPage = () => {
             <div className="text-center p-8">
               <h2 className="text-2xl font-bold text-red-600 mb-4">访问被拒绝</h2>
               <p className="text-gray-600 mb-4">您没有管理员权限访问此页面。</p>
-              <p className="text-sm text-gray-500 mb-4">当前登录的是学生账号 ({user?.studentId || user?.id})，请使用管理员账号登录：ADMIN001 或 ADMIN002</p>
+              <p className="text-sm text-gray-500 mb-4">当前登录的是学生账号 ({user?.studentId || user?.id})，请使用管理员账号登录：ADMIN</p>
               <div className="space-y-2 mb-4">
                 <button
                   onClick={() => {

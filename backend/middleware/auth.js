@@ -95,18 +95,16 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// 管理员权限中间件（这里简化处理，实际项目中应该有专门的管理员表）
+// 管理员权限中间件
 const requireAdmin = (req, res, next) => {
-  // 简化处理：假设特定ID为管理员
-  const adminIds = ['ADMIN001', 'ADMIN002'];
-  
-  if (!adminIds.includes(req.user.studentId)) {
-    return res.status(403).json({ 
-      success: false, 
-      message: '需要管理员权限' 
+  // 检查用户类型是否为管理员
+  if (req.user.userType !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: '需要管理员权限'
     });
   }
-  
+
   next();
 };
 

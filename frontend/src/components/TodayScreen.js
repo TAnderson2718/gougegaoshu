@@ -153,6 +153,26 @@ const TodayScreen = () => {
     return Math.round((completedTasks / taskArray.length) * 100);
   };
 
+  // 计算今日总时长
+  const getTotalStudyTime = () => {
+    const taskArray = Array.isArray(tasks) ? tasks : [];
+    const totalMinutes = taskArray.reduce((acc, task) => {
+      if (task.duration) {
+        return acc + (task.duration.hour * 60) + task.duration.minute;
+      }
+      return acc;
+    }, 0);
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours === 0 && minutes === 0) {
+      return '未记录';
+    }
+
+    return `${hours}小时${minutes}分钟`;
+  };
+
   if (loading) {
     return (
       <div data-testid="today-screen" className="p-6">
@@ -197,6 +217,9 @@ const TodayScreen = () => {
                 ({tasks.filter(t => t.completed).length}/{tasks.length} 项完成)
               </span>
             )}
+            <span className="ml-4">
+              用时: <span className="font-semibold text-green-600">{getTotalStudyTime()}</span>
+            </span>
           </div>
           <div className="flex space-x-2">
             <button

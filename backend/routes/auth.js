@@ -180,6 +180,12 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // 更新最后登录时间
+    await query(
+      'UPDATE students SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [student.id]
+    );
+
     // 生成JWT token，包含用户类型标识
     const token = jwt.sign(
       {

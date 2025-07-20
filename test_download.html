@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>测试下载</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>测试Excel下载</h1>
+    <button onclick="downloadExcelTemplate()">下载模板</button>
+
+    <script>
+        function downloadExcelTemplate() {
+            try {
+                // 创建示例数据
+                const templateData = [
+                    ['学生ID', '日期', '任务类型', '任务标题'],
+                    ['ST001', '2025-07-19', '数学', '高等数学微分学'],
+                    ['ST001', '2025-07-19', '英语', '考研词汇Unit1-10'],
+                    ['ST002', '2025-07-19', '数学', '线性代数矩阵运算']
+                ];
+
+                // 创建工作簿
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(templateData);
+
+                // 设置列宽
+                ws['!cols'] = [
+                    { width: 12 }, // 学生ID
+                    { width: 15 }, // 日期
+                    { width: 12 }, // 任务类型
+                    { width: 30 }  // 任务标题
+                ];
+
+                // 添加工作表
+                XLSX.utils.book_append_sheet(wb, ws, '任务导入模板');
+
+                // 生成Excel文件的二进制数据
+                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+                // 创建Blob对象
+                const blob = new Blob([excelBuffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                // 创建下载链接
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                
+                // 使用英文文件名避免编码问题
+                const fileName = 'task_import_template.xlsx';
+                link.download = fileName;
+                
+                // 设置下载属性以确保正确的文件名
+                link.setAttribute('download', fileName);
+
+                // 触发下载
+                document.body.appendChild(link);
+                link.click();
+
+                // 清理
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+
+                console.log('✅ Excel模板下载成功');
+                alert('下载成功！文件名：' + fileName);
+            } catch (error) {
+                console.error('❌ 下载失败:', error);
+                alert('下载失败：' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

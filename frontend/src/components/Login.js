@@ -69,8 +69,8 @@ const Login = () => {
         user.role === 'admin' ||
         user.studentId?.startsWith('ADMIN') ||
         user.id?.startsWith('ADMIN') ||
-        ['ADMIN001', 'ADMIN002'].includes(user.studentId) ||
-        ['ADMIN001', 'ADMIN002'].includes(user.id)
+        user.studentId === 'ADMIN' ||
+        user.id === 'ADMIN'
       );
 
       console.log('🔍 用户角色检查:', { isAdmin, userType: user.userType, id: user.id });
@@ -176,7 +176,7 @@ const Login = () => {
             <input
               type="text"
               name="studentId"
-              placeholder="用户ID (学生: ST001, 管理员: ADMIN001)"
+              placeholder="用户ID (学生: ST001, 管理员: ADMIN)"
               value={formData.studentId}
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -228,7 +228,7 @@ const Login = () => {
 
         <div className="mt-6 text-center text-sm text-gray-500">
           <p>学生初始密码: Hello888</p>
-          <p>管理员初始密码: ADMIN001-Hello888, ADMIN002-AdminPass123</p>
+          <p>管理员初始密码: AdminPass123</p>
         </div>
 
         {/* 快速登录按钮 - 仅用于测试 */}
@@ -269,18 +269,11 @@ const Login = () => {
 
             <div className="text-xs text-gray-600 mb-2 mt-4">管理员账号:</div>
             <button
-              onClick={() => handleQuickLogin('ADMIN001', 'Hello888')}
+              onClick={() => handleQuickLogin('ADMIN', 'AdminPass123')}
               disabled={loading}
               className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
             >
-              管理员ADMIN001 (初始密码)
-            </button>
-            <button
-              onClick={() => handleQuickLogin('ADMIN002', 'AdminPass123')}
-              disabled={loading}
-              className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
-            >
-              管理员ADMIN002 (初始密码)
+              管理员ADMIN (初始密码)
             </button>
           </div>
         </div>

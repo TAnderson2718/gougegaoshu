@@ -128,9 +128,8 @@ async function insertInitialData() {
     // 插入初始管理员数据
     await query(`
       INSERT INTO admins (id, name, password, role, force_password_change) VALUES
-      ('ADMIN001', '系统管理员', ?, 'super_admin', FALSE),
-      ('ADMIN002', '普通管理员', ?, 'admin', FALSE)
-    `, [hashedAdminPassword, hashedAdminPassword]);
+      ('ADMIN', '系统管理员', ?, 'super_admin', FALSE)
+    `, [hashedAdminPassword]);
 
     // 插入系统配置
     await query(`
@@ -142,7 +141,7 @@ async function insertInitialData() {
     console.log('✅ 初始数据插入成功');
     console.log(`📝 默认学生账户: ST001, ST002`);
     console.log(`🔑 学生初始密码: ${initialPassword}`);
-    console.log(`👨‍💼 默认管理员账户: ADMIN001, ADMIN002`);
+    console.log(`👨‍💼 默认管理员账户: ADMIN`);
     console.log(`🔐 管理员密码: ${adminPassword}`);
 
   } catch (error) {

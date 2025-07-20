@@ -185,35 +185,35 @@ router.put('/', async (req, res) => {
         `INSERT INTO student_profiles (
           student_id, gender, age, study_status, study_status_other, math_type, math_type_other,
           target_score, daily_hours, gaokao_year, gaokao_province, gaokao_score,
-          grad_exam_year, grad_exam_province, grad_exam_major, grad_exam_math_type, grad_exam_score, 
-          upgrade_exam, upgrade_exam_year, upgrade_exam_province, upgrade_exam_major, upgrade_exam_math_type, upgrade_exam_score,
+          grad_exam_year, grad_exam_math_type, grad_exam_score,
+          upgrade_exam_year, upgrade_exam_province, upgrade_exam_math_type, upgrade_exam_score,
           purchased_books, notes, is_profile_submitted
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           profileData.student_id, profileData.gender, profileData.age, profileData.study_status, profileData.study_status_other,
           profileData.math_type, profileData.math_type_other, profileData.target_score, profileData.daily_hours,
           profileData.gaokao_year, profileData.gaokao_province, profileData.gaokao_score,
-          profileData.grad_exam_year, profileData.grad_exam_province, profileData.grad_exam_major, profileData.grad_exam_math_type, profileData.grad_exam_score,
-          profileData.upgrade_exam, profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_major, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
+          profileData.grad_exam_year, profileData.grad_exam_math_type, profileData.grad_exam_score,
+          profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
           profileData.purchased_books, profileData.notes, profileData.is_profile_submitted
         ]
       );
     } else {
       // 更新现有档案
       await query(
-        `UPDATE student_profiles SET 
+        `UPDATE student_profiles SET
           gender = ?, age = ?, study_status = ?, study_status_other = ?, math_type = ?, math_type_other = ?,
           target_score = ?, daily_hours = ?, gaokao_year = ?, gaokao_province = ?, gaokao_score = ?,
-          grad_exam_year = ?, grad_exam_province = ?, grad_exam_major = ?, grad_exam_math_type = ?, grad_exam_score = ?, 
-          upgrade_exam = ?, upgrade_exam_year = ?, upgrade_exam_province = ?, upgrade_exam_major = ?, upgrade_exam_math_type = ?, upgrade_exam_score = ?,
+          grad_exam_year = ?, grad_exam_math_type = ?, grad_exam_score = ?,
+          upgrade_exam_year = ?, upgrade_exam_province = ?, upgrade_exam_math_type = ?, upgrade_exam_score = ?,
           purchased_books = ?, notes = ?, is_profile_submitted = ?, updated_at = CURRENT_TIMESTAMP
          WHERE student_id = ?`,
         [
           profileData.gender, profileData.age, profileData.study_status, profileData.study_status_other,
           profileData.math_type, profileData.math_type_other, profileData.target_score, profileData.daily_hours,
           profileData.gaokao_year, profileData.gaokao_province, profileData.gaokao_score,
-          profileData.grad_exam_year, profileData.grad_exam_province, profileData.grad_exam_major, profileData.grad_exam_math_type, profileData.grad_exam_score,
-          profileData.upgrade_exam, profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_major, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
+          profileData.grad_exam_year, profileData.grad_exam_math_type, profileData.grad_exam_score,
+          profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
           profileData.purchased_books, profileData.notes, profileData.is_profile_submitted, studentId
         ]
       );

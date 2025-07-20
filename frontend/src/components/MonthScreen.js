@@ -90,20 +90,18 @@ const MonthScreen = () => {
       const dateStr = formatDate(currentDate);
       const dayTasks = getTasksForDate(currentDate);
 
-      // 使用原始日期统计来计算完成率
+      // 计算任务完成情况（不计算完成率）
       const originalStats = originalDateStats[dateStr];
-      let completedTasks, totalTasks, completionRate;
+      let completedTasks, totalTasks;
 
       if (originalStats) {
         // 使用原始日期的统计数据
         completedTasks = originalStats.completed;
         totalTasks = originalStats.total;
-        completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
       } else {
         // 如果没有原始统计，使用当前显示的任务
         completedTasks = dayTasks.filter(task => task.completed).length;
         totalTasks = dayTasks.length;
-        completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
       }
 
       days.push({
@@ -114,7 +112,6 @@ const MonthScreen = () => {
         tasks: dayTasks,
         completedTasks,
         totalTasks,
-        completionRate,
         originalStats // 保存原始统计信息，用于调试
       });
 
@@ -157,20 +154,28 @@ const MonthScreen = () => {
     
     const completed = monthTasks.filter(task => task.completed).length;
     const total = monthTasks.length;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-    
-    const totalStudyTime = monthTasks.reduce((acc, task) => {
+
+    const totalStudyTimeMinutes = monthTasks.reduce((acc, task) => {
       if (task.duration) {
         return acc + (task.duration.hour * 60) + task.duration.minute;
       }
       return acc;
     }, 0);
-    
+
+    // 格式化时长显示
+    const formatTotalStudyTime = () => {
+      if (totalStudyTimeMinutes === 0) {
+        return '0小时0分钟';
+      }
+      const hours = Math.floor(totalStudyTimeMinutes / 60);
+      const minutes = totalStudyTimeMinutes % 60;
+      return `${hours}小时${minutes}分钟`;
+    };
+
     return {
       total,
       completed,
-      completionRate,
-      totalStudyTime: Math.round(totalStudyTime / 60 * 10) / 10 // 转换为小时，保留1位小数
+      totalStudyTime: formatTotalStudyTime()
     };
   };
 
@@ -262,13 +267,6 @@ const MonthScreen = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">本月统计</h3>
             <div className="space-y-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-1">
-                  {monthStats.completionRate}%
-                </div>
-                <div className="text-sm text-gray-600">完成率</div>
-              </div>
-              
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-600">总任务数</span>
@@ -286,7 +284,7 @@ const MonthScreen = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">学习时长</span>
-                  <span className="font-semibold">{monthStats.totalStudyTime}h</span>
+                  <span className="font-semibold">{monthStats.totalStudyTime}</span>
                 </div>
               </div>
             </div>
@@ -299,15 +297,7 @@ const MonthScreen = () => {
             <div className="space-y-3 text-sm">
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-green-100 border border-green-200 rounded"></div>
-                <span>任务全部完成</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-yellow-100 border border-yellow-200 rounded"></div>
-                <span>部分任务完成</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-red-100 border border-red-200 rounded"></div>
-                <span>任务未完成</span>
+                <span>有学习任务</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-yellow-50 border border-yellow-300 rounded"></div>
@@ -369,10 +359,8 @@ const CalendarDay = ({ day, onSelect, isSelected }) => {
   const getCompletionColor = () => {
     if (hasLeaveTask) return 'bg-yellow-50'; // 请假日
     if (hasRestTask) return 'bg-blue-50'; // 休息日
-    if (day.totalTasks === 0) return 'bg-gray-50';
-    if (day.completionRate === 100) return 'bg-green-100';
-    if (day.completionRate >= 50) return 'bg-yellow-100';
-    return 'bg-red-100';
+    if (day.totalTasks === 0) return 'bg-gray-50'; // 无任务安排
+    return 'bg-green-100'; // 有学习任务
   };
 
   const getBorderColor = () => {
@@ -414,17 +402,9 @@ const CalendarDay = ({ day, onSelect, isSelected }) => {
         
         {(day.totalTasks > 0 && !hasLeaveTask && !hasRestTask) && (
           <div className="text-right">
-            <div className="text-xs text-gray-600">
+            <div className="text-xs font-semibold text-green-600">
               {day.completedTasks}/{day.totalTasks}
             </div>
-            {day.completionRate > 0 && (
-              <div className={`text-xs font-semibold ${
-                day.completionRate === 100 ? 'text-green-600' :
-                day.completionRate >= 50 ? 'text-yellow-600' : 'text-red-600'
-              }`}>
-                {day.completionRate}%
-              </div>
-            )}
           </div>
         )}
 

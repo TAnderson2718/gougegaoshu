@@ -2,8 +2,8 @@
 
 # 考研任务管理系统部署脚本
 # 目标服务器: 124.221.113.102
-# 用户: dev_user
-# 密码: 123456
+# 用户: ubuntu
+# 密码: ts*VK&2VK^5sjx7heLkB
 
 set -e  # 遇到错误立即退出
 
@@ -12,11 +12,11 @@ echo "=========================================="
 
 # 服务器配置
 SERVER_HOST="124.221.113.102"
-SERVER_USER="dev_user"
-SERVER_PASSWORD="123456"
+SERVER_USER="ubuntu"
+SERVER_PASSWORD="ts*VK&2VK^5sjx7heLkB"
 SERVER_PORT="22"
 PROJECT_NAME="gougegaoshu"
-REMOTE_DIR="/home/dev_user/$PROJECT_NAME"
+REMOTE_DIR="/home/ubuntu/$PROJECT_NAME"
 
 echo "📋 部署配置:"
 echo "  服务器: $SERVER_HOST:$SERVER_PORT"
@@ -155,7 +155,13 @@ sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no -p "$SERVER_PORT" 
     echo '📦 安装前端依赖...'
     cd ../frontend
     npm install
-    
+
+    echo '⚙️ 配置前端环境变量...'
+    cat > .env << 'EOF'
+REACT_APP_API_BASE_URL=http://124.221.113.102:3001/api
+# 生产服务器API配置
+EOF
+
     echo '🏗️ 构建前端项目...'
     npm run build
     
@@ -270,7 +276,7 @@ echo "  后端地址: http://$SERVER_HOST:3001"
 echo "  项目目录: $REMOTE_DIR"
 echo ""
 echo "🔧 启动服务:"
-echo "  ssh dev_user@$SERVER_HOST"
+echo "  ssh ubuntu@$SERVER_HOST"
 echo "  cd $REMOTE_DIR"
 echo "  pm2 start ecosystem.config.js"
 echo ""

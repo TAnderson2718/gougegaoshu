@@ -19,13 +19,12 @@ async function insertAdmins() {
 
     // 插入管理员数据
     await query(`
-      INSERT INTO admins (id, name, password, role, force_password_change) VALUES 
-      ('ADMIN001', '系统管理员', ?, 'super_admin', FALSE),
-      ('ADMIN002', '普通管理员', ?, 'admin', FALSE)
-    `, [hashedAdminPassword, hashedAdminPassword]);
+      INSERT INTO admins (id, name, password, role, force_password_change) VALUES
+      ('ADMIN', '系统管理员', ?, 'super_admin', FALSE)
+    `, [hashedAdminPassword]);
 
     console.log('✅ 管理员数据插入成功');
-    console.log(`👨‍💼 默认管理员账户: ADMIN001, ADMIN002`);
+    console.log(`👨‍💼 默认管理员账户: ADMIN`);
     console.log(`🔐 管理员密码: ${adminPassword}`);
 
     // 验证插入结果

@@ -53,6 +53,11 @@ const ProfileScreen = () => {
     newPassword: '',
     confirmPassword: ''
   });
+  const [showPasswords, setShowPasswords] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false
+  });
 
   // 获取个人档案
   const fetchProfile = async () => {
@@ -63,46 +68,46 @@ const ProfileScreen = () => {
       const response = await profileAPI.getProfile();
       
       if (response.success) {
-        const profileData = response.data || {};
+        const profileData = response.data?.profile || {};
         setProfile(profileData);
         setFormData({
           // 基本信息
           name: profileData.name || user?.name || '',
           gender: profileData.gender || '',
           age: profileData.age || '',
-          
+
           // 学习状态
           studyStatus: profileData.studyStatus || '',
-          
+
           // 考研数学信息
           mathType: profileData.mathType || '',
-          mathTargetScore: profileData.mathTargetScore || '',
-          dailyStudyHours: profileData.dailyStudyHours || '',
-          
+          mathTargetScore: profileData.targetScore || '',
+          dailyStudyHours: profileData.dailyHours || '',
+
           // 历史信息
-          gaoKaoInfo: profileData.gaoKaoInfo || {
-            participated: false,
-            year: '',
-            province: '',
-            score: ''
+          gaoKaoInfo: {
+            participated: !!profileData.gaokaoYear,
+            year: profileData.gaokaoYear || '',
+            province: profileData.gaokaoProvince || '',
+            score: profileData.gaokaoScore || ''
           },
-          yanKaoInfo: profileData.yanKaoInfo || {
-            participated: false,
-            year: '',
-            mathType: '',
+          yanKaoInfo: {
+            participated: !!profileData.gradExamYear,
+            year: profileData.gradExamYear || '',
+            mathType: profileData.gradExamMathType || '',
             notTaken: false,
-            score: ''
+            score: profileData.gradExamScore || ''
           },
-          zhuanShengBenInfo: profileData.zhuanShengBenInfo || {
-            participated: false,
-            province: '',
-            category: '',
-            score: ''
+          zhuanShengBenInfo: {
+            participated: !!profileData.upgradeExamYear,
+            province: profileData.upgradeExamProvince || '',
+            category: profileData.upgradeExamMathType || '',
+            score: profileData.upgradeExamScore || ''
           },
-          
+
           // 其他信息
           purchasedBooks: profileData.purchasedBooks || '',
-          specialRequirements: profileData.specialRequirements || ''
+          specialRequirements: profileData.notes || ''
         });
       } else {
         setError(response.message || '获取档案失败');
@@ -118,9 +123,52 @@ const ProfileScreen = () => {
   const updateProfile = async () => {
     try {
       setError(null);
-      
-      const response = await profileAPI.updateProfile(formData);
-      
+
+      // 安全的数值转换函数
+      const safeParseInt = (value) => {
+        if (!value || value === '' || isNaN(value)) return null;
+        const parsed = parseInt(value);
+        return isNaN(parsed) ? null : parsed;
+      };
+
+      const safeParseFloat = (value) => {
+        if (!value || value === '' || isNaN(value)) return null;
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? null : parsed;
+      };
+
+      // 转换前端字段名到后端期望的字段名
+      const profileData = {
+        gender: formData.gender || '',
+        age: safeParseInt(formData.age),
+        studyStatus: formData.studyStatus || '',
+        mathType: formData.mathType || '',
+        targetScore: safeParseInt(formData.mathTargetScore),
+        dailyHours: safeParseFloat(formData.dailyStudyHours),
+
+        // 高考信息
+        gaoKaoYear: formData.gaoKaoInfo?.year || '',
+        gaoKaoProvince: formData.gaoKaoInfo?.province || '',
+        gaoKaoScore: safeParseInt(formData.gaoKaoInfo?.score),
+
+        // 研考信息
+        gradExamYear: formData.yanKaoInfo?.year || '',
+        gradExamMathType: formData.yanKaoInfo?.mathType || '',
+        gradExamScore: safeParseInt(formData.yanKaoInfo?.score),
+
+        // 专升本信息
+        upgradeExamYear: formData.zhuanShengBenInfo?.year || '',
+        upgradeExamProvince: formData.zhuanShengBenInfo?.province || '',
+        upgradeExamMathType: formData.zhuanShengBenInfo?.category || '',
+        upgradeExamScore: safeParseInt(formData.zhuanShengBenInfo?.score),
+
+        // 其他信息
+        purchasedBooks: formData.purchasedBooks || '',
+        notes: formData.specialRequirements || ''
+      };
+
+      const response = await profileAPI.updateProfile(profileData);
+
       if (response.success) {
         setProfile({ ...profile, ...formData });
         setIsEditing(false);
@@ -133,34 +181,59 @@ const ProfileScreen = () => {
     }
   };
 
+  // 切换密码显示状态
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
   // 修改密码
   const changePassword = async () => {
     try {
+      console.log('🔐 开始修改密码...');
       setError(null);
-      
+
+      // 验证输入
+      if (!passwordData.oldPassword) {
+        setError('请输入当前密码');
+        return;
+      }
+
+      if (!passwordData.newPassword) {
+        setError('请输入新密码');
+        return;
+      }
+
       if (passwordData.newPassword !== passwordData.confirmPassword) {
         setError('新密码与确认密码不一致');
         return;
       }
-      
+
       if (passwordData.newPassword.length < 6) {
         setError('新密码长度不能少于6位');
         return;
       }
-      
+
+      console.log('📤 发送密码修改请求...');
       const response = await authAPI.changePassword({
         oldPassword: passwordData.oldPassword,
         newPassword: passwordData.newPassword
       });
-      
+
+      console.log('📨 密码修改响应:', response);
+
       if (response.success) {
         setIsChangingPassword(false);
         setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+        setShowPasswords({ oldPassword: false, newPassword: false, confirmPassword: false });
         alert('密码修改成功');
       } else {
         setError(response.message || '密码修改失败');
       }
     } catch (err) {
+      console.error('❌ 密码修改错误:', err);
       setError(err.message || '密码修改失败');
     }
   };
@@ -196,39 +269,39 @@ const ProfileScreen = () => {
         name: profile.name || user?.name || '',
         gender: profile.gender || '',
         age: profile.age || '',
-        
+
         // 学习状态
         studyStatus: profile.studyStatus || '',
-        
+
         // 考研数学信息
         mathType: profile.mathType || '',
-        mathTargetScore: profile.mathTargetScore || '',
-        dailyStudyHours: profile.dailyStudyHours || '',
-        
+        mathTargetScore: profile.targetScore || '',
+        dailyStudyHours: profile.dailyHours || '',
+
         // 历史信息
-        gaoKaoInfo: profile.gaoKaoInfo || {
-          participated: false,
-          year: '',
-          province: '',
-          score: ''
+        gaoKaoInfo: {
+          participated: !!profile.gaokaoYear,
+          year: profile.gaokaoYear || '',
+          province: profile.gaokaoProvince || '',
+          score: profile.gaokaoScore || ''
         },
-        yanKaoInfo: profile.yanKaoInfo || {
-          participated: false,
-          year: '',
-          mathType: '',
+        yanKaoInfo: {
+          participated: !!profile.gradExamYear,
+          year: profile.gradExamYear || '',
+          mathType: profile.gradExamMathType || '',
           notTaken: false,
-          score: ''
+          score: profile.gradExamScore || ''
         },
-        zhuanShengBenInfo: profile.zhuanShengBenInfo || {
-          participated: false,
-          province: '',
-          category: '',
-          score: ''
+        zhuanShengBenInfo: {
+          participated: !!profile.upgradeExamYear,
+          province: profile.upgradeExamProvince || '',
+          category: profile.upgradeExamMathType || '',
+          score: profile.upgradeExamScore || ''
         },
-        
+
         // 其他信息
         purchasedBooks: profile.purchasedBooks || '',
-        specialRequirements: profile.specialRequirements || ''
+        specialRequirements: profile.notes || ''
       });
     }
   };
@@ -257,17 +330,8 @@ const ProfileScreen = () => {
 
   // 生成用户编号
   const generateUserCode = () => {
-    if (!user?.createdAt) return '未设置';
-    const date = new Date(user.createdAt);
-    const year = date.getFullYear().toString().slice(-2);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const userIndex = user?.id || '1';
-    const mathType = formData.mathType === '数一' ? '1' : 
-                    formData.mathType === '数二' ? '2' : 
-                    formData.mathType === '数三' ? '3' : 'A';
-    const packageType = 'A'; // 默认套餐类型
-    return `${year}${month}${day}.${userIndex}.${mathType}.${packageType}`;
+    // 用户编号就是学生ID
+    return user?.id || '未设置';
   };
 
   return (
@@ -300,10 +364,10 @@ const ProfileScreen = () => {
             {/* 用户编号 */}
             <div className="bg-yellow-50 p-4 rounded-lg">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                用户编号（自动编号，例如 25528.1.A.x）
+                用户编号（学生ID）
               </label>
               <div className="text-sm text-gray-600 mb-2">
-                ({generateUserCode().slice(0, 5)} 代表 25 年 5 月 28 日注册，1 代表考研数学一，A 代表消费套餐 A，xx 代表是当天第 xx 注册的用户)
+                您的学生ID，用于登录系统
               </div>
               <input
                 type="text"
@@ -329,7 +393,7 @@ const ProfileScreen = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  性别【xxx 滑动男女确定】
+                  性别
                 </label>
                 <select
                   name="gender"
@@ -344,7 +408,7 @@ const ProfileScreen = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  年龄【xxx 滑动数字确定】
+                  年龄
                 </label>
                 <input
                   type="number"
@@ -361,7 +425,7 @@ const ProfileScreen = () => {
             {/* 学习状态 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                学习状态【在读应届考研/在职全职考研/在职考研/其他（文本输入）】
+                学习状态
               </label>
               <select
                 name="studyStatus"
@@ -381,7 +445,7 @@ const ProfileScreen = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  考研数学类型【滑动选择（数一、数二、数三、其他（文本输入））】
+                  考研数学类型
                 </label>
                 <select
                   name="mathType"
@@ -398,7 +462,7 @@ const ProfileScreen = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  考研数学目标分【70-150分，每5分一个段】
+                  考研数学目标分数
                 </label>
                 <select
                   name="mathTargetScore"
@@ -419,7 +483,7 @@ const ProfileScreen = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  每日数学学习时长【xxx 滑动数字确定】可以自动总结每周学习时长 x6，每月学习时长 x24
+                  每日数学学习时长（小时）
                 </label>
                 <input
                   type="number"
@@ -429,8 +493,12 @@ const ProfileScreen = () => {
                   min="0"
                   max="24"
                   step="0.5"
+                  placeholder="请输入每日学习时长"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  每周学习时长约 {(formData.dailyStudyHours * 6).toFixed(1)} 小时，每月学习时长约 {(formData.dailyStudyHours * 24).toFixed(1)} 小时
+                </p>
               </div>
             </div>
 
@@ -453,7 +521,7 @@ const ProfileScreen = () => {
           <div className="space-y-6">
             {/* 用户编号 */}
             <div className="bg-yellow-50 p-4 rounded-lg">
-              <label className="block text-sm font-medium text-gray-500">用户编号</label>
+              <label className="block text-sm font-medium text-gray-500">用户编号（学生ID）</label>
               <p className="mt-1 text-gray-900 font-mono">{generateUserCode()}</p>
             </div>
 
@@ -539,37 +607,91 @@ const ProfileScreen = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     当前密码
                   </label>
-                  <input
-                    type="password"
-                    name="oldPassword"
-                    value={passwordData.oldPassword}
-                    onChange={handlePasswordChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPasswords.oldPassword ? "text" : "password"}
+                      name="oldPassword"
+                      value={passwordData.oldPassword}
+                      onChange={handlePasswordChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('oldPassword')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.oldPassword ? (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     新密码
                   </label>
-                  <input
-                    type="password"
-                    name="newPassword"
-                    value={passwordData.newPassword}
-                    onChange={handlePasswordChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPasswords.newPassword ? "text" : "password"}
+                      name="newPassword"
+                      value={passwordData.newPassword}
+                      onChange={handlePasswordChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('newPassword')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.newPassword ? (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     确认新密码
                   </label>
-                  <input
-                    type="password"
-                    name="confirmPassword"
-                    value={passwordData.confirmPassword}
-                    onChange={handlePasswordChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPasswords.confirmPassword ? "text" : "password"}
+                      name="confirmPassword"
+                      value={passwordData.confirmPassword}
+                      onChange={handlePasswordChange}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePasswordVisibility('confirmPassword')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showPasswords.confirmPassword ? (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                        </svg>
+                      ) : (
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex space-x-3 pt-4">
                   <button

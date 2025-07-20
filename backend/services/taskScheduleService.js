@@ -62,7 +62,7 @@ async function handleLeaveDefer(studentId, leaveDate, connection) {
     );
 
     // 6. 使用递归函数重新安排任务
-    const deferResult = await scheduleTasksRecursively(studentId, leaveDate, tasksToDefer, connection);
+    const deferResult = await scheduleTasksRecursively(studentId, leaveDate, tasksToDefer, connection, { currentDepth: 0 });
 
     // 6. 记录调度历史
     await connection.execute(
@@ -133,13 +133,23 @@ async function scheduleTasksRecursively(studentId, startDate, tasksToSchedule, c
     console.log(`📋 目标日期 ${targetDate} 现有任务: ${existingTasks.length}个`);
 
     // 为新任务生成唯一ID（避免冲突）
-    const tasksWithNewIds = tasksToSchedule.map(task => ({
-      ...task,
-      id: `${task.id}-defer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      original_date: task.original_date || task.task_date || startDate,
-      task_status: 'deferred',
-      defer_reason: 'cascade_defer'
-    }));
+    const tasksWithNewIds = tasksToSchedule.map((task, index) => {
+      // 提取原始任务的基础信息
+      const parts = task.id.split('-');
+      const studentId = parts[0];
+      const originalDate = parts[1];
+
+      // 生成新的简短ID
+      const newId = `${studentId}-${targetDate}-${Date.now()}-${index}`;
+
+      return {
+        ...task,
+        id: newId,
+        original_date: task.original_date || task.task_date || startDate,
+        task_status: 'deferred',
+        defer_reason: 'cascade_defer'
+      };
+    });
 
     // 插入新任务到目标日期
     for (const task of tasksWithNewIds) {
@@ -190,7 +200,8 @@ async function scheduleTasksRecursively(studentId, startDate, tasksToSchedule, c
     };
 
   } catch (error) {
-    console.error(`❌ 递归顺延失败 (深度${currentDepth}):`, error);
+    const depth = options?.currentDepth || 0;
+    console.error(`❌ 递归顺延失败 (深度${depth}):`, error);
     throw error;
   }
 }
@@ -227,7 +238,7 @@ async function deferFutureTasks(studentId, fromDate, connection) {
     );
 
     // 使用递归函数重新安排这些任务
-    const result = await scheduleTasksRecursively(studentId, fromDate, futureTasks, connection);
+    const result = await scheduleTasksRecursively(studentId, fromDate, futureTasks, connection, { currentDepth: 0 });
 
     console.log(`🎉 级联顺延完成: ${result.details}`);
     return result;
@@ -410,7 +421,7 @@ async function deferTasksAsNewDay(studentId, fromDate, tasks, connection) {
     console.log(`🗑️ 删除了当天 ${tasks.length} 个未完成任务`);
 
     // 使用递归函数重新安排所有任务（包括当天的和后续的）
-    const result = await scheduleTasksRecursively(studentId, fromDate, tasksToDefer, connection);
+    const result = await scheduleTasksRecursively(studentId, fromDate, tasksToDefer, connection, { currentDepth: 0 });
 
     console.log(`🎉 整体顺延完成: ${result.details}`);
     return result;

@@ -32,7 +32,7 @@ async function upgradeDatabase() {
       CREATE TABLE IF NOT EXISTS task_schedule_history (
         id INT AUTO_INCREMENT PRIMARY KEY,
         student_id VARCHAR(20) NOT NULL COMMENT '学生ID',
-        operation_type ENUM('defer', 'carry_over', 'advance', 'leave') NOT NULL COMMENT '操作类型',
+        operation_type ENUM('defer', 'carry_over', 'advance', 'leave', 'midnight_process') NOT NULL COMMENT '操作类型',
         operation_date DATE NOT NULL COMMENT '操作日期',
         affected_tasks INT DEFAULT 0 COMMENT '影响的任务数量',
         details JSON COMMENT '操作详情',

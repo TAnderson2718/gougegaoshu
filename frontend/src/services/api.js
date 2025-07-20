@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: 'http://localhost:3001/api',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api',
   timeout: 10000,
   withCredentials: true,
   headers: {
@@ -60,8 +60,8 @@ export const authAPI = {
 
 
   // 修改密码
-  changePassword: (oldPassword, newPassword) =>
-    api.post('/auth/change-password', { oldPassword, newPassword }),
+  changePassword: (data) =>
+    api.post('/auth/change-password', data),
 
   // 验证token
   verify: () =>
