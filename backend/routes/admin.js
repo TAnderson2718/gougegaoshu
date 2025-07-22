@@ -16,7 +16,7 @@ router.use(requireAdmin);
 router.get('/students', async (req, res) => {
   try {
     const students = await query(
-      'SELECT id, name, force_password_change, created_at, last_login_at FROM students ORDER BY created_at DESC'
+      'SELECT id, name, force_password_change, created_at FROM students ORDER BY created_at DESC'
     );
 
     res.json({

@@ -1,5 +1,5 @@
 const { query, testConnection } = require('../config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // 建表SQL语句数组

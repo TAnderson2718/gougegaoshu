@@ -165,7 +165,7 @@ router.post('/login', async (req, res) => {
 
       // 查询管理员信息
       const admins = await query(
-        'SELECT user_id as id, name, password_hash as password, \'admin\' as role FROM admins WHERE user_id = ?',
+        'SELECT id, name, password, \'admin\' as role FROM admins WHERE id = ?',
         [userId.toUpperCase()]
       );
 
@@ -235,7 +235,7 @@ router.post('/login', async (req, res) => {
 
       // 查询学生信息
       const students = await query(
-        'SELECT user_id as id, name, password_hash as password FROM students WHERE user_id = ?',
+        'SELECT id, name, password FROM students WHERE id = ?',
         [userId.toUpperCase()]
       );
 
@@ -273,7 +273,7 @@ router.post('/login', async (req, res) => {
 
       // 更新最后登录时间
       await query(
-        'UPDATE students SET updated_at = CURRENT_TIMESTAMP WHERE user_id = ?',
+        'UPDATE students SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
         [student.id]
       );
 

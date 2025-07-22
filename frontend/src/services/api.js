@@ -65,7 +65,7 @@ export const authAPI = {
 
   // 管理员登录 (向后兼容)
   adminLogin: (adminId, password) =>
-    api.post('/auth/login', { userId: adminId, password }),
+    api.post('/auth/admin/login', { userId: adminId, password }),
 
 
 

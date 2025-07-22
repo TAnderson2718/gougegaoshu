@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authAPI, taskAPI } from '../services/api';
-import { performStudentReset } from '../utils/dataConsistency';
 
 const AppContext = createContext();
 
@@ -243,28 +242,7 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // 重置到初始日期并清空所有任务数据
-  const resetToInitialDate = async () => {
-    // 只有用户已登录才能重置
-    if (!state.user) {
-      console.warn('⚠️ 用户未登录，无法执行重置操作');
-      return;
-    }
-
-    // 使用专用的学生重置工具
-    const result = await performStudentReset(
-      taskAPI.resetToInitial,
-      setSystemDate,
-      state.initialDate
-    );
-
-    if (result.success) {
-      console.log('✅ 学生端重置成功:', result.data);
-    } else if (!result.cancelled) {
-      console.error('❌ 学生端重置失败:', result.error);
-      alert('重置失败: ' + result.error);
-    }
-  };
+  // 重置功能已移除，仅管理员可用
 
   // 检查是否可以设置日期（只能设置今天或未来的日期）
   const canSetDate = (targetDate) => {
@@ -352,7 +330,6 @@ export const AppProvider = ({ children }) => {
     setSystemDate,
     setSystemDateSafely,
     advanceDay,
-    resetToInitialDate,
     canSetDate
   };
 

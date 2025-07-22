@@ -182,25 +182,17 @@ describe('StudentApp Component', () => {
     expect(mockAdvanceDay).toHaveBeenCalledTimes(1);
   });
 
-  test('reset button calls resetToInitialDate function', async () => {
-    const user = userEvent.setup();
-    render(<StudentApp />);
-    
-    const resetButton = screen.getByText('重置');
-    await user.click(resetButton);
-    
-    expect(mockResetToInitialDate).toHaveBeenCalledTimes(1);
-  });
+  // 重置功能已移除，仅管理员可用
 
-  test('only shows advance day and reset buttons', () => {
+  test('only shows advance day button (reset removed for students)', () => {
     render(<StudentApp />);
-    
+
     // Should show advance day button
     expect(screen.getByText('+1天')).toBeInTheDocument();
-    
-    // Should show reset button
-    expect(screen.getByText('重置')).toBeInTheDocument();
-    
+
+    // Should NOT show reset button (removed for students)
+    expect(screen.queryByText('重置')).not.toBeInTheDocument();
+
     // Should not show specific date buttons
     expect(screen.queryByText('7/15')).not.toBeInTheDocument();
     expect(screen.queryByText('7/16')).not.toBeInTheDocument();

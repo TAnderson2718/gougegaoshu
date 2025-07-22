@@ -6,7 +6,7 @@ import MonthScreen from './MonthScreen';
 import ProfileScreen from './ProfileScreen';
 
 const StudentApp = () => {
-  const { user, systemDate, advanceDay, resetToInitialDate, initialDate, logout } = useApp();
+  const { user, systemDate, advanceDay, initialDate, logout } = useApp();
   const [activeTab, setActiveTab] = useState('当日任务');
   const [reminderShown, setReminderShown] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -110,7 +110,7 @@ const StudentApp = () => {
           </span>
           
           {/* 前进一天按钮 */}
-          <button 
+          <button
             onClick={async () => {
               try {
                 await advanceDay();
@@ -124,25 +124,13 @@ const StudentApp = () => {
           >
             +1天
           </button>
-          
-          
-          {/* 重置按钮 */}
-          <button 
-            onClick={resetToInitialDate}
-            className="mx-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-          >
-            重置
-          </button>
         </div>
         
         {/* 提示信息 */}
         <div className="mt-1 text-gray-600 text-center">
-          <div>只能前进到未来日期，重置会清空所有任务数据并回到初始日期 ({initialDate.toLocaleDateString('zh-CN')})</div>
+          <div>只能前进到未来日期，当前初始日期: {initialDate.toLocaleDateString('zh-CN')}</div>
           <div className="text-xs text-blue-600 mt-1">
             日期切换时自动处理前一天未完成任务（少于3个结转，3个及以上顺延）
-          </div>
-          <div className="text-xs text-red-600 mt-1">
-            ⚠️ 重置功能会完全删除所有任务、请假记录等数据，用于测试重新导入
           </div>
         </div>
       </div>
