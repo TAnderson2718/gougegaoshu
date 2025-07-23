@@ -1,99 +1,138 @@
-const mysql = require('mysql2/promise');
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 require('dotenv').config();
 
 // 获取数据库配置（动态获取，支持测试环境）
 function getDbConfig() {
+  const isTest = process.env.NODE_ENV === 'test';
+  const dbName = isTest ? 'task_manager_test.db' : 'task_manager.db';
+
   return {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'task_manager_db',
-    charset: 'utf8mb4',
-    timezone: '+08:00',
-    multipleStatements: true // 允许执行多条SQL语句
-    // 移除socketPath，使用TCP连接
+    filename: path.join(__dirname, '..', 'data', dbName),
+    mode: sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+    verbose: process.env.NODE_ENV !== 'production'
   };
 }
 
-// 创建连接池（延迟创建，确保环境变量已设置）
-let pool = null;
-let poolCreated = false; // 标志，防止重复日志输出
+// SQLite数据库连接管理
+let db = null;
+let dbCreated = false; // 标志，防止重复日志输出
 
-function getPool() {
-  if (!pool) {
+function getDatabase() {
+  if (!db) {
     const dbConfig = getDbConfig();
 
-    // 只在首次创建时输出日志
-    if (!poolCreated) {
-      console.log(`🔗 创建数据库连接池，目标数据库: ${dbConfig.database}`);
-
-      // 只在首次创建时输出配置信息，避免重复日志
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('🔍 数据库配置:', {
-          host: dbConfig.host,
-          port: dbConfig.port,
-          user: dbConfig.user,
-          password: dbConfig.password ? '***' : '(empty)',
-          database: dbConfig.database
-        });
-      }
-      poolCreated = true;
+    // 确保data目录存在
+    const fs = require('fs');
+    const dataDir = path.dirname(dbConfig.filename);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
     }
 
-    pool = mysql.createPool({
-      ...dbConfig,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-      // 添加额外的连接选项
-      authPlugins: {
-        mysql_clear_password: () => () => Buffer.from(dbConfig.password + '\0')
+    // 只在首次创建时输出日志
+    if (!dbCreated) {
+      console.log(`🔗 连接SQLite数据库: ${dbConfig.filename}`);
+      dbCreated = true;
+    }
+
+    db = new sqlite3.Database(dbConfig.filename, dbConfig.mode, (err) => {
+      if (err) {
+        console.error('❌ SQLite数据库连接失败:', err.message);
+      } else {
+        console.log('✅ SQLite数据库连接成功');
+        // 启用外键约束
+        db.run('PRAGMA foreign_keys = ON');
       }
     });
   }
-  return pool;
+  return db;
 }
 
-// 创建数据库（如果不存在）
-async function createDatabaseIfNotExists() {
-  try {
-    const dbConfig = getDbConfig();
-    // 只在非生产环境或首次连接时输出详细配置
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('🔍 数据库配置:', { ...dbConfig, password: dbConfig.password ? '***' : '(empty)' });
-    }
+// 初始化数据库表结构
+async function initializeTables() {
+  return new Promise((resolve, reject) => {
+    const database = getDatabase();
 
-    const tempConfig = { ...dbConfig };
-    delete tempConfig.database; // 临时移除数据库名
+    const createTables = `
+      CREATE TABLE IF NOT EXISTS students (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        password TEXT NOT NULL,
+        gender TEXT,
+        age INTEGER,
+        grade TEXT,
+        major TEXT,
+        bio TEXT,
+        avatar TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
 
-    console.log('🔗 尝试连接MySQL服务器...');
-    const tempConnection = await mysql.createConnection(tempConfig);
-    console.log('✅ MySQL服务器连接成功');
+      CREATE TABLE IF NOT EXISTS admins (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT DEFAULT 'admin',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
 
-    await tempConnection.execute(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
-    await tempConnection.end();
+      CREATE TABLE IF NOT EXISTS tasks (
+        id TEXT PRIMARY KEY,
+        student_id TEXT NOT NULL,
+        task_date DATE NOT NULL,
+        task_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        completed INTEGER DEFAULT 0,
+        duration_hour INTEGER DEFAULT 0,
+        duration_minute INTEGER DEFAULT 0,
+        proof_image TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(id)
+      );
 
-    console.log(`✅ 数据库 ${dbConfig.database} 已确保存在`);
-    return true;
-  } catch (error) {
-    console.error('❌ 创建数据库失败:', error.message);
-    console.error('❌ 错误详情:', error);
-    return false;
-  }
+      CREATE TABLE IF NOT EXISTS leave_records (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id TEXT NOT NULL,
+        leave_date DATE NOT NULL,
+        reason TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (student_id) REFERENCES students(id),
+        UNIQUE(student_id, leave_date)
+      );
+    `;
+
+    database.exec(createTables, (err) => {
+      if (err) {
+        console.error('❌ 创建数据库表失败:', err.message);
+        reject(err);
+      } else {
+        console.log('✅ 数据库表结构初始化完成');
+        resolve(true);
+      }
+    });
+  });
 }
 
 // 测试数据库连接
 async function testConnection() {
   try {
-    // 先确保数据库存在
-    await createDatabaseIfNotExists();
+    // 初始化数据库表
+    await initializeTables();
 
-    const currentPool = getPool();
-    const connection = await currentPool.getConnection();
-    console.log('✅ 数据库连接成功');
-    connection.release();
-    return true;
+    const database = getDatabase();
+    return new Promise((resolve) => {
+      database.get('SELECT 1 as test', (err, row) => {
+        if (err) {
+          console.error('❌ 数据库连接测试失败:', err.message);
+          resolve(false);
+        } else {
+          console.log('✅ 数据库连接测试成功');
+          resolve(true);
+        }
+      });
+    });
   } catch (error) {
     console.error('❌ 数据库连接失败:', error.message);
     return false;
@@ -102,59 +141,138 @@ async function testConnection() {
 
 // 执行查询的通用方法
 async function query(sql, params = []) {
-  try {
-    const currentPool = getPool();
-    const [rows] = await currentPool.execute(sql, params);
-    return rows;
-  } catch (error) {
-    console.error('数据库查询错误:', error);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    const database = getDatabase();
+
+    // 判断是SELECT查询还是其他操作
+    const isSelect = sql.trim().toUpperCase().startsWith('SELECT');
+
+    if (isSelect) {
+      database.all(sql, params, (err, rows) => {
+        if (err) {
+          console.error('数据库查询错误:', err);
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    } else {
+      database.run(sql, params, function(err) {
+        if (err) {
+          console.error('数据库操作错误:', err);
+          reject(err);
+        } else {
+          resolve({
+            changes: this.changes,
+            lastID: this.lastID
+          });
+        }
+      });
+    }
+  });
 }
 
 // 执行事务
 async function transaction(callback) {
-  const currentPool = getPool();
-  const connection = await currentPool.getConnection();
-  await connection.beginTransaction();
-  
-  try {
-    const result = await callback(connection);
-    await connection.commit();
-    return result;
-  } catch (error) {
-    await connection.rollback();
-    throw error;
-  } finally {
-    connection.release();
+  return new Promise((resolve, reject) => {
+    const database = getDatabase();
+
+    database.serialize(() => {
+      database.run('BEGIN TRANSACTION', (err) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+
+        // 创建事务上下文对象
+        const transactionContext = {
+          run: (sql, params = []) => {
+            return new Promise((res, rej) => {
+              database.run(sql, params, function(err) {
+                if (err) rej(err);
+                else res({ changes: this.changes, lastID: this.lastID });
+              });
+            });
+          },
+          get: (sql, params = []) => {
+            return new Promise((res, rej) => {
+              database.get(sql, params, (err, row) => {
+                if (err) rej(err);
+                else res(row);
+              });
+            });
+          },
+          all: (sql, params = []) => {
+            return new Promise((res, rej) => {
+              database.all(sql, params, (err, rows) => {
+                if (err) rej(err);
+                else res(rows);
+              });
+            });
+          }
+        };
+
+        Promise.resolve(callback(transactionContext))
+          .then(result => {
+            database.run('COMMIT', (err) => {
+              if (err) {
+                database.run('ROLLBACK');
+                reject(err);
+              } else {
+                resolve(result);
+              }
+            });
+          })
+          .catch(error => {
+            database.run('ROLLBACK', () => {
+              reject(error);
+            });
+          });
+      });
+    });
+  });
+}
+
+// 重置数据库连接（用于测试环境）
+function resetDatabase() {
+  if (db) {
+    db.close((err) => {
+      if (err) {
+        console.error('关闭数据库连接时出错:', err.message);
+      }
+    });
+    db = null;
+    dbCreated = false; // 重置标志
   }
 }
 
-// 重置连接池（用于测试环境）
-function resetPool() {
-  if (pool) {
-    pool.end();
-    pool = null;
-    poolCreated = false; // 重置标志
-  }
-}
-
-// 连接池关闭函数
-async function closePool() {
-  if (pool) {
-    await pool.end();
-    pool = null;
-    poolCreated = false; // 重置标志
-  }
+// 关闭数据库连接
+async function closeDatabase() {
+  return new Promise((resolve) => {
+    if (db) {
+      db.close((err) => {
+        if (err) {
+          console.error('关闭数据库连接时出错:', err.message);
+        } else {
+          console.log('✅ 数据库连接已关闭');
+        }
+        db = null;
+        dbCreated = false;
+        resolve();
+      });
+    } else {
+      resolve();
+    }
+  });
 }
 
 module.exports = {
-  get pool() { return getPool(); }, // 动态获取连接池
+  get database() { return getDatabase(); }, // 动态获取数据库连接
   query,
   transaction,
   testConnection,
-  createDatabaseIfNotExists,
+  initializeTables,
   getDbConfig,
-  resetPool,
-  closePool
+  resetDatabase,
+  closeDatabase
 };

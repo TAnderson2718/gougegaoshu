@@ -11,7 +11,7 @@
     "test:coverage": "NODE_ENV=test jest --config=jest.config.js --coverage",
     "test:run": "node tests/run-tests.js",
     "setup": "node setup.js",
-    "db:init": "node scripts/initDatabase.js",
+    "db:init": "node scripts/initSQLiteDatabase.js",
     "test:api": "node scripts/testAPI.js",
     "start:test": "node start-and-test.js"
   },
@@ -27,7 +27,8 @@
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.6.0",
-    "node-cron": "^4.2.1"
+    "node-cron": "^4.2.1",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",

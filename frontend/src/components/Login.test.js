@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import Login from './Login';
 
 // Mock the AppContext
@@ -28,7 +29,11 @@ describe('Login Component', () => {
   });
 
   test('renders login form with all elements', () => {
-    render(<Login />);
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
     
     expect(screen.getByText('学生登录')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('学生ID (例如: ST001)')).toBeInTheDocument();
@@ -41,7 +46,11 @@ describe('Login Component', () => {
 
   test('updates input values when user types', async () => {
     const user = userEvent.setup();
-    render(<Login />);
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
     
     const studentIdInput = screen.getByPlaceholderText('学生ID (例如: ST001)');
     const passwordInput = screen.getByPlaceholderText('密码');

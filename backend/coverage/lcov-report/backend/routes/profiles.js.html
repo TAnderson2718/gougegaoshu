@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">22.91% </span>
+                <span class="strong">21.27% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/48</span>
+                <span class='fraction'>10/47</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">22.91% </span>
+                <span class="strong">21.27% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>11/48</span>
+                <span class='fraction'>10/47</span>
             </div>
         
             
@@ -299,20 +299,18 @@
 <a name='L234'></a><a href='#L234'>234</a>
 <a name='L235'></a><a href='#L235'>235</a>
 <a name='L236'></a><a href='#L236'>236</a>
-<a name='L237'></a><a href='#L237'>237</a>
-<a name='L238'></a><a href='#L238'>238</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<a name='L237'></a><a href='#L237'>237</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,7 +338,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -404,7 +402,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -536,17 +534,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const express = require('express');
 const Joi = require('joi');
 const { query } = require('../config/database');
-const { authenticateToken, checkPasswordChange } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 &nbsp;
 const router = express.Router();
 &nbsp;
 // 应用认证中间件
 router.use(authenticateToken);
-router.use(checkPasswordChange);
 &nbsp;
 // 学生档案验证schema
 const profileSchema = Joi.object({
@@ -725,35 +722,35 @@ router.put('/', <span class="fstat-no" title="function not covered" >as</span>yn
         `INSERT INTO student_profiles (
           student_id, gender, age, study_status, study_status_other, math_type, math_type_other,
           target_score, daily_hours, gaokao_year, gaokao_province, gaokao_score,
-          grad_exam_year, grad_exam_province, grad_exam_major, grad_exam_math_type, grad_exam_score, 
-          upgrade_exam, upgrade_exam_year, upgrade_exam_province, upgrade_exam_major, upgrade_exam_math_type, upgrade_exam_score,
+          grad_exam_year, grad_exam_math_type, grad_exam_score,
+          upgrade_exam_year, upgrade_exam_province, upgrade_exam_math_type, upgrade_exam_score,
           purchased_books, notes, is_profile_submitted
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           profileData.student_id, profileData.gender, profileData.age, profileData.study_status, profileData.study_status_other,
           profileData.math_type, profileData.math_type_other, profileData.target_score, profileData.daily_hours,
           profileData.gaokao_year, profileData.gaokao_province, profileData.gaokao_score,
-          profileData.grad_exam_year, profileData.grad_exam_province, profileData.grad_exam_major, profileData.grad_exam_math_type, profileData.grad_exam_score,
-          profileData.upgrade_exam, profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_major, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
+          profileData.grad_exam_year, profileData.grad_exam_math_type, profileData.grad_exam_score,
+          profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
           profileData.purchased_books, profileData.notes, profileData.is_profile_submitted
         ]
       );
     } else {
       // 更新现有档案
 <span class="cstat-no" title="statement not covered" >      await query(</span>
-        `UPDATE student_profiles SET 
+        `UPDATE student_profiles SET
           gender = ?, age = ?, study_status = ?, study_status_other = ?, math_type = ?, math_type_other = ?,
           target_score = ?, daily_hours = ?, gaokao_year = ?, gaokao_province = ?, gaokao_score = ?,
-          grad_exam_year = ?, grad_exam_province = ?, grad_exam_major = ?, grad_exam_math_type = ?, grad_exam_score = ?, 
-          upgrade_exam = ?, upgrade_exam_year = ?, upgrade_exam_province = ?, upgrade_exam_major = ?, upgrade_exam_math_type = ?, upgrade_exam_score = ?,
+          grad_exam_year = ?, grad_exam_math_type = ?, grad_exam_score = ?,
+          upgrade_exam_year = ?, upgrade_exam_province = ?, upgrade_exam_math_type = ?, upgrade_exam_score = ?,
           purchased_books = ?, notes = ?, is_profile_submitted = ?, updated_at = CURRENT_TIMESTAMP
          WHERE student_id = ?`,
         [
           profileData.gender, profileData.age, profileData.study_status, profileData.study_status_other,
           profileData.math_type, profileData.math_type_other, profileData.target_score, profileData.daily_hours,
           profileData.gaokao_year, profileData.gaokao_province, profileData.gaokao_score,
-          profileData.grad_exam_year, profileData.grad_exam_province, profileData.grad_exam_major, profileData.grad_exam_math_type, profileData.grad_exam_score,
-          profileData.upgrade_exam, profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_major, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
+          profileData.grad_exam_year, profileData.grad_exam_math_type, profileData.grad_exam_score,
+          profileData.upgrade_exam_year, profileData.upgrade_exam_province, profileData.upgrade_exam_math_type, profileData.upgrade_exam_score,
           profileData.purchased_books, profileData.notes, profileData.is_profile_submitted, studentId
         ]
       );
@@ -781,7 +778,7 @@ module.exports = router;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-13T08:31:55.857Z
+                at 2025-07-23T16:20:46.345Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

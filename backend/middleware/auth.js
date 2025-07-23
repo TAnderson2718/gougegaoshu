@@ -46,7 +46,7 @@ const authenticateToken = async (req, res, next) => {
     if (decoded.userType === 'admin') {
       // 验证管理员是否仍然存在
       const admins = await query(
-        'SELECT id, name, role, force_password_change FROM admins WHERE id = ?',
+        'SELECT id, name, role FROM admins WHERE id = ?',
         [decoded.userId]
       );
 

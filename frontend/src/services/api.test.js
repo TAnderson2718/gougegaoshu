@@ -85,7 +85,7 @@ describe('API Services', () => {
       await authAPI.login('ST001', 'password123');
 
       expect(mockAxiosInstance.post).toHaveBeenCalledWith('/auth/login', {
-        studentId: 'ST001',
+        userId: 'ST001',
         password: 'password123'
       });
     });

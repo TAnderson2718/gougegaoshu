@@ -73,6 +73,10 @@ export const authAPI = {
   changePassword: (data) =>
     api.post('/auth/change-password', data),
 
+  // 强制修改密码
+  forceChangePassword: (newPassword) =>
+    api.post('/auth/force-change-password', { newPassword }),
+
   // 验证token
   verify: () =>
     api.get('/auth/verify')

@@ -5,7 +5,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const { testConnection } = require('./config/database');
-const { initializeDatabase } = require('./scripts/initDatabase');
+const { initializeDatabase } = require('./scripts/initSQLiteDatabase');
 const { startCronJobs, start: startCron } = require('./services/cronService');
 
 // 导入路由

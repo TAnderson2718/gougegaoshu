@@ -3,16 +3,16 @@
  * 配置测试数据库连接和全局测试工具
  */
 
-const { query, testConnection, resetPool } = require('../config/database');
-const bcrypt = require('bcrypt');
+const { query, testConnection, resetDatabase } = require('../config/database');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // 设置测试环境变量
 process.env.NODE_ENV = 'test';
 process.env.DB_NAME = 'task_manager_test_db';
 
-// 重置连接池以确保使用正确的数据库
-resetPool();
+// 重置数据库连接以确保使用正确的数据库
+resetDatabase();
 
 // 测试数据库配置
 const TEST_DB_NAME = 'task_manager_test_db';
@@ -22,13 +22,12 @@ let TEST_PASSWORD_HASH = null;
 let ADMIN_PASSWORD_HASH = null;
 
 /**
- * 创建测试数据库
+ * 创建测试数据库（SQLite不需要CREATE DATABASE）
  */
 async function createTestDatabase() {
   try {
-    // 创建测试数据库
-    await query(`CREATE DATABASE IF NOT EXISTS ${TEST_DB_NAME}`);
-    console.log('✅ 测试数据库创建成功');
+    // SQLite数据库文件会在连接时自动创建，无需CREATE DATABASE语句
+    console.log('✅ SQLite测试数据库准备完成');
   } catch (error) {
     console.error('❌ 创建测试数据库失败:', error);
     throw error;
@@ -36,26 +35,26 @@ async function createTestDatabase() {
 }
 
 /**
- * 初始化测试数据库表结构
+ * 初始化测试数据库表结构（SQLite版本）
  */
 async function initTestTables() {
   try {
-    // 创建学生表 (在指定数据库中)
+    // 创建学生表
     await query(`
-      CREATE TABLE IF NOT EXISTS ${TEST_DB_NAME}.students (
-        id VARCHAR(20) PRIMARY KEY,
-        name VARCHAR(50) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        force_password_change BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      CREATE TABLE IF NOT EXISTS students (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        password TEXT NOT NULL,
+        force_password_change INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
-    // 创建学生档案表 (先删除再创建以确保结构正确)
-    await query(`SET FOREIGN_KEY_CHECKS = 0`);
-    await query(`DROP TABLE IF EXISTS ${TEST_DB_NAME}.student_profiles`);
-    await query(`SET FOREIGN_KEY_CHECKS = 1`);
+    // 创建学生档案表（先删除再创建以确保结构正确）
+    await query(`PRAGMA foreign_keys = OFF`);
+    await query(`DROP TABLE IF EXISTS student_profiles`);
+    await query(`PRAGMA foreign_keys = ON`);
     await query(`
       CREATE TABLE ${TEST_DB_NAME}.student_profiles (
         id INT AUTO_INCREMENT PRIMARY KEY,

@@ -16,7 +16,7 @@ router.use(requireAdmin);
 router.get('/students', async (req, res) => {
   try {
     const students = await query(
-      'SELECT id, name, force_password_change, created_at FROM students ORDER BY created_at DESC'
+      'SELECT id, name, created_at FROM students ORDER BY created_at DESC'
     );
 
     res.json({
@@ -55,7 +55,7 @@ router.post('/students', async (req, res) => {
     const hashedPassword = await bcrypt.hash(initialPassword, 10);
 
     await query(
-      'INSERT INTO students (id, name, password, force_password_change) VALUES (?, ?, ?, TRUE)',
+      'INSERT INTO students (id, name, password) VALUES (?, ?, ?)',
       [newStudentId, name.trim(), hashedPassword]
     );
 
@@ -144,7 +144,6 @@ router.get('/students/:studentId/profile', async (req, res) => {
         student: {
           id: student.id,
           name: student.name,
-          forcePasswordChange: student.force_password_change,
           createdAt: student.created_at
         },
         profile: profile ? {
@@ -426,14 +425,14 @@ router.post('/reset-all-tasks', async (req, res) => {
 
     await transaction(async (connection) => {
       // 1. 删除所有请假记录
-      const [leaveResult] = await connection.execute('DELETE FROM leave_records');
+      const leaveResult = await connection.run('DELETE FROM leave_records');
 
       // 2. 删除所有任务调度历史（如果表存在）
-      let historyResult = { affectedRows: 0 };
+      let historyResult = { changes: 0 };
       try {
-        [historyResult] = await connection.execute('DELETE FROM task_schedule_history');
+        historyResult = await connection.run('DELETE FROM task_schedule_history');
       } catch (error) {
-        if (error.code === 'ER_NO_SUCH_TABLE') {
+        if (error.code === 'SQLITE_ERROR' && error.message.includes('no such table')) {
           console.log('   - task_schedule_history 表不存在，跳过删除');
         } else {
           throw error;
@@ -441,12 +440,12 @@ router.post('/reset-all-tasks', async (req, res) => {
       }
 
       // 3. 删除所有任务
-      const [tasksResult] = await connection.execute('DELETE FROM tasks');
+      const tasksResult = await connection.run('DELETE FROM tasks');
 
       console.log(`✅ 所有任务数据清空完成:`);
-      console.log(`   - 删除了 ${leaveResult.affectedRows} 条请假记录`);
-      console.log(`   - 删除了 ${historyResult.affectedRows} 条任务调度历史`);
-      console.log(`   - 删除了 ${tasksResult.affectedRows} 个任务`);
+      console.log(`   - 删除了 ${leaveResult.changes} 条请假记录`);
+      console.log(`   - 删除了 ${historyResult.changes} 条任务调度历史`);
+      console.log(`   - 删除了 ${tasksResult.changes} 个任务`);
     });
 
     res.json({

@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 
     let sql = `SELECT
       id, student_id,
-      DATE_FORMAT(task_date, '%Y-%m-%d') as task_date,
+      strftime('%Y-%m-%d', task_date) as task_date,
       task_type, title, completed,
       duration_hour, duration_minute, proof_image, created_at
     FROM tasks WHERE student_id = ?`;
@@ -251,8 +251,8 @@ router.post('/leave', async (req, res) => {
 
       // 添加请假任务标记
       await connection.execute(
-        'INSERT INTO tasks (id, student_id, task_date, task_type, title, completed, original_date, task_status) VALUES (?, ?, ?, "leave", "已请假", TRUE, ?, "normal")',
-        [`leave-${studentId}-${date}`, studentId, date, date]
+        'INSERT INTO tasks (id, student_id, task_date, task_type, title, completed) VALUES (?, ?, ?, "leave", "已请假", TRUE)',
+        [`leave-${studentId}-${date}`, studentId, date]
       );
     });
 

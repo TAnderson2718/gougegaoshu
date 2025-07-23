@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">10.9% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>6/55</span>
+                <span class='fraction'>0/55</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">10% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/10</span>
+                <span class='fraction'>0/10</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">11.11% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>6/54</span>
+                <span class='fraction'>0/54</span>
             </div>
         
             
@@ -297,13 +297,12 @@
 <a name='L232'></a><a href='#L232'>232</a>
 <a name='L233'></a><a href='#L233'>233</a>
 <a name='L234'></a><a href='#L234'>234</a>
-<a name='L235'></a><a href='#L235'>235</a>
-<a name='L236'></a><a href='#L236'>236</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-yes">6x</span>
+<a name='L235'></a><a href='#L235'>235</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -432,7 +431,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -515,30 +513,30 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const { query, testConnection } = require('../config/database');
-const bcrypt = require('bcrypt');
-require('dotenv').config();
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const { query, testConnection } = <span class="cstat-no" title="statement not covered" >require('../config/database');</span>
+const bcrypt = <span class="cstat-no" title="statement not covered" >require('bcryptjs');</span>
+<span class="cstat-no" title="statement not covered" >require('dotenv').config();</span>
 &nbsp;
 // 建表SQL语句数组
-const createTablesSQL = [
+const createTablesSQL = <span class="cstat-no" title="statement not covered" >[</span>
   // 1. 学生表
   `CREATE TABLE IF NOT EXISTS students (
     id VARCHAR(20) PRIMARY KEY COMMENT '学生ID，如ST001',
@@ -663,9 +661,8 @@ async function <span class="fstat-no" title="function not covered" >insertInitia
     // 插入初始管理员数据
 <span class="cstat-no" title="statement not covered" >    await query(`</span>
       INSERT INTO admins (id, name, password, role, force_password_change) VALUES
-      ('ADMIN001', '系统管理员', ?, 'super_admin', FALSE),
-      ('ADMIN002', '普通管理员', ?, 'admin', FALSE)
-    `, [hashedAdminPassword, hashedAdminPassword]);
+      ('ADMIN', '系统管理员', ?, 'super_admin', FALSE)
+    `, [hashedAdminPassword]);
 &nbsp;
     // 插入系统配置
 <span class="cstat-no" title="statement not covered" >    await query(`</span>
@@ -677,7 +674,7 @@ async function <span class="fstat-no" title="function not covered" >insertInitia
 <span class="cstat-no" title="statement not covered" >    console.log('✅ 初始数据插入成功');</span>
 <span class="cstat-no" title="statement not covered" >    console.log(`📝 默认学生账户: ST001, ST002`);</span>
 <span class="cstat-no" title="statement not covered" >    console.log(`🔑 学生初始密码: ${initialPassword}`);</span>
-<span class="cstat-no" title="statement not covered" >    console.log(`👨‍💼 默认管理员账户: ADMIN001, ADMIN002`);</span>
+<span class="cstat-no" title="statement not covered" >    console.log(`👨‍💼 默认管理员账户: ADMIN`);</span>
 <span class="cstat-no" title="statement not covered" >    console.log(`🔐 管理员密码: ${adminPassword}`);</span>
 &nbsp;
   } catch (error) {
@@ -750,7 +747,7 @@ async function <span class="fstat-no" title="function not covered" >initializeDa
 }
 &nbsp;
 // 如果直接运行此脚本
-<span class="missing-if-branch" title="if path not taken" >I</span>if (require.main === module) {
+<span class="cstat-no" title="statement not covered" >if (require.main === module) {</span>
 <span class="cstat-no" title="statement not covered" >  initializeDatabase()</span>
     .then(<span class="fstat-no" title="function not covered" >()</span> =&gt; {
 <span class="cstat-no" title="statement not covered" >      console.log('✅ 数据库初始化脚本执行完成');</span>
@@ -762,7 +759,7 @@ async function <span class="fstat-no" title="function not covered" >initializeDa
     });
 }
 &nbsp;
-module.exports = {
+<span class="cstat-no" title="statement not covered" >module.exports = {</span>
   initializeDatabase,
   createTablesSQL,
   insertInitialData,
@@ -775,7 +772,7 @@ module.exports = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-13T08:31:55.850Z
+                at 2025-07-23T16:20:46.330Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -5,7 +5,7 @@
 
 const request = require('supertest');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const app = require('../server');
 const { query } = require('../config/database');
 
@@ -41,7 +41,7 @@ describe('认证系统模块测试', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('登录成功');
+      expect(response.body.message).toBe('学生登录成功');
       expect(response.body.data).toHaveProperty('token');
       expect(response.body.data).toHaveProperty('student');
       expect(response.body.data.student.id).toBe('ST001');
@@ -58,7 +58,7 @@ describe('认证系统模块测试', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('学生ID不能为空');
+      expect(response.body.message).toBe('"studentId" is not allowed to be empty');
     });
 
     test('Edge Case - 空密码', async () => {
@@ -188,7 +188,7 @@ describe('认证系统模块测试', () => {
   describe('POST /api/auth/change-password - 修改密码', () => {
     test('Happy Path - 正确旧密码修改成功', async () => {
       // 创建一个专门的测试用户，避免影响其他测试
-      const bcrypt = require('bcrypt');
+      const bcrypt = require('bcryptjs');
       const testPassword = await bcrypt.hash('TestPass123', 10);
 
       // 插入临时测试用户

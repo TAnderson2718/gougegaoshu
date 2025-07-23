@@ -23,7 +23,7 @@ module.exports = {
   
   // 设置文件
   setupFilesAfterEnv: [
-    '<rootDir>/tests/setup.js'
+    '<rootDir>/tests/sqlite-setup.js'
   ],
   
   // 覆盖率配置

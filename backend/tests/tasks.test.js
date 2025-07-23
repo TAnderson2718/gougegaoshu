@@ -188,11 +188,16 @@ describe('任务管理模块测试', () => {
 
   describe('POST /api/tasks/leave - 请假申请', () => {
     test('Happy Path - 有效日期请假', async () => {
+      // 使用未来的日期
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 1);
+      const futureDateStr = futureDate.toISOString().split('T')[0];
+
       const response = await request(app)
         .post('/api/tasks/leave')
         .set('Authorization', `Bearer ${validToken}`)
         .send({
-          date: '2024-01-15'
+          date: futureDateStr
         });
 
       expect(response.status).toBe(200);
@@ -200,13 +205,13 @@ describe('任务管理模块测试', () => {
       expect(response.body.message).toBe('请假申请成功');
 
       // 验证请假记录被创建
-      const leaveRecords = await query('SELECT * FROM leave_records WHERE student_id = ? AND leave_date = ?', 
-        ['ST001', '2024-01-15']);
+      const leaveRecords = await query('SELECT * FROM leave_records WHERE student_id = ? AND leave_date = ?',
+        ['ST001', futureDateStr]);
       expect(leaveRecords).toHaveLength(1);
 
       // 验证请假任务被创建
-      const leaveTasks = await query('SELECT * FROM tasks WHERE student_id = ? AND task_date = ? AND task_type = ?', 
-        ['ST001', '2024-01-15', 'leave']);
+      const leaveTasks = await query('SELECT * FROM tasks WHERE student_id = ? AND task_date = ? AND task_type = ?',
+        ['ST001', futureDateStr, 'leave']);
       expect(leaveTasks).toHaveLength(1);
       expect(leaveTasks[0].title).toBe('已请假');
       expect(leaveTasks[0].completed).toBe(1);
@@ -226,12 +231,17 @@ describe('任务管理模块测试', () => {
     });
 
     test('Error Handling - 重复请假', async () => {
+      // 使用未来的日期
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 2);
+      const futureDateStr = futureDate.toISOString().split('T')[0];
+
       // 先请一次假
       await request(app)
         .post('/api/tasks/leave')
         .set('Authorization', `Bearer ${validToken}`)
         .send({
-          date: '2024-01-20'
+          date: futureDateStr
         });
 
       // 再次请假同一天
@@ -239,7 +249,7 @@ describe('任务管理模块测试', () => {
         .post('/api/tasks/leave')
         .set('Authorization', `Bearer ${validToken}`)
         .send({
-          date: '2024-01-20'
+          date: futureDateStr
         });
 
       expect(response.status).toBe(500);

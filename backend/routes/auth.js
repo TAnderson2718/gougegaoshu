@@ -37,6 +37,15 @@ const changePasswordSchema = Joi.object({
   })
 });
 
+// 强制修改密码schema
+const forceChangePasswordSchema = Joi.object({
+  newPassword: Joi.string().min(6).required().messages({
+    'string.min': '新密码长度不能少于6位',
+    'string.empty': '新密码长度不能少于6位',
+    'any.required': '新密码长度不能少于6位'
+  })
+});
+
 // 管理员登录
 router.post('/admin/login', async (req, res) => {
   try {
@@ -58,11 +67,11 @@ router.post('/admin/login', async (req, res) => {
     // 查询管理员信息
     const admins = await query(
       'SELECT id, name, password, role FROM admins WHERE id = ?',
-      [adminId.toUpperCase()]
+      [adminId.toLowerCase()]
     );
 
     console.log('🔍 查询管理员结果:', {
-      searchId: adminId.toUpperCase(),
+      searchId: adminId.toLowerCase(),
       found: admins.length > 0,
       count: admins.length
     });
@@ -166,11 +175,11 @@ router.post('/login', async (req, res) => {
       // 查询管理员信息
       const admins = await query(
         'SELECT id, name, password, \'admin\' as role FROM admins WHERE id = ?',
-        [userId.toUpperCase()]
+        [userId.toLowerCase()]
       );
 
       console.log('🔍 查询管理员结果:', {
-        searchId: userId.toUpperCase(),
+        searchId: userId.toLowerCase(),
         found: admins.length > 0,
         count: admins.length
       });
@@ -325,7 +334,42 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// 强制修改密码（管理员功能）
+router.post('/force-change-password', authenticateToken, async (req, res) => {
+  try {
+    const { error, value } = forceChangePasswordSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message
+      });
+    }
 
+    const { newPassword } = value;
+    const userId = req.user.userId || req.user.studentId;
+
+    // 加密新密码
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 更新密码
+    await query(
+      'UPDATE students SET password = ? WHERE id = ?',
+      [hashedPassword, userId]
+    );
+
+    res.json({
+      success: true,
+      message: '密码修改成功'
+    });
+
+  } catch (error) {
+    console.error('强制修改密码错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '服务器内部错误'
+    });
+  }
+});
 
 // 学生修改密码
 router.post('/change-password', authenticateToken, async (req, res) => {
