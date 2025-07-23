@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success { background-color: #28a745; color: white; }
+        .status.error { background-color: #dc3545; color: white; }
+        .status.pending { background-color: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 API 测试页面</h1>
+        <p>测试后端API功能</p>
+        
+        <div class="test-section">
+            <h3>🔧 服务器配置</h3>
+            <label>API Base URL:</label>
+            <input type="text" id="baseUrl" value="http://localhost:3001" placeholder="http://localhost:3001">
+            <button onclick="updateBaseUrl()">更新</button>
+            <div id="currentUrl" style="margin-top: 10px; color: #666;">当前: http://localhost:3001</div>
+        </div>
+
+        <div class="test-section">
+            <h3>🏥 健康检查</h3>
+            <button onclick="testHealth()">测试健康检查</button>
+            <span id="healthStatus" class="status pending">未测试</span>
+            <div id="healthResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔐 学生登录</h3>
+            <div>
+                <input type="text" id="userId" value="ST001" placeholder="学生ID">
+                <input type="password" id="password" value="Hello888" placeholder="密码">
+                <button onclick="testLogin()">登录测试</button>
+                <span id="loginStatus" class="status pending">未测试</span>
+            </div>
+            <div id="loginResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 任务相关API</h3>
+            <button onclick="testGetTasks()">获取任务列表</button>
+            <button onclick="testMidnightProcess()">测试Midnight Process</button>
+            <span id="tasksStatus" class="status pending">未测试</span>
+            <div id="tasksResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👨‍💼 管理员登录</h3>
+            <div>
+                <input type="text" id="adminId" value="admin001" placeholder="管理员ID">
+                <input type="password" id="adminPassword" value="admin123" placeholder="密码">
+                <button onclick="testAdminLogin()">管理员登录</button>
+                <span id="adminStatus" class="status pending">未测试</span>
+            </div>
+            <div id="adminResult" class="result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 测试总结</h3>
+            <div id="summary">
+                <p>点击上方按钮开始测试...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let baseUrl = 'http://localhost:3001';
+        let authToken = '';
+
+        function updateBaseUrl() {
+            baseUrl = document.getElementById('baseUrl').value;
+            document.getElementById('currentUrl').textContent = '当前: ' + baseUrl;
+        }
+
+        function updateStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = 'status ' + status;
+            element.textContent = text;
+        }
+
+        function showResult(elementId, content, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result ' + (isSuccess ? 'success' : 'error');
+            element.textContent = content;
+        }
+
+        async function testHealth() {
+            updateStatus('healthStatus', 'pending', '测试中...');
+            try {
+                const response = await fetch(`${baseUrl}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    updateStatus('healthStatus', 'success', '✅ 正常');
+                    showResult('healthResult', JSON.stringify(data, null, 2), true);
+                } else {
+                    updateStatus('healthStatus', 'error', '❌ 异常');
+                    showResult('healthResult', `HTTP ${response.status}: ${JSON.stringify(data, null, 2)}`, false);
+                }
+            } catch (error) {
+                updateStatus('healthStatus', 'error', '❌ 连接失败');
+                showResult('healthResult', `错误: ${error.message}`, false);
+            }
+        }
+
+        async function testLogin() {
+            updateStatus('loginStatus', 'pending', '登录中...');
+            const userId = document.getElementById('userId').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${baseUrl}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    authToken = data.token;
+                    updateStatus('loginStatus', 'success', '✅ 登录成功');
+                    showResult('loginResult', JSON.stringify(data, null, 2), true);
+                } else {
+                    updateStatus('loginStatus', 'error', '❌ 登录失败');
+                    showResult('loginResult', JSON.stringify(data, null, 2), false);
+                }
+            } catch (error) {
+                updateStatus('loginStatus', 'error', '❌ 连接失败');
+                showResult('loginResult', `错误: ${error.message}`, false);
+            }
+        }
+
+        async function testGetTasks() {
+            if (!authToken) {
+                alert('请先登录获取Token');
+                return;
+            }
+
+            updateStatus('tasksStatus', 'pending', '获取中...');
+            try {
+                const response = await fetch(`${baseUrl}/api/tasks`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus('tasksStatus', 'success', '✅ 获取成功');
+                    showResult('tasksResult', JSON.stringify(data, null, 2), true);
+                } else {
+                    updateStatus('tasksStatus', 'error', '❌ 获取失败');
+                    showResult('tasksResult', JSON.stringify(data, null, 2), false);
+                }
+            } catch (error) {
+                updateStatus('tasksStatus', 'error', '❌ 连接失败');
+                showResult('tasksResult', `错误: ${error.message}`, false);
+            }
+        }
+
+        async function testMidnightProcess() {
+            if (!authToken) {
+                alert('请先登录获取Token');
+                return;
+            }
+
+            updateStatus('tasksStatus', 'pending', '处理中...');
+            try {
+                const response = await fetch(`${baseUrl}/api/tasks/midnight-process`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ date: '2025-07-22' })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    updateStatus('tasksStatus', 'success', '✅ 处理成功');
+                    showResult('tasksResult', JSON.stringify(data, null, 2), true);
+                } else {
+                    updateStatus('tasksStatus', 'error', '❌ 处理失败');
+                    showResult('tasksResult', JSON.stringify(data, null, 2), false);
+                }
+            } catch (error) {
+                updateStatus('tasksStatus', 'error', '❌ 连接失败');
+                showResult('tasksResult', `错误: ${error.message}`, false);
+            }
+        }
+
+        async function testAdminLogin() {
+            updateStatus('adminStatus', 'pending', '登录中...');
+            const adminId = document.getElementById('adminId').value;
+            const adminPassword = document.getElementById('adminPassword').value;
+
+            try {
+                const response = await fetch(`${baseUrl}/api/auth/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ adminId, password: adminPassword })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    updateStatus('adminStatus', 'success', '✅ 登录成功');
+                    showResult('adminResult', JSON.stringify(data, null, 2), true);
+                } else {
+                    updateStatus('adminStatus', 'error', '❌ 登录失败');
+                    showResult('adminResult', JSON.stringify(data, null, 2), false);
+                }
+            } catch (error) {
+                updateStatus('adminStatus', 'error', '❌ 连接失败');
+                showResult('adminResult', `错误: ${error.message}`, false);
+            }
+        }
+
+        // 页面加载时自动测试健康检查
+        window.onload = function() {
+            setTimeout(testHealth, 1000);
+        };
+    </script>
+</body>
+</html>

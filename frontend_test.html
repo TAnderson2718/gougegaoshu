@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端界面测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 12px;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 任务管理系统</h1>
+            <p>学生与管理员登录</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('student')">学生登录</button>
+            <button class="tab" onclick="switchTab('admin')">管理员登录</button>
+        </div>
+        
+        <div class="form-container">
+            <!-- 学生登录 -->
+            <div id="student-tab" class="tab-content active">
+                <form id="studentForm">
+                    <div class="form-group">
+                        <label for="studentId">学生ID</label>
+                        <input type="text" id="studentId" name="studentId" value="ST001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="studentPassword">密码</label>
+                        <input type="password" id="studentPassword" name="password" value="Hello888" required>
+                    </div>
+                    <button type="submit" class="btn" id="studentBtn">
+                        登录
+                    </button>
+                </form>
+                <div id="studentResult"></div>
+            </div>
+            
+            <!-- 管理员登录 -->
+            <div id="admin-tab" class="tab-content">
+                <form id="adminForm">
+                    <div class="form-group">
+                        <label for="adminId">管理员ID</label>
+                        <input type="text" id="adminId" name="adminId" value="admin001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminPassword">密码</label>
+                        <input type="password" id="adminPassword" name="password" value="admin123" required>
+                    </div>
+                    <button type="submit" class="btn" id="adminBtn">
+                        登录
+                    </button>
+                </form>
+                <div id="adminResult"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>🔧 前端界面测试 | API: <span id="apiStatus">检测中...</span></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://114.92.153.131:3001';
+        
+        function switchTab(tab) {
+            // 切换标签
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+        
+        function showResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = 'result ' + (isSuccess ? 'success' : 'error');
+        }
+        
+        function setLoading(buttonId, isLoading) {
+            const button = document.getElementById(buttonId);
+            if (isLoading) {
+                button.innerHTML = '<span class="loading"></span>登录中...';
+                button.disabled = true;
+            } else {
+                button.innerHTML = '登录';
+                button.disabled = false;
+            }
+        }
+        
+        // 学生登录
+        document.getElementById('studentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading('studentBtn', true);
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showResult('studentResult', 
+                        `✅ 登录成功！<br>欢迎，${result.data.student.name}<br>Token: ${result.token.substring(0, 20)}...`, 
+                        true);
+                } else {
+                    showResult('studentResult', 
+                        `❌ 登录失败：${result.message || '未知错误'}`, 
+                        false);
+                }
+            } catch (error) {
+                showResult('studentResult', 
+                    `❌ 连接失败：${error.message}`, 
+                    false);
+            }
+            
+            setLoading('studentBtn', false);
+        });
+        
+        // 管理员登录
+        document.getElementById('adminForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading('adminBtn', true);
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/admin/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showResult('adminResult', 
+                        `✅ 登录成功！<br>欢迎，${result.data.admin.name}<br>Token: ${result.token.substring(0, 20)}...`, 
+                        true);
+                } else {
+                    showResult('adminResult', 
+                        `❌ 登录失败：${result.message || '未知错误'}`, 
+                        false);
+                }
+            } catch (error) {
+                showResult('adminResult', 
+                    `❌ 连接失败：${error.message}`, 
+                    false);
+            }
+            
+            setLoading('adminBtn', false);
+        });
+        
+        // 检测API状态
+        async function checkApiStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    document.getElementById('apiStatus').textContent = '✅ 正常';
+                    document.getElementById('apiStatus').style.color = '#28a745';
+                } else {
+                    document.getElementById('apiStatus').textContent = '⚠️ 异常';
+                    document.getElementById('apiStatus').style.color = '#ffc107';
+                }
+            } catch (error) {
+                document.getElementById('apiStatus').textContent = '❌ 离线';
+                document.getElementById('apiStatus').style.color = '#dc3545';
+            }
+        }
+        
+        // 页面加载时检测API状态
+        window.onload = function() {
+            checkApiStatus();
+            setInterval(checkApiStatus, 30000); // 每30秒检测一次
+        };
+    </script>
+</body>
+</html>

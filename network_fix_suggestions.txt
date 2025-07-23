@@ -1,0 +1,31 @@
+网络修复建议
+生成时间: Wed Jul 23 01:25:22 CST 2025
+================================
+
+当前环境分析:
+- 用户: danieldong
+- 系统: Darwin
+- Docker: 未安装
+- docker-compose: 未安装
+
+修复步骤建议:
+1. 如果有Docker权限，运行:
+   docker-compose down
+   docker-compose up -d
+
+2. 如果没有Docker权限，请联系系统管理员:
+   - 添加用户到docker组: sudo usermod -aG docker danieldong
+   - 或使用sudo运行Docker命令
+
+3. 检查防火墙设置（需要管理员权限）:
+   - macOS: 系统偏好设置 → 安全性与隐私 → 防火墙
+   - Linux: sudo ufw allow 80 && sudo ufw allow 3001
+
+4. 如果是远程服务器，检查云服务商安全组:
+   - 开放端口: 80, 3001, 3307
+   - 来源: 0.0.0.0/0
+
+5. 测试连接:
+   - 本地: curl http://localhost:3001/health
+   - 远程: curl http://114.92.153.131:3001/health
+

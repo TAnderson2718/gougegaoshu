@@ -18,18 +18,28 @@ function getDbConfig() {
 
 // 创建连接池（延迟创建，确保环境变量已设置）
 let pool = null;
+let poolCreated = false; // 标志，防止重复日志输出
 
 function getPool() {
   if (!pool) {
     const dbConfig = getDbConfig();
-    console.log(`🔗 创建数据库连接池，目标数据库: ${dbConfig.database}`);
-    console.log('🔍 数据库配置:', {
-      host: dbConfig.host,
-      port: dbConfig.port,
-      user: dbConfig.user,
-      password: dbConfig.password ? '***' : '(empty)',
-      database: dbConfig.database
-    });
+
+    // 只在首次创建时输出日志
+    if (!poolCreated) {
+      console.log(`🔗 创建数据库连接池，目标数据库: ${dbConfig.database}`);
+
+      // 只在首次创建时输出配置信息，避免重复日志
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('🔍 数据库配置:', {
+          host: dbConfig.host,
+          port: dbConfig.port,
+          user: dbConfig.user,
+          password: dbConfig.password ? '***' : '(empty)',
+          database: dbConfig.database
+        });
+      }
+      poolCreated = true;
+    }
 
     pool = mysql.createPool({
       ...dbConfig,
@@ -49,7 +59,10 @@ function getPool() {
 async function createDatabaseIfNotExists() {
   try {
     const dbConfig = getDbConfig();
-    console.log('🔍 数据库配置:', { ...dbConfig, password: dbConfig.password ? '***' : '(empty)' });
+    // 只在非生产环境或首次连接时输出详细配置
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔍 数据库配置:', { ...dbConfig, password: dbConfig.password ? '***' : '(empty)' });
+    }
 
     const tempConfig = { ...dbConfig };
     delete tempConfig.database; // 临时移除数据库名
@@ -122,6 +135,7 @@ function resetPool() {
   if (pool) {
     pool.end();
     pool = null;
+    poolCreated = false; // 重置标志
   }
 }
 
@@ -130,6 +144,7 @@ async function closePool() {
   if (pool) {
     await pool.end();
     pool = null;
+    poolCreated = false; // 重置标志
   }
 }
 

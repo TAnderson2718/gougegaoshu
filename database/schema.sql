@@ -58,6 +58,7 @@ CREATE TABLE tasks (
     id VARCHAR(100) PRIMARY KEY COMMENT '任务ID',
     student_id VARCHAR(20) NOT NULL COMMENT '学生ID',
     task_date DATE NOT NULL COMMENT '任务日期',
+    original_date DATE COMMENT '原始日期（用于跟踪任务调度）',
     task_type VARCHAR(50) NOT NULL COMMENT '任务类型：数学、英语、政治、专业课、复习、休息、leave等',
     title VARCHAR(500) NOT NULL COMMENT '任务标题',
     completed BOOLEAN DEFAULT FALSE COMMENT '是否完成',
@@ -66,11 +67,12 @@ CREATE TABLE tasks (
     proof_image LONGTEXT COMMENT '完成凭证图片（base64）',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     INDEX idx_student_date (student_id, task_date),
     INDEX idx_task_date (task_date),
-    INDEX idx_task_type (task_type)
+    INDEX idx_task_type (task_type),
+    INDEX idx_original_date (original_date)
 ) COMMENT '学习任务表';
 
 -- 4. 请假记录表
@@ -85,7 +87,41 @@ CREATE TABLE leave_records (
     UNIQUE KEY uk_student_leave_date (student_id, leave_date)
 ) COMMENT '学生请假记录表';
 
--- 5. 系统配置表
+-- 5. 任务调度历史表
+CREATE TABLE task_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(20) NOT NULL COMMENT '学生ID',
+    task_id INT COMMENT '原任务ID（如果是从任务表移动过来的）',
+    task_type VARCHAR(50) NOT NULL COMMENT '任务类型',
+    title VARCHAR(200) NOT NULL COMMENT '任务标题',
+    original_date DATE NOT NULL COMMENT '原始日期',
+    moved_from_date DATE NOT NULL COMMENT '从哪个日期移动过来',
+    moved_to_date DATE COMMENT '移动到哪个日期（NULL表示删除）',
+    action_type ENUM('defer', 'carry_over', 'delete') NOT NULL COMMENT '操作类型',
+    reason VARCHAR(100) COMMENT '操作原因',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    INDEX idx_student_date (student_id, original_date),
+    INDEX idx_action_date (action_type, created_at)
+) COMMENT '任务调度历史记录表';
+
+-- 6. 任务调度配置表
+CREATE TABLE schedule_config (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(20) NOT NULL COMMENT '学生ID',
+    daily_task_limit INT DEFAULT 4 COMMENT '每日任务上限',
+    carry_over_threshold INT DEFAULT 3 COMMENT '结转阈值（小于此数量结转，大于等于此数量顺延）',
+    advance_days_limit INT DEFAULT 5 COMMENT '最多可提前几天完成任务',
+    auto_defer_time TIME DEFAULT '00:00:00' COMMENT '自动处理未完成任务的时间',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_student_config (student_id)
+) COMMENT '学生任务调度配置表';
+
+-- 7. 系统配置表
 CREATE TABLE system_config (
     id INT AUTO_INCREMENT PRIMARY KEY,
     config_key VARCHAR(100) NOT NULL COMMENT '配置键',
@@ -93,14 +129,19 @@ CREATE TABLE system_config (
     description VARCHAR(200) COMMENT '配置说明',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     UNIQUE KEY uk_config_key (config_key)
 ) COMMENT '系统配置表';
 
 -- 插入初始数据
-INSERT INTO students (id, name, password, force_password_change) VALUES 
+INSERT INTO students (id, name, password, force_password_change) VALUES
 ('ST001', '张三', '$2b$10$example_hashed_password_1', TRUE),
 ('ST002', '李四', '$2b$10$example_hashed_password_2', TRUE);
+
+-- 插入默认任务调度配置
+INSERT INTO schedule_config (student_id, daily_task_limit, carry_over_threshold, advance_days_limit) VALUES
+('ST001', 4, 3, 5),
+('ST002', 4, 3, 5);
 
 INSERT INTO system_config (config_key, config_value, description) VALUES 
 ('initial_password', 'Hello888', '学生初始密码'),

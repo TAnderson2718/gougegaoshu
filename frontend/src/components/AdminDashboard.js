@@ -49,6 +49,39 @@ const AdminDashboard = () => {
     }
   };
 
+  // 修复数据库
+  const handleFixDatabase = async () => {
+    if (!window.confirm('确定要修复数据库吗？这将创建缺失的表和字段。')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/fix-database', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('数据库修复成功！');
+      } else {
+        setError(result.message || '数据库修复失败');
+      }
+    } catch (err) {
+      setError(err.message || '网络错误');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 获取学生档案
   const fetchStudentProfile = async (studentId) => {
     try {
@@ -843,6 +876,12 @@ const AdminDashboard = () => {
                 className="w-full px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-sm"
               >
                 刷新数据
+              </button>
+              <button
+                onClick={handleFixDatabase}
+                className="w-full px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 text-sm"
+              >
+                🔧 修复数据库
               </button>
             </div>
           </div>

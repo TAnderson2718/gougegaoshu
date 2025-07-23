@@ -29,16 +29,21 @@ async function handleLeaveDefer(studentId, leaveDate, connection) {
       return { affectedTasks: 0, details: '无需顺延任务' };
     }
 
-    // 2. 获取学生的调度配置
+    // 2. 获取全局调度配置
     const [configs] = await connection.execute(
-      'SELECT * FROM schedule_config WHERE student_id = ?',
-      [studentId]
+      'SELECT config_key, config_value FROM schedule_config'
     );
-    
-    const config = configs[0] || {
-      daily_task_limit: 4,
-      carry_over_threshold: 3,
-      advance_days_limit: 5
+
+    // 解析配置
+    const configMap = {};
+    configs.forEach(row => {
+      configMap[row.config_key] = row.config_value;
+    });
+
+    const config = {
+      daily_task_limit: parseInt(configMap.daily_task_limit) || 4,
+      carry_over_threshold: parseInt(configMap.carry_over_threshold) || 3,
+      advance_days_limit: parseInt(configMap.advance_days_limit) || 5
     };
 
     // 3. 找到下一个非休息日作为顺延目标日期
@@ -344,14 +349,16 @@ async function handleMidnightTaskReschedule(studentId, targetDate) {
         return;
       }
 
-      // 获取配置
-      const [configs] = await connection.execute(
-        'SELECT * FROM schedule_config WHERE student_id = ?',
+      // 获取学生的个人配置，如果没有则使用默认值
+      const [studentConfigs] = await connection.execute(
+        'SELECT carry_over_threshold FROM schedule_config WHERE student_id = ?',
         [studentId]
       );
-      
-      const config = configs[0] || { carry_over_threshold: 3 };
-      const threshold = config.carry_over_threshold;
+
+      let threshold = 3; // 默认阈值
+      if (studentConfigs.length > 0) {
+        threshold = studentConfigs[0].carry_over_threshold || 3;
+      }
       console.log(`⚖️ 结转阈值: ${threshold}, 当前未完成任务数: ${incompleteTasks.length}`);
 
       if (incompleteTasks.length < threshold) {

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    ports:
+      - "0.0.0.0:3001:3001"
+    environment:
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  frontend:
+    ports:
+      - "0.0.0.0:80:80"
+    restart: unless-stopped
+
+  mysql:
+    ports:
+      - "0.0.0.0:3307:3306"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: gougegaoshu-network
+    driver: bridge
