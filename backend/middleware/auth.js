@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const { jwtManager } = require('../utils/JWTManager');
 const { query } = require('../config/database');
 
 // JWT认证中间件
@@ -40,7 +40,8 @@ const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // 使用安全的JWT管理器验证token
+    const decoded = jwtManager.verifyAccessToken(token);
 
     // 检查是否是管理员token
     if (decoded.userType === 'admin') {
@@ -53,7 +54,8 @@ const authenticateToken = async (req, res, next) => {
       if (admins.length === 0) {
         return res.status(401).json({
           success: false,
-          message: '管理员不存在'
+          message: '管理员不存在',
+          code: 'ADMIN_NOT_FOUND'
         });
       }
 
@@ -68,29 +70,45 @@ const authenticateToken = async (req, res, next) => {
       // 验证学生是否仍然存在
       const users = await query(
         'SELECT id, name FROM students WHERE id = ?',
-        [decoded.studentId]
+        [decoded.studentId || decoded.userId]
       );
 
       if (users.length === 0) {
         return res.status(401).json({
           success: false,
-          message: '用户不存在'
+          message: '用户不存在',
+          code: 'USER_NOT_FOUND'
         });
       }
 
       req.user = {
-        studentId: decoded.studentId,
+        studentId: decoded.studentId || decoded.userId,
         name: users[0].name,
         userType: 'student'
       };
     }
 
+    // 保存原始token用于撤销等操作
+    req.token = token;
     next();
   } catch (error) {
-    console.error('Token验证失败:', error);
-    return res.status(403).json({ 
-      success: false, 
-      message: '访问令牌无效' 
+    console.error('Token验证失败:', error.message);
+
+    let statusCode = 403;
+    let code = 'TOKEN_INVALID';
+
+    if (error.message.includes('expired')) {
+      statusCode = 401;
+      code = 'TOKEN_EXPIRED';
+    } else if (error.message.includes('revoked')) {
+      statusCode = 401;
+      code = 'TOKEN_REVOKED';
+    }
+
+    return res.status(statusCode).json({
+      success: false,
+      message: error.message,
+      code
     });
   }
 };

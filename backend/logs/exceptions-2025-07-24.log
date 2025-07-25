@@ -1,0 +1,472 @@
+{
+  "timestamp": "2025-07-24 23:24:42.336",
+  "level": "ERROR",
+  "message": "uncaughtException: Logger is not defined\nReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "error": {},
+  "stack": "ReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "exception": true,
+  "date": "Thu Jul 24 2025 23:24:42 GMT+0800 (China Standard Time)",
+  "process": {
+    "pid": 27231,
+    "uid": 501,
+    "gid": 20,
+    "cwd": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend",
+    "execPath": "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+    "version": "v24.3.0",
+    "argv": [
+      "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+      "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js"
+    ],
+    "memoryUsage": {
+      "rss": 69795840,
+      "heapTotal": 19333120,
+      "heapUsed": 11874344,
+      "external": 2119842,
+      "arrayBuffers": 18675
+    }
+  },
+  "os": {
+    "loadavg": [
+      2.59912109375,
+      2.798828125,
+      2.5478515625
+    ],
+    "uptime": 5743
+  },
+  "trace": [
+    {
+      "column": 3,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js",
+      "function": null,
+      "line": 210,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._compile",
+      "line": 1692,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Object..js",
+      "line": 1824,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1427,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1250,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:diagnostics_channel",
+      "function": "TracingChannel.traceSync",
+      "line": 322,
+      "method": "traceSync",
+      "native": false
+    },
+    {
+      "column": 24,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "wrapModuleLoad",
+      "line": 235,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1449,
+      "method": "require",
+      "native": false
+    },
+    {
+      "column": 16,
+      "file": "node:internal/modules/helpers",
+      "function": "require",
+      "line": 135,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 5,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js",
+      "function": null,
+      "line": 22,
+      "method": null,
+      "native": false
+    }
+  ]
+}
+{
+  "timestamp": "2025-07-24 23:25:23.166",
+  "level": "ERROR",
+  "message": "uncaughtException: Logger is not defined\nReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "error": {},
+  "stack": "ReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "exception": true,
+  "date": "Thu Jul 24 2025 23:25:23 GMT+0800 (China Standard Time)",
+  "process": {
+    "pid": 27286,
+    "uid": 501,
+    "gid": 20,
+    "cwd": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend",
+    "execPath": "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+    "version": "v24.3.0",
+    "argv": [
+      "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+      "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js"
+    ],
+    "memoryUsage": {
+      "rss": 69320704,
+      "heapTotal": 19070976,
+      "heapUsed": 11869560,
+      "external": 2119842,
+      "arrayBuffers": 18675
+    }
+  },
+  "os": {
+    "loadavg": [
+      2.03271484375,
+      2.63232421875,
+      2.4970703125
+    ],
+    "uptime": 5784
+  },
+  "trace": [
+    {
+      "column": 3,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js",
+      "function": null,
+      "line": 210,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._compile",
+      "line": 1692,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Object..js",
+      "line": 1824,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1427,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1250,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:diagnostics_channel",
+      "function": "TracingChannel.traceSync",
+      "line": 322,
+      "method": "traceSync",
+      "native": false
+    },
+    {
+      "column": 24,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "wrapModuleLoad",
+      "line": 235,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1449,
+      "method": "require",
+      "native": false
+    },
+    {
+      "column": 16,
+      "file": "node:internal/modules/helpers",
+      "function": "require",
+      "line": 135,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 5,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js",
+      "function": null,
+      "line": 22,
+      "method": null,
+      "native": false
+    }
+  ]
+}
+{
+  "timestamp": "2025-07-24 23:25:50.884",
+  "level": "ERROR",
+  "message": "uncaughtException: Logger is not defined\nReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "error": {},
+  "stack": "ReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "exception": true,
+  "date": "Thu Jul 24 2025 23:25:50 GMT+0800 (China Standard Time)",
+  "process": {
+    "pid": 27338,
+    "uid": 501,
+    "gid": 20,
+    "cwd": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend",
+    "execPath": "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+    "version": "v24.3.0",
+    "argv": [
+      "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+      "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js"
+    ],
+    "memoryUsage": {
+      "rss": 67813376,
+      "heapTotal": 19595264,
+      "heapUsed": 11744280,
+      "external": 2119841,
+      "arrayBuffers": 18675
+    }
+  },
+  "os": {
+    "loadavg": [
+      1.76904296875,
+      2.5166015625,
+      2.458984375
+    ],
+    "uptime": 5811
+  },
+  "trace": [
+    {
+      "column": 3,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js",
+      "function": null,
+      "line": 210,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._compile",
+      "line": 1692,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Object..js",
+      "line": 1824,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1427,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1250,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:diagnostics_channel",
+      "function": "TracingChannel.traceSync",
+      "line": 322,
+      "method": "traceSync",
+      "native": false
+    },
+    {
+      "column": 24,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "wrapModuleLoad",
+      "line": 235,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1449,
+      "method": "require",
+      "native": false
+    },
+    {
+      "column": 16,
+      "file": "node:internal/modules/helpers",
+      "function": "require",
+      "line": 135,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 5,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js",
+      "function": null,
+      "line": 22,
+      "method": null,
+      "native": false
+    }
+  ]
+}
+{
+  "timestamp": "2025-07-24 23:26:01.638",
+  "level": "ERROR",
+  "message": "uncaughtException: Logger is not defined\nReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "error": {},
+  "stack": "ReferenceError: Logger is not defined\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:210:3)\n    at Module._compile (node:internal/modules/cjs/loader:1692:14)\n    at Object..js (node:internal/modules/cjs/loader:1824:10)\n    at Module.load (node:internal/modules/cjs/loader:1427:32)\n    at Module._load (node:internal/modules/cjs/loader:1250:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\n    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)\n    at Module.require (node:internal/modules/cjs/loader:1449:12)\n    at require (node:internal/modules/helpers:135:16)\n    at Object.<anonymous> (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js:22:5)",
+  "exception": true,
+  "date": "Thu Jul 24 2025 23:26:01 GMT+0800 (China Standard Time)",
+  "process": {
+    "pid": 27352,
+    "uid": 501,
+    "gid": 20,
+    "cwd": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend",
+    "execPath": "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+    "version": "v24.3.0",
+    "argv": [
+      "/opt/homebrew/Cellar/node/24.3.0/bin/node",
+      "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js"
+    ],
+    "memoryUsage": {
+      "rss": 68419584,
+      "heapTotal": 18808832,
+      "heapUsed": 11703912,
+      "external": 2119841,
+      "arrayBuffers": 18675
+    }
+  },
+  "os": {
+    "loadavg": [
+      1.57666015625,
+      2.44970703125,
+      2.435546875
+    ],
+    "uptime": 5822
+  },
+  "trace": [
+    {
+      "column": 3,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js",
+      "function": null,
+      "line": 210,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._compile",
+      "line": 1692,
+      "method": "_compile",
+      "native": false
+    },
+    {
+      "column": 10,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Object..js",
+      "line": 1824,
+      "method": ".js",
+      "native": false
+    },
+    {
+      "column": 32,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.load",
+      "line": 1427,
+      "method": "load",
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module._load",
+      "line": 1250,
+      "method": "_load",
+      "native": false
+    },
+    {
+      "column": 14,
+      "file": "node:diagnostics_channel",
+      "function": "TracingChannel.traceSync",
+      "line": 322,
+      "method": "traceSync",
+      "native": false
+    },
+    {
+      "column": 24,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "wrapModuleLoad",
+      "line": 235,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 12,
+      "file": "node:internal/modules/cjs/loader",
+      "function": "Module.require",
+      "line": 1449,
+      "method": "require",
+      "native": false
+    },
+    {
+      "column": 16,
+      "file": "node:internal/modules/helpers",
+      "function": "require",
+      "line": 135,
+      "method": null,
+      "native": false
+    },
+    {
+      "column": 5,
+      "file": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/server.js",
+      "function": null,
+      "line": 22,
+      "method": null,
+      "native": false
+    }
+  ]
+}

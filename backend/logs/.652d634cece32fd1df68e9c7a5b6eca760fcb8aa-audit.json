@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/logs/.652d634cece32fd1df68e9c7a5b6eca760fcb8aa-audit.json",
+    "files": [
+        {
+            "date": 1753370682334,
+            "name": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/logs/combined-2025-07-24.log",
+            "hash": "30e6742d00d1040bbf37908dffe8738ddc3ef44d4c1d8dad3b7146751747dec8"
+        },
+        {
+            "date": 1753372981136,
+            "name": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/logs/combined-2025-07-25.log",
+            "hash": "e4f37da3c1b4f91370b5919bccecdc2579632fa8cd3597c3936bb9837a4c489e"
+        }
+    ],
+    "hashType": "sha256"
+}

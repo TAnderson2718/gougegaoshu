@@ -111,17 +111,21 @@ export const AppProvider = ({ children }) => {
       dispatch({ type: actionTypes.SET_ERROR, payload: null });
 
       // 判断是管理员还是学生登录
-      const isAdmin = studentId.toUpperCase().startsWith('ADMIN');
+      const isAdmin = studentId.toUpperCase().startsWith('ADMIN') || studentId.toLowerCase() === 'admin';
 
       console.log(`🌐 使用 authAPI 调用${isAdmin ? '管理员' : '学生'}登录接口`);
-      // 使用统一的登录接口
-      const response = await authAPI.login(studentId, password);
+      // 根据用户类型选择不同的登录端点
+      const response = isAdmin ?
+        await authAPI.adminLogin(studentId, password) :
+        await authAPI.login(studentId, password);
 
       console.log(`📨 API 响应:`, response);
 
       if (response.success) {
         // 根据登录类型获取用户信息
-        const userData = isAdmin ? response.data.admin : response.data.student;
+        const userData = isAdmin ?
+          (response.data.admin || response.data.user) :
+          (response.data.student || response.data.user);
         const { token } = response.data;
 
         console.log(`👤 用户信息:`, userData);

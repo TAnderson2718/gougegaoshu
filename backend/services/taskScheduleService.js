@@ -15,9 +15,9 @@ const { query, transaction } = require('../config/database');
 async function handleLeaveDefer(studentId, leaveDate, connection) {
   try {
     // 1. 获取请假当天的未完成任务
-    const [incompleteTasks] = await connection.execute(
-      `SELECT * FROM tasks 
-       WHERE student_id = ? AND task_date = ? AND completed = FALSE 
+    const incompleteTasks = await connection.all(
+      `SELECT * FROM tasks
+       WHERE student_id = ? AND task_date = ? AND completed = 0
        AND task_type NOT IN ('休息', 'leave')
        ORDER BY created_at ASC`,
       [studentId, leaveDate]
@@ -30,7 +30,7 @@ async function handleLeaveDefer(studentId, leaveDate, connection) {
     }
 
     // 2. 获取全局调度配置
-    const [configs] = await connection.execute(
+    const configs = await connection.all(
       'SELECT config_key, config_value FROM schedule_config'
     );
 
@@ -61,7 +61,7 @@ async function handleLeaveDefer(studentId, leaveDate, connection) {
 
     // 5. 删除请假当天的未完成任务
     const taskIds = incompleteTasks.map(task => task.id);
-    await connection.execute(
+    await connection.run(
       `DELETE FROM tasks WHERE id IN (${taskIds.map(() => '?').join(',')})`,
       taskIds
     );
@@ -70,13 +70,13 @@ async function handleLeaveDefer(studentId, leaveDate, connection) {
     const deferResult = await scheduleTasksRecursively(studentId, leaveDate, tasksToDefer, connection, { currentDepth: 0 });
 
     // 6. 记录调度历史
-    await connection.execute(
-      `INSERT INTO task_schedule_history 
+    await connection.run(
+      `INSERT INTO task_schedule_history
        (student_id, operation_type, operation_date, affected_tasks, details)
        VALUES (?, 'defer', ?, ?, ?)`,
       [
-        studentId, 
-        leaveDate, 
+        studentId,
+        leaveDate,
         incompleteTasks.length,
         JSON.stringify({
           leaveDate,
@@ -128,7 +128,7 @@ async function scheduleTasksRecursively(studentId, startDate, tasksToSchedule, c
     console.log(`📅 目标日期: ${targetDate}`);
 
     // 获取目标日期的现有任务
-    const [existingTasks] = await connection.execute(
+    const existingTasks = await connection.all(
       `SELECT id, task_type, title, task_status, original_date
        FROM tasks
        WHERE student_id = ? AND task_date = ? AND task_type NOT IN ('leave', '休息')`,
@@ -158,9 +158,9 @@ async function scheduleTasksRecursively(studentId, startDate, tasksToSchedule, c
 
     // 插入新任务到目标日期
     for (const task of tasksWithNewIds) {
-      await connection.execute(
+      await connection.run(
         `INSERT INTO tasks (id, student_id, task_date, task_type, title, completed, task_status, defer_reason, original_date, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
         [
           task.id,
           studentId,
@@ -184,7 +184,7 @@ async function scheduleTasksRecursively(studentId, startDate, tasksToSchedule, c
 
       // 删除被挤占的任务
       const existingTaskIds = existingTasks.map(t => t.id);
-      await connection.execute(
+      await connection.run(
         `DELETE FROM tasks WHERE id IN (${existingTaskIds.map(() => '?').join(',')})`,
         existingTaskIds
       );
@@ -219,7 +219,7 @@ async function deferFutureTasks(studentId, fromDate, connection) {
     console.log(`🔄 开始级联顺延: 学生=${studentId}, 起始日期=${fromDate}`);
 
     // 获取需要顺延的未来任务
-    const [futureTasks] = await connection.execute(
+    const futureTasks = await connection.all(
       `SELECT id, task_type, title, task_status, original_date, task_date
        FROM tasks
        WHERE student_id = ? AND task_date > ?
@@ -237,7 +237,7 @@ async function deferFutureTasks(studentId, fromDate, connection) {
 
     // 删除原有的未来任务
     const futureTaskIds = futureTasks.map(t => t.id);
-    await connection.execute(
+    await connection.run(
       `DELETE FROM tasks WHERE id IN (${futureTaskIds.map(() => '?').join(',')})`,
       futureTaskIds
     );
@@ -270,7 +270,7 @@ async function findNextWorkDate(studentId, fromDate, connection) {
     const dateStr = checkDate.format('YYYY-MM-DD');
 
     // 检查这一天是否是休息日
-    const [restTasks] = await connection.execute(
+    const restTasks = await connection.all(
       `SELECT id FROM tasks
        WHERE student_id = ? AND task_date = ? AND task_type = '休息'`,
       [studentId, dateStr]
@@ -300,7 +300,7 @@ async function findNextWorkDateFrom(studentId, fromDate, connection) {
     const dateStr = checkDate.format('YYYY-MM-DD');
 
     // 检查这一天是否是休息日
-    const [restTasks] = await connection.execute(
+    const restTasks = await connection.all(
       `SELECT id FROM tasks
        WHERE student_id = ? AND task_date = ? AND task_type = '休息'`,
       [studentId, dateStr]
@@ -329,9 +329,9 @@ async function handleMidnightTaskReschedule(studentId, targetDate) {
     
     await transaction(async (connection) => {
       // 获取当天未完成的任务
-      const [incompleteTasks] = await connection.execute(
-        `SELECT * FROM tasks 
-         WHERE student_id = ? AND task_date = ? AND completed = FALSE 
+      const incompleteTasks = await connection.all(
+        `SELECT * FROM tasks
+         WHERE student_id = ? AND task_date = ? AND completed = 0
          AND task_type NOT IN ('休息', 'leave')
          ORDER BY created_at ASC`,
         [studentId, targetDate]
@@ -350,14 +350,14 @@ async function handleMidnightTaskReschedule(studentId, targetDate) {
       }
 
       // 获取学生的个人配置，如果没有则使用默认值
-      const [studentConfigs] = await connection.execute(
-        'SELECT carry_over_threshold FROM schedule_config WHERE student_id = ?',
-        [studentId]
+      const studentConfigs = await connection.all(
+        'SELECT config_value FROM schedule_config WHERE (student_id = ? OR student_id IS NULL) AND config_key = ? ORDER BY student_id DESC LIMIT 1',
+        [studentId, 'carry_over_threshold']
       );
 
       let threshold = 3; // 默认阈值
       if (studentConfigs.length > 0) {
-        threshold = studentConfigs[0].carry_over_threshold || 3;
+        threshold = parseInt(studentConfigs[0].config_value) || 3;
       }
       console.log(`⚖️ 结转阈值: ${threshold}, 当前未完成任务数: ${incompleteTasks.length}`);
 
@@ -388,8 +388,8 @@ async function carryOverTasks(studentId, fromDate, tasks, connection) {
   const taskIds = tasks.map(t => t.id);
   console.log(`📝 需要结转的任务ID: ${taskIds.join(', ')}`);
 
-  const updateResult = await connection.execute(
-    `UPDATE tasks 
+  const updateResult = await connection.run(
+    `UPDATE tasks
      SET original_date = COALESCE(original_date, task_date),
          task_date = ?,
          task_status = 'carried_over',
@@ -398,7 +398,7 @@ async function carryOverTasks(studentId, fromDate, tasks, connection) {
     [nextWorkDate, ...taskIds]
   );
 
-  console.log(`✅ 结转 ${tasks.length} 个任务到 ${nextWorkDate}，影响行数: ${updateResult[0].affectedRows}`);
+  console.log(`✅ 结转 ${tasks.length} 个任务到 ${nextWorkDate}，影响行数: ${updateResult.changes}`);
 }
 
 /**
@@ -420,7 +420,7 @@ async function deferTasksAsNewDay(studentId, fromDate, tasks, connection) {
 
     // 删除当天的未完成任务
     const taskIds = tasks.map(t => t.id);
-    await connection.execute(
+    await connection.run(
       `DELETE FROM tasks WHERE id IN (${taskIds.map(() => '?').join(',')})`,
       taskIds
     );

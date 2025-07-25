@@ -21,7 +21,7 @@ const MonthScreen = () => {
   };
 
   // 获取月度任务
-  const fetchMonthTasks = async (month) => {
+  const fetchMonthTasks = async (month, forceRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
@@ -32,17 +32,29 @@ const MonthScreen = () => {
       const response = await taskAPI.getTasks(
         formatDate(startDate),
         formatDate(endDate),
-        'month' // 添加月度视图参数
+        'month', // 添加月度视图参数
+        forceRefresh
       );
 
       if (response.success) {
-        // 后端返回的是按日期分组的对象，需要转换为平面数组
+        // 后端返回的月度数据格式：{ "2025-07-19": { total: 3, completed: 0, tasks: [...] } }
         const tasksByDate = response.data || {};
         const allTasks = [];
+        const dateStats = {};
 
         Object.keys(tasksByDate).forEach(date => {
-          const dateTasks = tasksByDate[date] || [];
-          dateTasks.forEach(task => {
+          const dateData = tasksByDate[date] || {};
+          const dateTasks = dateData.tasks || [];
+
+          // 保存原始统计数据
+          dateStats[date] = {
+            total: dateData.total || 0,
+            completed: dateData.completed || 0
+          };
+
+          // 确保 dateTasks 是数组
+          const tasksArray = Array.isArray(dateTasks) ? dateTasks : [];
+          tasksArray.forEach(task => {
             allTasks.push({
               ...task,
               date: date // 添加日期字段
@@ -53,7 +65,7 @@ const MonthScreen = () => {
         setTasks(allTasks);
 
         // 保存原始日期统计数据
-        setOriginalDateStats(response.originalDateStats || {});
+        setOriginalDateStats(dateStats);
       } else {
         setError(response.message || '获取任务失败');
       }
@@ -228,6 +240,13 @@ const MonthScreen = () => {
                   className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
                 >
                   ← 上月
+                </button>
+                <button
+                  onClick={() => fetchMonthTasks(currentMonth, true)}
+                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                  disabled={loading}
+                >
+                  {loading ? '刷新中...' : '🔄 刷新'}
                 </button>
                 <button
                   onClick={nextMonth}

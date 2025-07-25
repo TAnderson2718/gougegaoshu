@@ -1,57 +1,55 @@
 const express = require('express');
-const Joi = require('joi');
 const moment = require('moment');
 const { query, transaction } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
 const { handleLeaveDefer, handleMidnightTaskReschedule } = require('../services/taskScheduleService');
+const { validators } = require('../middleware/validation');
+const { asyncHandler } = require('../utils/ResponseHandler');
+const { cacheService, createCacheMiddleware } = require('../services/CacheService');
+const queryOptimizer = require('../services/QueryOptimizer');
+const logger = require('../utils/Logger');
 
 const router = express.Router();
 
 // 应用认证中间件
 router.use(authenticateToken);
 
-// 获取学生任务（按日期范围）
-router.get('/', async (req, res) => {
-  try {
+// 创建任务缓存中间件
+const taskCacheMiddleware = createCacheMiddleware({
+  ttl: 180, // 3分钟缓存
+  cacheType: 'main',
+  keyGenerator: (req) => {
     const { startDate, endDate, view } = req.query;
-    const studentId = req.user.studentId;
+    const studentId = req.user?.studentId;
+    return `tasks:${studentId}:${startDate || 'all'}:${endDate || 'all'}:${view || 'default'}`;
+  },
+  condition: (req) => req.user && req.user.studentId, // 只为学生请求缓存
+  skipCache: (req) => req.query.nocache === 'true' // 支持跳过缓存
+});
 
-    let sql = `SELECT
-      id, student_id,
-      strftime('%Y-%m-%d', task_date) as task_date,
-      task_type, title, completed,
-      duration_hour, duration_minute, proof_image, created_at
-    FROM tasks WHERE student_id = ?`;
-    let params = [studentId];
+// 获取学生任务（按日期范围）
+router.get('/', validators.dateRange, taskCacheMiddleware, asyncHandler(async (req, res) => {
+  const { startDate, endDate, view } = req.validatedQuery;
+  const studentId = req.user.studentId;
 
-    if (startDate && endDate) {
-      sql += ' AND task_date BETWEEN ? AND ?';
-      params.push(startDate, endDate);
-    } else if (startDate) {
-      sql += ' AND task_date >= ?';
-      params.push(startDate);
-    }
+  // 使用优化的查询方法
+  const tasksByDate = await queryOptimizer.getStudentTasksOptimized(
+    studentId,
+    startDate,
+    endDate
+  );
 
-    sql += ' ORDER BY task_date ASC, created_at ASC';
+  // 如果是月度视图，需要特殊处理
+  if (view === 'month') {
+    // 转换为月度视图格式
+    const monthlyData = {};
 
-    const tasks = await query(sql, params);
-
-    // 如果是月度视图，需要特殊处理
-    if (view === 'month') {
-      // 按原始日期分组，用于正确计算完成率
-      const tasksByOriginalDate = {};
-      const tasksByCurrentDate = {};
-
-      tasks.forEach(task => {
-        // 日期现在已经是格式化的字符串，直接使用
-        const currentDateStr = task.task_date;
-        const originalDateStr = currentDateStr; // 暂时使用当前日期作为原始日期
-
-        // 按当前日期分组（用于显示任务）
-        if (!tasksByCurrentDate[currentDateStr]) {
-          tasksByCurrentDate[currentDateStr] = [];
-        }
-        tasksByCurrentDate[currentDateStr].push({
+    Object.keys(tasksByDate).forEach(date => {
+      const tasks = tasksByDate[date];
+      monthlyData[date] = {
+        total: tasks.length,
+        completed: tasks.filter(task => task.completed).length,
+        tasks: tasks.map(task => ({
           id: task.id,
           type: task.task_type,
           title: task.title,
@@ -61,81 +59,30 @@ router.get('/', async (req, res) => {
             minute: task.duration_minute || 0
           } : null,
           proof: task.proof_image,
-          originalDate: originalDateStr,
-          isDeferred: !!task.original_date
-        });
+          originalDate: date,
+          isDeferred: false
+        }))
+      };
+    });
 
-        // 按原始日期分组（用于计算完成率）
-        if (!tasksByOriginalDate[originalDateStr]) {
-          tasksByOriginalDate[originalDateStr] = {
-            total: 0,
-            completed: 0,
-            tasks: []
-          };
-        }
-        tasksByOriginalDate[originalDateStr].total++;
-        if (task.completed) {
-          tasksByOriginalDate[originalDateStr].completed++;
-        }
-        tasksByOriginalDate[originalDateStr].tasks.push({
-          id: task.id,
-          type: task.task_type,
-          title: task.title,
-          completed: task.completed,
-          currentDate: currentDateStr,
-          isDeferred: !!task.original_date
-        });
-      });
-
-      res.json({
-        success: true,
-        data: tasksByCurrentDate,
-        originalDateStats: tasksByOriginalDate
-      });
-    } else {
-      // 普通视图，按当前日期分组
-      const tasksByDate = {};
-      tasks.forEach(task => {
-        // 日期现在已经是格式化的字符串，直接使用
-        const dateStr = task.task_date;
-
-        if (!tasksByDate[dateStr]) {
-          tasksByDate[dateStr] = [];
-        }
-        tasksByDate[dateStr].push({
-          id: task.id,
-          type: task.task_type,
-          title: task.title,
-          completed: task.completed,
-          duration: task.duration_hour || task.duration_minute ? {
-            hour: task.duration_hour || 0,
-            minute: task.duration_minute || 0
-          } : null,
-          proof: task.proof_image
-        });
-      });
-
-      res.json({
-        success: true,
-        data: tasksByDate
-      });
-    }
-
-  } catch (error) {
-    console.error('获取任务错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '服务器内部错误'
+    res.json({
+      success: true,
+      data: monthlyData
+    });
+  } else {
+    // 标准视图：直接返回按日期分组的任务
+    res.json({
+      success: true,
+      data: tasksByDate
     });
   }
-});
+}));
 
 // 更新任务状态
-router.put('/:taskId', async (req, res) => {
-  try {
-    const { taskId } = req.params;
-    const { completed, duration, proof, completed_date, is_future_task } = req.body;
-    const studentId = req.user.studentId;
+router.put('/:taskId', validators.updateTask, asyncHandler(async (req, res) => {
+  const { taskId } = req.params;
+  const { completed, duration, proof, completed_date, is_future_task } = req.validatedBody;
+  const studentId = req.user.studentId;
 
     // 验证任务是否属于当前学生
     const tasks = await query(
@@ -189,30 +136,30 @@ router.put('/:taskId', async (req, res) => {
     updateValues.push(taskId, studentId);
 
     await query(
-      `UPDATE tasks SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP 
+      `UPDATE tasks SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
        WHERE id = ? AND student_id = ?`,
       updateValues
     );
 
-    res.json({
-      success: true,
-      message: '任务更新成功'
+    // 清除相关缓存
+    await cacheService.delByPattern(`tasks:${studentId}:.*`, 'main');
+
+    logger.logBusiness('task_update', studentId, {
+      taskId,
+      fields: updateFields,
+      requestId: req.requestId
     });
 
-  } catch (error) {
-    console.error('更新任务错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '服务器内部错误'
-    });
-  }
-});
+  res.json({
+    success: true,
+    message: '任务更新成功'
+  });
+}));
 
 // 请假申请
-router.post('/leave', async (req, res) => {
-  try {
-    const { date } = req.body;
-    const studentId = req.user.studentId;
+router.post('/leave', validators.leaveRequest, asyncHandler(async (req, res) => {
+  const { date } = req.validatedBody;
+  const studentId = req.user.studentId;
 
     if (!date) {
       return res.status(400).json({
@@ -265,14 +212,7 @@ router.post('/leave', async (req, res) => {
       }
     });
 
-  } catch (error) {
-    console.error('请假申请错误:', error);
-    res.status(500).json({
-      success: false,
-      message: error.message || '服务器内部错误'
-    });
-  }
-});
+}));
 
 // 获取请假记录
 router.get('/leave-records', async (req, res) => {

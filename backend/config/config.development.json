@@ -1,0 +1,32 @@
+{
+  "logging": {
+    "level": "debug"
+  },
+  "security": {
+    "rateLimit": {
+      "max": 10000
+    },
+    "cors": {
+      "origin": ["http://localhost:3000", "http://127.0.0.1:3000"]
+    }
+  },
+  "cache": {
+    "defaultTTL": 60,
+    "longTermTTL": 300
+  },
+  "database": {
+    "name": "task_manager_dev.db"
+  },
+  "features": {
+    "registration": true,
+    "passwordReset": true
+  },
+  "monitoring": {
+    "healthCheck": {
+      "interval": 10000
+    },
+    "metrics": {
+      "collectInterval": 30000
+    }
+  }
+}

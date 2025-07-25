@@ -1,0 +1,1317 @@
+{
+  "timestamp": "2025-07-25 00:20:49.652",
+  "level": "ERROR",
+  "message": "Repository query failed",
+  "table": "test_table",
+  "sql": "INVALID SQL...",
+  "params": [],
+  "duration": 0,
+  "error": "SQL syntax error",
+  "service": "task-manager",
+  "environment": "test"
+}
+{
+  "timestamp": "2025-07-25 00:36:17.272",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753374977271_8",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:44:28.060",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375468056_11",
+  "error": {
+    "name": "NotFoundError",
+    "message": "任务 (ID: leave-records) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: 任务 (ID: leave-records) 未找到\n    at TaskService.getTaskDetail (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/TaskService.js:254:13)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/TaskController.js:74:18"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/tasks/leave-records",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "userId": "ST001",
+    "userType": "student",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:44:28.064",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375468059_14",
+  "error": {
+    "name": "NotFoundError",
+    "message": "任务 (ID: leave-records) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: 任务 (ID: leave-records) 未找到\n    at TaskService.getTaskDetail (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/TaskService.js:254:13)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/TaskController.js:74:18"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/tasks/leave-records",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "userId": "ST001",
+    "userType": "student",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:46:31.019",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375591018_16",
+  "error": {
+    "name": "NotFoundError",
+    "message": "任务 (ID: leave-records) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: 任务 (ID: leave-records) 未找到\n    at TaskService.getTaskDetail (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/TaskService.js:254:13)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/TaskController.js:74:18"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/tasks/leave-records",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:47:59.633",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375679632_22",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:32.354",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375832352_36",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:33.440",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375833438_37",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:35.234",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375835232_38",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:38.012",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375838009_39",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:38.604",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375838603_40",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:39.648",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375839647_41",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:40.313",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375840312_42",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:40.881",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375840881_43",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:41.295",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375841294_44",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:41.678",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375841676_45",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:50:42.036",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753375842034_46",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async UserService.login (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:107:14)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:17:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "body": {
+      "userId": "ADMIN",
+      "password": "AdminPass123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:55:33.193",
+  "level": "ERROR",
+  "message": "Uncaught Exception",
+  "error": {
+    "name": "Error",
+    "message": "listen EADDRINUSE: address already in use ::1:3001",
+    "stack": "Error: listen EADDRINUSE: address already in use ::1:3001\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at GetAddrInfoReqWrap.callback (node:net:2206:7)\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8)"
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:56:28.041",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753376187966_1",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:33:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/admin/login",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "body": {
+      "studentId": "admin",
+      "password": "admin"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:59:37.844",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753376377842_7",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 00:59:37.848",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753376377847_8",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 01:19:52.657",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753377592656_23",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 01:19:52.658",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753377592658_24",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 01:26:31.555",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753377991554_6",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 01:26:31.557",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753377991556_7",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 01:35:24.229",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753378524229_36",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 01:35:24.230",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753378524230_37",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 04:40:45.167",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753389645166_3",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 04:40:45.168",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753389645168_4",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:25:42.500",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753403142498_30",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/tasks/midnight-process) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/tasks/midnight-process) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-24"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:28:24.851",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753403304850_33",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/tasks/midnight-process) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/tasks/midnight-process) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-25"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:29:39.331",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753403379330_35",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/tasks/midnight-process) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/tasks/midnight-process) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-25"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:32:54.212",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753403574211_36",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/tasks/midnight-process) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/tasks/midnight-process) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-25"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:37:30.947",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753403850945_3",
+  "error": {
+    "name": "AppError",
+    "message": "服务器内部错误",
+    "code": "INTERNAL_ERROR",
+    "statusCode": 500,
+    "stack": "AppError: 服务器内部错误\n    at ErrorFactory.fromError (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:208:12)\n    at globalErrorHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:54:33)\n    at Layer.handle_error (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:71:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:326:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle_error (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:67:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:326:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-25"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:39:16.983",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753403956982_4",
+  "error": {
+    "name": "AppError",
+    "message": "服务器内部错误",
+    "code": "INTERNAL_ERROR",
+    "statusCode": 500,
+    "stack": "AppError: 服务器内部错误\n    at ErrorFactory.fromError (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:208:12)\n    at globalErrorHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:54:33)\n    at Layer.handle_error (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:71:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:326:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle_error (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:67:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:326:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-25"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 08:45:27.708",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753404327707_5",
+  "error": {
+    "name": "AppError",
+    "message": "服务器内部错误",
+    "code": "INTERNAL_ERROR",
+    "statusCode": 500,
+    "stack": "AppError: 服务器内部错误\n    at ErrorFactory.fromError (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:208:12)\n    at globalErrorHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:54:33)\n    at Layer.handle_error (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:71:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:326:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle_error (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:67:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:326:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/tasks/midnight-process",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "ST001",
+    "userType": "student",
+    "body": {
+      "date": "2025-07-25"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:03:04.341",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405384340_4",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:03:04.342",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405384342_5",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:03:33.396",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405413396_23",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:03:33.397",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405413397_24",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:04:44.944",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405484943_61",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:04:44.945",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405484944_62",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:07:35.927",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405655927_76",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:07:35.937",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753405655936_82",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:11:10.534",
+  "level": "ERROR",
+  "message": "Uncaught Exception",
+  "error": {
+    "name": "Error",
+    "message": "listen EADDRINUSE: address already in use ::1:3001",
+    "stack": "Error: listen EADDRINUSE: address already in use ::1:3001\n    at Server.setupListenHandle [as _listen2] (node:net:1940:16)\n    at listenInCluster (node:net:1997:12)\n    at GetAddrInfoReqWrap.callback (node:net:2206:7)\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:134:8)"
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:16:56.515",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753406216514_9",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:16:56.516",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753406216516_10",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:48:16.934",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753408096933_31",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:48:16.936",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753408096935_32",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/auth/verify) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/auth/verify) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/auth/verify",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:50:11.124",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753408211123_62",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/admin/tasks?startDate=2025-07-25&endDate=2025-07-25) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/admin/tasks?startDate=2025-07-25&endDate=2025-07-25) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "GET",
+    "url": "/api/admin/tasks?startDate=2025-07-25&endDate=2025-07-25",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "admin",
+    "userType": "admin",
+    "params": {},
+    "query": {
+      "startDate": "2025-07-25",
+      "endDate": "2025-07-25"
+    }
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 09:52:10.070",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753408330065_63",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/admin/upload-tasks) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/admin/upload-tasks) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/admin/upload-tasks",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "admin",
+    "userType": "admin",
+    "body": {},
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 10:05:19.145",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753409119088_2",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:33:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/admin/login",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "body": {
+      "userId": "admin",
+      "password": "admin123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 10:05:29.496",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753409129438_3",
+  "error": {
+    "name": "AuthenticationError",
+    "message": "管理员ID或密码错误",
+    "code": "INVALID_CREDENTIALS",
+    "statusCode": 401,
+    "stack": "AuthenticationError: 管理员ID或密码错误\n    at UserService.loginAdmin (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/services/UserService.js:67:15)\n    at async /Users/danieldong/Documents/GitHub/gougegaoshu/backend/controllers/AuthController.js:33:20"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/auth/admin/login",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "body": {
+      "userId": "admin",
+      "password": "admin123"
+    },
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-25 10:07:16.357",
+  "level": "ERROR",
+  "message": "Application error occurred",
+  "requestId": "req_1753409236356_5",
+  "error": {
+    "name": "NotFoundError",
+    "message": "API端点 (ID: /api/admin/test) 未找到",
+    "code": "RESOURCE_NOT_FOUND",
+    "statusCode": 404,
+    "stack": "NotFoundError: API端点 (ID: /api/admin/test) 未找到\n    at ErrorFactory.notFound (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/utils/AppError.js:149:12)\n    at notFoundHandler (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/middleware/errorHandler.js:40:30)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:95:5)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9\n    at router.process_params (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:346:12)\n    at next (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:280:10)\n    at Layer.handle [as handle_request] (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/layer.js:91:12)\n    at trim_prefix (/Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:328:13)\n    at /Users/danieldong/Documents/GitHub/gougegaoshu/backend/node_modules/express/lib/router/index.js:286:9"
+  },
+  "request": {
+    "method": "POST",
+    "url": "/api/admin/test",
+    "ip": "::1",
+    "userAgent": "curl/8.7.1",
+    "userId": "admin",
+    "userType": "admin",
+    "body": {},
+    "params": {},
+    "query": {}
+  },
+  "service": "task-manager",
+  "environment": "development"
+}

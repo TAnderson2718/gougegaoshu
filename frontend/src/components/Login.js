@@ -17,7 +17,7 @@ const Login = () => {
   // 调试：监控状态变化
   console.log('🔍 Login 组件渲染 - 当前状态:', {
     isAuthenticated,
-    user: user ? `${user.id || user.studentId}` : null,
+    user: user ? `${user.id || user.studentId || 'unknown'}` : null,
     hasRedirected,
     loading,
     timestamp: new Date().toISOString()
@@ -45,7 +45,7 @@ const Login = () => {
   useEffect(() => {
     console.log('🔍 useEffect 触发 - 状态检查:', {
       isAuthenticated,
-      user: user ? `${user.id || user.studentId}` : null,
+      user: user ? `${user.id || user.studentId || 'unknown'}` : null,
       hasRedirected,
       userObject: user
     });
@@ -67,13 +67,13 @@ const Login = () => {
       const isAdmin = user && (
         user.userType === 'admin' ||
         user.role === 'admin' ||
-        user.studentId?.startsWith('ADMIN') ||
-        user.id?.startsWith('ADMIN') ||
+        user.studentId?.startsWith?.('ADMIN') ||
+        user.id?.startsWith?.('ADMIN') ||
         user.studentId === 'ADMIN' ||
         user.id === 'ADMIN'
       );
 
-      console.log('🔍 用户角色检查:', { isAdmin, userType: user.userType, id: user.id });
+      console.log('🔍 用户角色检查:', { isAdmin, userType: user?.userType, id: user?.id });
 
       // 设置重定向标志，防止重复重定向
       setHasRedirected(true);
@@ -269,11 +269,11 @@ const Login = () => {
 
             <div className="text-xs text-gray-600 mb-2 mt-4">管理员账号:</div>
             <button
-              onClick={() => handleQuickLogin('ADMIN', 'AdminPass123')}
+              onClick={() => handleQuickLogin('admin', 'AdminPass123')}
               disabled={loading}
               className="w-full bg-green-500 text-white p-2 rounded text-sm hover:bg-green-600 disabled:opacity-50"
             >
-              管理员ADMIN (初始密码)
+              管理员admin (初始密码)
             </button>
           </div>
         </div>

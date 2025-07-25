@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .info { border-left: 4px solid #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 API 连接测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 健康检查</h3>
+            <button onclick="testHealth()">测试健康检查</button>
+            <div id="health-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. 学生登录测试</h3>
+            <button onclick="testStudentLogin()">测试学生登录 (ST001)</button>
+            <div id="student-login-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. 管理员登录测试</h3>
+            <button onclick="testAdminLogin()">测试管理员登录 (ADMIN)</button>
+            <div id="admin-login-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Token 验证测试</h3>
+            <button onclick="testTokenVerify()">验证当前Token</button>
+            <div id="token-verify-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. 清除本地存储</h3>
+            <button onclick="clearStorage()">清除所有本地存储</button>
+            <div id="clear-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        function showResult(elementId, data, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+        }
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/monitoring/health`);
+                const data = await response.json();
+                showResult('health-result', data, response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult('health-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStudentLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: 'ST001',
+                        password: 'Hello888'
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data.token) {
+                    localStorage.setItem('token', data.data.token);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
+                    showResult('student-login-result', {
+                        success: true,
+                        message: '登录成功，Token已保存',
+                        user: data.data.user,
+                        token: data.data.token.substring(0, 50) + '...'
+                    }, 'success');
+                } else {
+                    showResult('student-login-result', data, 'error');
+                }
+            } catch (error) {
+                showResult('student-login-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAdminLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: 'ADMIN',
+                        password: 'AdminPass123'
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.success && data.data.token) {
+                    localStorage.setItem('token', data.data.token);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
+                    showResult('admin-login-result', {
+                        success: true,
+                        message: '登录成功，Token已保存',
+                        user: data.data.user,
+                        token: data.data.token.substring(0, 50) + '...'
+                    }, 'success');
+                } else {
+                    showResult('admin-login-result', data, 'error');
+                }
+            } catch (error) {
+                showResult('admin-login-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testTokenVerify() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showResult('token-verify-result', '没有找到Token，请先登录', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/verify`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                showResult('token-verify-result', {
+                    tokenExists: !!token,
+                    tokenPreview: token.substring(0, 50) + '...',
+                    verifyResult: data
+                }, response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult('token-verify-result', `错误: ${error.message}`, 'error');
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            showResult('clear-result', '本地存储已清除', 'success');
+        }
+
+        // 页面加载时显示当前存储状态
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token || user) {
+                showResult('clear-result', {
+                    message: '检测到现有存储',
+                    hasToken: !!token,
+                    hasUser: !!user,
+                    tokenPreview: token ? token.substring(0, 50) + '...' : null,
+                    userPreview: user ? JSON.parse(user) : null
+                }, 'info');
+            }
+        };
+    </script>
+</body>
+</html>

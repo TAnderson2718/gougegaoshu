@@ -1,0 +1,101 @@
+{
+  "server": {
+    "port": 3001,
+    "host": "localhost",
+    "timeout": 30000,
+    "keepAliveTimeout": 5000
+  },
+  "database": {
+    "name": "task_manager.db",
+    "maxConnections": 10,
+    "timeout": 30000,
+    "retryAttempts": 3,
+    "retryDelay": 1000
+  },
+  "jwt": {
+    "expiresIn": "15m",
+    "refreshExpiresIn": "7d",
+    "algorithm": "HS256",
+    "issuer": "task-manager-api",
+    "audience": "task-manager-users"
+  },
+  "logging": {
+    "level": "info",
+    "maxFiles": "30d",
+    "maxSize": "50m",
+    "datePattern": "YYYY-MM-DD",
+    "zippedArchive": true
+  },
+  "cache": {
+    "defaultTTL": 300,
+    "longTermTTL": 3600,
+    "sessionTTL": 1800,
+    "maxKeys": 1000,
+    "checkPeriod": 60
+  },
+  "security": {
+    "rateLimit": {
+      "windowMs": 900000,
+      "max": 1000,
+      "message": "请求过于频繁，请稍后再试"
+    },
+    "helmet": {
+      "contentSecurityPolicy": false,
+      "crossOriginEmbedderPolicy": false
+    },
+    "cors": {
+      "credentials": false,
+      "optionsSuccessStatus": 200
+    },
+    "bcrypt": {
+      "saltRounds": 10
+    }
+  },
+  "upload": {
+    "maxFileSize": "10mb",
+    "allowedTypes": ["image/jpeg", "image/png", "image/gif"],
+    "destination": "uploads/"
+  },
+  "email": {
+    "enabled": false,
+    "smtp": {
+      "host": "smtp.example.com",
+      "port": 587,
+      "secure": false
+    }
+  },
+  "features": {
+    "registration": true,
+    "passwordReset": false,
+    "emailVerification": false,
+    "twoFactorAuth": false
+  },
+  "monitoring": {
+    "healthCheck": {
+      "enabled": true,
+      "interval": 30000
+    },
+    "metrics": {
+      "enabled": true,
+      "collectInterval": 60000
+    }
+  },
+  "tasks": {
+    "defaultTasksPerDay": 3,
+    "maxTasksPerDay": 10,
+    "taskTypes": [
+      "数学",
+      "英语", 
+      "政治",
+      "专业课",
+      "复习",
+      "模拟考试",
+      "休息"
+    ],
+    "reschedule": {
+      "enabled": true,
+      "time": "00:00",
+      "deferThreshold": 3
+    }
+  }
+}

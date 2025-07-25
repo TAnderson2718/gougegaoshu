@@ -1,171 +1,106 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Joi = require('joi');
-const { query } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const { validators } = require('../middleware/validation');
+const AuthController = require('../controllers/AuthController');
 
 const router = express.Router();
 
-// 登录验证schema - 支持userId和studentId两种字段名
-const loginSchema = Joi.object({
-  userId: Joi.string().optional(),
-  studentId: Joi.string().optional(),
-  password: Joi.string().required().messages({
-    'string.empty': '密码不能为空',
-    'any.required': '密码是必填项'
-  })
-}).custom((value, helpers) => {
-  // 确保userId或studentId至少有一个存在
-  if (!value.userId && !value.studentId) {
-    return helpers.error('any.required', { label: 'userId或studentId' });
-  }
-  // 统一使用userId字段
-  if (value.studentId && !value.userId) {
-    value.userId = value.studentId;
-  }
-  return value;
-}).messages({
-  'any.required': 'userId或studentId是必填项'
-});
-
-// 修改密码schema
-const changePasswordSchema = Joi.object({
-  oldPassword: Joi.string().required(),
-  newPassword: Joi.string().min(6).required().messages({
-    'string.min': '新密码长度不能少于6位'
-  })
-});
-
-// 强制修改密码schema
-const forceChangePasswordSchema = Joi.object({
-  newPassword: Joi.string().min(6).required().messages({
-    'string.min': '新密码长度不能少于6位',
-    'string.empty': '新密码长度不能少于6位',
-    'any.required': '新密码长度不能少于6位'
-  })
-});
+// 验证中间件现在从validation.js导入
 
 // 管理员登录
-router.post('/admin/login', async (req, res) => {
-  try {
-    console.log('🔐 管理员登录请求:', req.body);
+router.post('/admin/login', validators.login, asyncHandler(async (req, res) => {
+  const { userId: adminId, password } = req.validatedBody;
 
-    // 验证输入
-    const { error, value } = loginSchema.validate(req.body);
-    if (error) {
-      console.log('❌ 输入验证失败:', error.details[0].message);
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message
-      });
-    }
+  logger.info('Admin login attempt', {
+    requestId: req.requestId,
+    adminId,
+    ip: req.ip,
+    userAgent: req.get('User-Agent')
+  });
+  // 查询管理员信息
+  const admins = await query(
+    'SELECT id, name, password, role FROM admins WHERE id = ?',
+    [adminId.toLowerCase()]
+  );
 
-    const { userId: adminId, password } = value;
-    console.log('📝 解析的管理员ID:', adminId);
-
-    // 查询管理员信息
-    const admins = await query(
-      'SELECT id, name, password, role FROM admins WHERE id = ?',
-      [adminId.toLowerCase()]
-    );
-
-    console.log('🔍 查询管理员结果:', {
-      searchId: adminId.toLowerCase(),
-      found: admins.length > 0,
-      count: admins.length
+  if (admins.length === 0) {
+    logger.logAuth('admin_login', adminId, false, {
+      reason: 'admin_not_found',
+      ip: req.ip,
+      requestId: req.requestId
     });
+    return res.status(401).json({
+      success: false,
+      message: '管理员账号或密码错误'
+    });
+  }
 
-    if (admins.length === 0) {
-      console.log('❌ 管理员不存在');
-      return res.status(401).json({
-        success: false,
-        message: '管理员账号或密码错误'
-      });
-    }
+  const admin = admins[0];
 
-    const admin = admins[0];
-    console.log('👤 找到管理员:', { id: admin.id, name: admin.name, role: admin.role });
+  // 验证密码
+  const isPasswordValid = await bcrypt.compare(password, admin.password);
 
-    // 验证密码
-    console.log('🔐 开始验证密码...');
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-    console.log('✅ 密码验证结果:', isPasswordValid);
+  if (!isPasswordValid) {
+    logger.logAuth('admin_login', adminId, false, {
+      reason: 'invalid_password',
+      ip: req.ip,
+      requestId: req.requestId
+    });
+    return res.status(401).json({
+      success: false,
+      message: '管理员账号或密码错误'
+    });
+  }
 
-    if (!isPasswordValid) {
-      console.log('❌ 密码验证失败');
-      return res.status(401).json({
-        success: false,
-        message: '管理员账号或密码错误'
-      });
-    }
+  // 检查响应是否已经发送
+  if (res.headersSent) {
+    logger.warn('Response headers already sent', {
+      requestId: req.requestId,
+      adminId
+    });
+    return;
+  }
 
-    console.log('🎯 密码验证成功，准备生成token...');
+  // 生成JWT token
+  const accessToken = jwtManager.generateAccessToken({
+    userId: admin.id,
+    name: admin.name,
+    role: admin.role,
+    userType: 'admin'
+  });
 
-    // 检查响应是否已经发送
-    if (res.headersSent) {
-      console.log('⚠️ 响应头已发送，无法继续');
-      return;
-    }
+  const refreshToken = jwtManager.generateRefreshToken(admin.id, 'admin');
 
-    // 生成JWT token，包含管理员角色信息
-    console.log('🔑 开始生成JWT token...');
-    console.log('🔐 JWT_SECRET存在:', !!process.env.JWT_SECRET);
+  // 记录成功登录
+  logger.logAuth('admin_login', adminId, true, {
+    adminName: admin.name,
+    role: admin.role,
+    ip: req.ip,
+    requestId: req.requestId
+  });
 
-    const token = jwt.sign(
-      {
-        userId: admin.id,
+  // 返回登录成功信息
+  res.json({
+    success: true,
+    message: '管理员登录成功',
+    data: {
+      token: accessToken,
+      refreshToken,
+      admin: {
+        id: admin.id,
         name: admin.name,
         role: admin.role,
         userType: 'admin'
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    console.log('✅ JWT token生成成功:', token.substring(0, 20) + '...');
-
-    // 返回登录成功信息
-    console.log('📤 准备返回成功响应...');
-    res.json({
-      success: true,
-      message: '管理员登录成功',
-      data: {
-        token,
-        admin: {
-          id: admin.id,
-          name: admin.name,
-          role: admin.role
-        }
       }
-    });
-
-    console.log('🎉 管理员登录成功完成!');
-
-  } catch (error) {
-    console.error('❌ 管理员登录错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '服务器内部错误'
-    });
-  }
-});
+    }
+  });
+}));
 
 // 统一登录端点 - 支持管理员和学生
-router.post('/login', async (req, res) => {
-  try {
-    console.log('🔐 登录请求:', req.body);
+router.post('/login', validators.login, asyncHandler(async (req, res) => {
+  console.log('🔐 登录请求:', req.body);
 
-    // 验证输入
-    const { error, value } = loginSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message
-      });
-    }
-
-    const { userId, password } = value;
+  const { userId, password } = req.validatedBody;
     console.log('📝 解析的用户ID:', userId);
 
     // 检查是否是管理员账号
@@ -210,17 +145,15 @@ router.post('/login', async (req, res) => {
 
       console.log('🎯 管理员密码验证成功，准备生成token...');
 
-      // 生成JWT token，包含管理员角色信息
-      const token = jwt.sign(
-        {
-          userId: admin.id,
-          name: admin.name,
-          role: admin.role,
-          userType: 'admin'
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+      // 生成安全的JWT token
+      const accessToken = jwtManager.generateAccessToken({
+        userId: admin.id,
+        name: admin.name,
+        role: admin.role,
+        userType: 'admin'
+      });
+
+      const refreshToken = jwtManager.generateRefreshToken(admin.id, 'admin');
 
       console.log('✅ 管理员JWT token生成成功');
 
@@ -228,9 +161,9 @@ router.post('/login', async (req, res) => {
       return res.json({
         success: true,
         message: '管理员登录成功',
-        token,
         data: {
-          token,
+          token: accessToken,
+          refreshToken,
           admin: {
             id: admin.id,
             name: admin.name,
@@ -286,17 +219,15 @@ router.post('/login', async (req, res) => {
         [student.id]
       );
 
-      // 生成JWT token，包含用户类型标识
-      const token = jwt.sign(
-        {
-          userId: student.id,
-          studentId: student.id, // 保持向后兼容
-          name: student.name,
-          userType: 'student'
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
-      );
+      // 生成安全的JWT token
+      const accessToken = jwtManager.generateAccessToken({
+        userId: student.id,
+        studentId: student.id, // 保持向后兼容
+        name: student.name,
+        userType: 'student'
+      });
+
+      const refreshToken = jwtManager.generateRefreshToken(student.id, 'student');
 
       console.log('✅ 学生JWT token生成成功');
 
@@ -304,9 +235,9 @@ router.post('/login', async (req, res) => {
       return res.json({
         success: true,
         message: '学生登录成功',
-        token,
         data: {
-          token,
+          token: accessToken,
+          refreshToken,
           student: {
             id: student.id,
             name: student.name
@@ -315,119 +246,68 @@ router.post('/login', async (req, res) => {
         }
       });
     }
-
-  } catch (error) {
-    console.error('❌ 登录错误详情:', {
-      message: error.message,
-      stack: error.stack,
-      code: error.code,
-      errno: error.errno
-    });
-
-    // 检查响应是否已经发送
-    if (!res.headersSent) {
-      res.status(500).json({
-        success: false,
-        message: '服务器内部错误'
-      });
-    }
-  }
-});
+}));
 
 // 强制修改密码（管理员功能）
-router.post('/force-change-password', authenticateToken, async (req, res) => {
-  try {
-    const { error, value } = forceChangePasswordSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message
-      });
-    }
+router.post('/force-change-password', authenticateToken, validators.forceChangePassword, asyncHandler(async (req, res) => {
+  const { newPassword } = req.validatedBody;
+  const userId = req.user.userId || req.user.studentId;
 
-    const { newPassword } = value;
-    const userId = req.user.userId || req.user.studentId;
+  // 加密新密码
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // 加密新密码
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+  // 更新密码
+  await query(
+    'UPDATE students SET password = ? WHERE id = ?',
+    [hashedPassword, userId]
+  );
 
-    // 更新密码
-    await query(
-      'UPDATE students SET password = ? WHERE id = ?',
-      [hashedPassword, userId]
-    );
-
-    res.json({
-      success: true,
-      message: '密码修改成功'
-    });
-
-  } catch (error) {
-    console.error('强制修改密码错误:', error);
-    res.status(500).json({
-      success: false,
-      message: '服务器内部错误'
-    });
-  }
-});
+  res.json({
+    success: true,
+    message: '密码修改成功'
+  });
+}));
 
 // 学生修改密码
-router.post('/change-password', authenticateToken, async (req, res) => {
-  try {
-    const { error, value } = changePasswordSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: error.details[0].message
-      });
-    }
+router.post('/change-password', authenticateToken, validators.changePassword, asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.validatedBody;
 
-    const { oldPassword, newPassword } = value;
+  // 获取当前密码
+  const students = await query(
+    'SELECT password FROM students WHERE id = ?',
+    [req.user.studentId]
+  );
 
-    // 获取当前密码
-    const students = await query(
-      'SELECT password FROM students WHERE id = ?',
-      [req.user.studentId]
-    );
-
-    if (students.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: '用户不存在'
-      });
-    }
-
-    // 验证旧密码
-    const isValidOldPassword = await bcrypt.compare(oldPassword, students[0].password);
-    if (!isValidOldPassword) {
-      return res.status(400).json({
-        success: false,
-        message: '旧密码错误'
-      });
-    }
-
-    // 加密新密码
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-    // 更新密码
-    await query(
-      'UPDATE students SET password = ? WHERE id = ?',
-      [hashedNewPassword, req.user.studentId]
-    );
-
-    res.json({
-      success: true,
-      message: '密码修改成功'
-    });
-
-  } catch (error) {
-    console.error('修改密码错误:', error);
-    res.status(500).json({
+  if (students.length === 0) {
+    return res.status(404).json({
       success: false,
-      message: '服务器内部错误'
+      message: '用户不存在'
     });
   }
-});
+
+  // 验证旧密码
+  const isValidOldPassword = await bcrypt.compare(oldPassword, students[0].password);
+  if (!isValidOldPassword) {
+    return res.status(400).json({
+      success: false,
+      message: '旧密码错误'
+    });
+  }
+
+  // 加密新密码
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  // 更新密码
+  await query(
+    'UPDATE students SET password = ? WHERE id = ?',
+    [hashedNewPassword, req.user.studentId]
+  );
+
+  res.json({
+    success: true,
+    message: '密码修改成功'
+  });
+}));
 
 // 验证token有效性
 router.get('/verify', authenticateToken, (req, res) => {
@@ -437,6 +317,96 @@ router.get('/verify', authenticateToken, (req, res) => {
       student: req.user
     }
   });
+});
+
+// 刷新访问令牌
+router.post('/refresh-token', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: '刷新令牌缺失',
+        code: 'REFRESH_TOKEN_MISSING'
+      });
+    }
+
+    const tokens = jwtManager.refreshAccessToken(refreshToken);
+
+    res.json({
+      success: true,
+      message: '令牌刷新成功',
+      data: tokens
+    });
+
+  } catch (error) {
+    console.error('刷新令牌失败:', error.message);
+
+    let statusCode = 401;
+    let code = 'REFRESH_TOKEN_INVALID';
+
+    if (error.message.includes('expired')) {
+      code = 'REFRESH_TOKEN_EXPIRED';
+    }
+
+    res.status(statusCode).json({
+      success: false,
+      message: error.message,
+      code
+    });
+  }
+});
+
+// 撤销令牌（登出）
+router.post('/logout', authenticateToken, async (req, res) => {
+  try {
+    // 撤销访问令牌
+    jwtManager.revokeToken(req.token);
+
+    // 如果提供了刷新令牌，也一并撤销
+    const { refreshToken } = req.body;
+    if (refreshToken) {
+      jwtManager.revokeRefreshToken(refreshToken);
+    }
+
+    res.json({
+      success: true,
+      message: '登出成功'
+    });
+
+  } catch (error) {
+    console.error('登出失败:', error.message);
+    res.status(500).json({
+      success: false,
+      message: '登出失败'
+    });
+  }
+});
+
+// 撤销用户所有令牌
+router.post('/logout-all', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.userId || req.user.studentId;
+
+    // 撤销当前令牌
+    jwtManager.revokeToken(req.token);
+
+    // 撤销用户所有令牌
+    jwtManager.revokeAllUserTokens(userId);
+
+    res.json({
+      success: true,
+      message: '已登出所有设备'
+    });
+
+  } catch (error) {
+    console.error('全部登出失败:', error.message);
+    res.status(500).json({
+      success: false,
+      message: '全部登出失败'
+    });
+  }
 });
 
 module.exports = router;

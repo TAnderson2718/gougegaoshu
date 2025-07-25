@@ -24,7 +24,7 @@ const StudentApp = () => {
             const day = String(systemDate.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
           })();
-          const response = await taskAPI.getTasks(today, today);
+          const response = await taskAPI.getTasks(today, today, null, true);
           
           if (response.success && response.data) {
             // 后端返回的是按日期分组的对象，需要提取今天的任务

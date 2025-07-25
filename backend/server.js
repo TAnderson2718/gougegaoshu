@@ -4,51 +4,59 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// 导入配置管理器
+const config = require('./config/ConfigManager');
+
 const { testConnection } = require('./config/database');
-const { initializeDatabase } = require('./scripts/initSQLiteDatabase');
+const { initializeDatabase } = require('./scripts/initDatabase');
 const { startCronJobs, start: startCron } = require('./services/cronService');
 
-// 导入路由
-const authRoutes = require('./routes/auth');
-const taskRoutes = require('./routes/tasks');
+// 导入错误处理系统
+const { createResponseHandler } = require('./utils/ResponseHandler');
+const {
+  requestLogger,
+  notFoundHandler,
+  globalErrorHandler,
+  validationErrorHandler,
+  databaseErrorHandler,
+  jwtErrorHandler,
+  multerErrorHandler,
+  setupProcessHandlers
+} = require('./middleware/errorHandler');
+const { authenticateToken, requireAdmin } = require('./middleware/auth');
+const {
+  createMonitoringMiddleware,
+  createPerformanceMonitoringMiddleware,
+  createUserActivityMonitoringMiddleware,
+  createSecurityMonitoringMiddleware
+} = require('./middleware/monitoring');
+
+// 导入路由 - 使用新的分层架构路由
+const authRoutes = require('./routes/auth_new');
+const taskRoutes = require('./routes/tasks_new');
 const profileRoutes = require('./routes/profiles');
 const adminRoutes = require('./routes/admin');
+const monitoringRoutes = require('./routes/monitoring');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = config.get('server.port', 3001);
 
-// 安全中间件
-app.use(helmet());
+// 安全中间件 - 使用配置管理器
+app.use(helmet(config.get('security.helmet', {})));
 
-// CORS配置 - 修复网络连接问题
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? [
-        'http://124.221.113.102',  // 生产环境主域名
-        'http://124.221.113.102:80',
-        'http://124.221.113.102:3000',
-        'http://124.221.113.102:3002',
-        'http://124.221.113.102:3003',
-        process.env.FRONTEND_URL || 'http://124.221.113.102'
-      ]
-    : [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'http://localhost:3002',
-        'http://127.0.0.1:3002',
-        'http://localhost:3003',
-        'http://127.0.0.1:3003',
-        'http://124.221.113.102',  // 云服务器主域名
-        'http://124.221.113.102:80',
-        'http://124.221.113.102:3000',
-        'http://124.221.113.102:3002',
-        'http://124.221.113.102:3003'
-      ],
-  credentials: false,  // 修复withCredentials不匹配问题
+// CORS配置 - 使用配置管理器
+const corsConfig = {
+  origin: config.get('security.cors.origin', [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ]),
+  credentials: config.get('security.cors.credentials', false),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
-  optionsSuccessStatus: 200  // 支持旧版浏览器
-}));
+  optionsSuccessStatus: config.get('security.cors.optionsSuccessStatus', 200)
+};
+
+app.use(cors(corsConfig));
 
 // 额外的CORS头部设置 - 确保所有响应都包含正确的CORS头部
 app.use((req, res, next) => {
@@ -66,32 +74,58 @@ app.use((req, res, next) => {
   next();
 });
 
-// 请求限制 - 为测试环境放宽限制
+// 请求限制 - 使用配置管理器
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15分钟
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 生产环境100个请求，开发环境1000个请求
+  windowMs: config.get('security.rateLimit.windowMs', 900000),
+  max: config.get('security.rateLimit.max', 1000),
   message: {
     success: false,
-    message: '请求过于频繁，请稍后再试'
+    message: config.get('security.rateLimit.message', '请求过于频繁，请稍后再试')
   }
 });
 app.use(limiter);
 
-// 解析JSON
-app.use(express.json({ limit: '10mb' })); // 支持大图片上传
+// 解析JSON - 使用配置管理器
+app.use(express.json({
+  limit: config.get('upload.maxFileSize', '10mb')
+}));
 app.use(express.urlencoded({ extended: true }));
 
-// 健康检查
+// 设置进程异常处理器
+setupProcessHandlers();
+
+// 监控中间件
+app.use(createMonitoringMiddleware());
+app.use(createPerformanceMonitoringMiddleware(1000)); // 1秒慢请求阈值
+app.use(createUserActivityMonitoringMiddleware());
+app.use(createSecurityMonitoringMiddleware());
+
+// 请求日志中间件
+app.use(requestLogger);
+
+// 响应处理器中间件
+app.use(createResponseHandler());
+
+// 健康检查 - 使用配置管理器
 app.get('/health', async (req, res) => {
   try {
-    // 简化健康检查，避免重复的数据库连接测试
-    // 只在服务启动时测试一次数据库连接，健康检查时不再重复测试
+    const envConfig = config.getEnvironmentConfig();
+    const configSummary = config.getConfigSummary();
+
     res.json({
       success: true,
       message: '服务运行正常',
-      database: '连接正常', // 假设数据库连接正常，因为服务已经启动
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
+      environment: envConfig.environment,
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      config: {
+        server: configSummary.server,
+        database: configSummary.database,
+        jwt: configSummary.jwt,
+        logging: configSummary.logging,
+        cache: configSummary.cache
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -99,6 +133,23 @@ app.get('/health', async (req, res) => {
       message: '服务异常',
       error: error.message,
       timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// 配置管理端点
+app.get('/api/config', authenticateToken, requireAdmin, (req, res) => {
+  try {
+    const configSummary = config.getConfigSummary();
+    res.json({
+      success: true,
+      data: configSummary
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '获取配置失败',
+      error: error.message
     });
   }
 });
@@ -142,27 +193,19 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/profiles', profileRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/monitoring', monitoringRoutes);
+
+// 错误处理中间件（按顺序执行）
+app.use(validationErrorHandler);
+app.use(databaseErrorHandler);
+app.use(jwtErrorHandler);
+app.use(multerErrorHandler);
 
 // 404处理
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: '接口不存在'
-  });
-});
+app.use(notFoundHandler);
 
-// 全局错误处理
-app.use((error, req, res, next) => {
-  console.error('全局错误:', error);
-  
-  res.status(error.status || 500).json({
-    success: false,
-    message: process.env.NODE_ENV === 'production' 
-      ? '服务器内部错误' 
-      : error.message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
-  });
-});
+// 全局错误处理（必须放在最后）
+app.use(globalErrorHandler);
 
 // 启动服务器
 async function startServer() {
@@ -178,13 +221,23 @@ async function startServer() {
     startCronJobs();
     startCron();
 
-    app.listen(PORT, () => {
+    const host = config.get('server.host', 'localhost');
+
+    app.listen(PORT, host, () => {
       console.log('');
       console.log('🎉 任务管理系统后端启动成功！');
-      console.log(`📍 服务器运行在端口: ${PORT}`);
-      console.log(`🌍 环境: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔗 健康检查: http://localhost:${PORT}/health`);
-      console.log(`📚 API文档: http://localhost:${PORT}/api`);
+      console.log(`📍 服务器运行在: http://${host}:${PORT}`);
+      console.log(`🌍 环境: ${config.getEnvironmentConfig().environment}`);
+      console.log(`🔗 健康检查: http://${host}:${PORT}/health`);
+      console.log(`📚 API文档: http://${host}:${PORT}/api`);
+      console.log('');
+      console.log('⚙️  配置摘要:');
+      const configSummary = config.getConfigSummary();
+      console.log(`   数据库: ${configSummary.database.name}`);
+      console.log(`   JWT过期时间: ${configSummary.jwt.expiresIn}`);
+      console.log(`   日志级别: ${configSummary.logging.level}`);
+      console.log(`   缓存TTL: ${configSummary.cache.defaultTTL}s`);
+      console.log(`   速率限制: ${configSummary.security.rateLimitMax}/15min`);
       console.log('');
       console.log('🔑 默认登录信息:');
       console.log('   学生ID: ST001 或 ST002');

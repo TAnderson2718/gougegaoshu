@@ -85,8 +85,15 @@ export const authAPI = {
 // 任务相关API
 export const taskAPI = {
   // 获取任务列表
-  getTasks: (startDate, endDate, view) =>
-    api.get('/tasks', { params: { startDate, endDate, view } }),
+  getTasks: (startDate, endDate, view, forceRefresh = false) =>
+    api.get('/tasks', {
+      params: {
+        startDate,
+        endDate,
+        view,
+        nocache: forceRefresh ? 'true' : undefined
+      }
+    }),
   
   // 更新任务
   updateTask: (taskId, updates) => 
@@ -97,8 +104,8 @@ export const taskAPI = {
     api.post('/tasks/leave', { date }),
   
   // 获取请假记录
-  getLeaveRecords: () => 
-    api.get('/tasks/leave-records'),
+  getLeaveRecords: () =>
+    api.get('/tasks/leave/records'),
   
   // 24:00任务处理
   processMidnightTasks: (date) => 

@@ -1,0 +1,758 @@
+{
+  "timestamp": "2025-07-24 23:27:36.711",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753370856710_1",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:27:36.772",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753370856710_1",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "duration": "62ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "contentLength": "673"
+}
+{
+  "timestamp": "2025-07-24 23:32:07.463",
+  "level": "INFO",
+  "message": "Cache service initialized",
+  "mainCacheTTL": 300,
+  "longTermCacheTTL": 3600,
+  "sessionCacheTTL": 1800,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:37.173",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753371157172_1",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:37.233",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753371157172_1",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "duration": "60ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "contentLength": "673"
+}
+{
+  "timestamp": "2025-07-24 23:32:47.721",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753371167720_2",
+  "method": "GET",
+  "url": "/api/admin/students",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:47.722",
+  "level": "DEBUG",
+  "message": "Cache miss",
+  "cache": "longTerm",
+  "key": "admin:students:list",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:47.722",
+  "level": "DEBUG",
+  "message": "Cache middleware miss",
+  "key": "admin:students:list",
+  "cache": "longTerm",
+  "requestId": "req_1753371167720_2",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:47.722",
+  "level": "DEBUG",
+  "message": "Cache set",
+  "cache": "longTerm",
+  "key": "admin:students:list",
+  "size": 149,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:47.723",
+  "level": "DEBUG",
+  "message": "Cache set success",
+  "cache": "longTerm",
+  "key": "admin:students:list",
+  "ttl": 600,
+  "size": 149,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:47.723",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753371167720_2",
+  "method": "GET",
+  "url": "/api/admin/students",
+  "statusCode": 200,
+  "duration": "3ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "userId": "admin",
+  "userType": "admin",
+  "contentLength": "157"
+}
+{
+  "timestamp": "2025-07-24 23:32:59.648",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753371179648_3",
+  "method": "GET",
+  "url": "/api/admin/students",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:59.649",
+  "level": "DEBUG",
+  "message": "Cache hit",
+  "cache": "longTerm",
+  "key": "admin:students:list",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:59.649",
+  "level": "DEBUG",
+  "message": "Cache middleware hit",
+  "key": "admin:students:list",
+  "cache": "longTerm",
+  "requestId": "req_1753371179648_3",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:32:59.649",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753371179648_3",
+  "method": "GET",
+  "url": "/api/admin/students",
+  "statusCode": 200,
+  "duration": "1ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "userId": "admin",
+  "userType": "admin",
+  "contentLength": "157"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.288",
+  "level": "INFO",
+  "message": "Cache service initialized",
+  "mainCacheTTL": 300,
+  "longTermCacheTTL": 3600,
+  "sessionCacheTTL": 1800,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.294",
+  "level": "INFO",
+  "message": "开始创建数据库索引...",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.295",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_student_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_student_date ON tasks(student_id, task_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.295",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(task_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.295",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_student",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_student ON tasks(student_id)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.295",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_completed",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_completed ON tasks(completed)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.296",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_type",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_type ON tasks(task_type)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.296",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_created",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_created ON tasks(created_at)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.296",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_student_completed_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_student_completed_date ON tasks(student_id, completed, task_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.296",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_students_name",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_students_name ON students(name)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.298",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_students_created",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_students_created ON students(created_at)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.299",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_admins_role",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_admins_role ON admins(role)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.299",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_admins_created",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_admins_created ON admins(created_at)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.299",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_leave_student_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_leave_student_date ON leave_records(student_id, leave_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.299",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_leave_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_leave_date ON leave_records(leave_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.299",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_leave_student",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_leave_student ON leave_records(student_id)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.299",
+  "level": "INFO",
+  "message": "数据库索引创建完成",
+  "total": 14,
+  "created": 14,
+  "skipped": 0,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.300",
+  "level": "INFO",
+  "message": "开始分析表统计信息...",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.300",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "tasks",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.300",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "students",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.300",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "admins",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.300",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "leave_records",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:29.300",
+  "level": "INFO",
+  "message": "表统计信息分析完成",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:58.638",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753371538638_1",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:38:58.695",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753371538638_1",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "duration": "57ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "contentLength": "647"
+}
+{
+  "timestamp": "2025-07-24 23:39:09.992",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753371549992_2",
+  "method": "GET",
+  "url": "/api/tasks",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:39:09.993",
+  "level": "DEBUG",
+  "message": "Cache miss",
+  "cache": "main",
+  "key": "tasks:ST001:all:all:default",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:39:09.993",
+  "level": "DEBUG",
+  "message": "Cache middleware miss",
+  "key": "tasks:ST001:all:all:default",
+  "cache": "main",
+  "requestId": "req_1753371549992_2",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:39:09.994",
+  "level": "DEBUG",
+  "message": "Database Operation",
+  "operation": "SELECT",
+  "table": "tasks",
+  "duration": "0ms",
+  "queryId": "bf125b9a",
+  "resultCount": 0,
+  "params": 1
+}
+{
+  "timestamp": "2025-07-24 23:39:09.994",
+  "level": "INFO",
+  "message": "Performance Metric",
+  "metric": "getStudentTasksOptimized",
+  "value": 1,
+  "unit": "ms",
+  "studentId": "ST001",
+  "taskCount": 0,
+  "dateRange": {
+    "startDate": null,
+    "endDate": null
+  }
+}
+{
+  "timestamp": "2025-07-24 23:39:09.994",
+  "level": "DEBUG",
+  "message": "Cache set",
+  "cache": "main",
+  "key": "tasks:ST001:all:all:default",
+  "size": 26,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:39:09.994",
+  "level": "DEBUG",
+  "message": "Cache set success",
+  "cache": "main",
+  "key": "tasks:ST001:all:all:default",
+  "ttl": 180,
+  "size": 26,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:39:09.994",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753371549992_2",
+  "method": "GET",
+  "url": "/api/tasks",
+  "statusCode": 200,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "userId": "ST001",
+  "userType": "student",
+  "contentLength": "26"
+}
+{
+  "timestamp": "2025-07-24 23:42:29.287",
+  "level": "DEBUG",
+  "message": "Cache delete",
+  "cache": "main",
+  "key": "tasks:ST001:all:all:default",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:42:29.288",
+  "level": "DEBUG",
+  "message": "Cache expired",
+  "cache": "main",
+  "key": "tasks:ST001:all:all:default",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.873",
+  "level": "INFO",
+  "message": "Cache service initialized",
+  "mainCacheTTL": 300,
+  "longTermCacheTTL": 3600,
+  "sessionCacheTTL": 1800,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.879",
+  "level": "INFO",
+  "message": "开始创建数据库索引...",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.879",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_student_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_student_date ON tasks(student_id, task_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.879",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_date ON tasks(task_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_student",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_student ON tasks(student_id)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_completed",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_completed ON tasks(completed)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_type",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_type ON tasks(task_type)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_created",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_created ON tasks(created_at)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_tasks_student_completed_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_tasks_student_completed_date ON tasks(student_id, completed, task_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_students_name",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_students_name ON students(name)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.880",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_students_created",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_students_created ON students(created_at)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.882",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_admins_role",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_admins_role ON admins(role)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_admins_created",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_admins_created ON admins(created_at)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_leave_student_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_leave_student_date ON leave_records(student_id, leave_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_leave_date",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_leave_date ON leave_records(leave_date)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "DEBUG",
+  "message": "索引创建成功",
+  "indexName": "idx_leave_student",
+  "sql": "CREATE INDEX IF NOT EXISTS idx_leave_student ON leave_records(student_id)",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "INFO",
+  "message": "数据库索引创建完成",
+  "total": 14,
+  "created": 14,
+  "skipped": 0,
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "INFO",
+  "message": "开始分析表统计信息...",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "tasks",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.883",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "students",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.884",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "admins",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.884",
+  "level": "DEBUG",
+  "message": "表统计信息分析完成",
+  "table": "leave_records",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:11.884",
+  "level": "INFO",
+  "message": "表统计信息分析完成",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:41.194",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753372121194_1",
+  "method": "GET",
+  "url": "/health",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:48:41.196",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753372121194_1",
+  "method": "GET",
+  "url": "/health",
+  "statusCode": 200,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "contentLength": "432"
+}
+{
+  "timestamp": "2025-07-24 23:49:04.800",
+  "level": "INFO",
+  "message": "Request started",
+  "requestId": "req_1753372144800_2",
+  "method": "GET",
+  "url": "/api/config",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "service": "task-manager",
+  "environment": "development"
+}
+{
+  "timestamp": "2025-07-24 23:49:04.802",
+  "level": "INFO",
+  "message": "HTTP Request",
+  "requestId": "req_1753372144800_2",
+  "method": "GET",
+  "url": "/api/config",
+  "statusCode": 200,
+  "duration": "2ms",
+  "ip": "::1",
+  "userAgent": "curl/8.7.1",
+  "userId": "admin",
+  "userType": "admin",
+  "contentLength": "263"
+}

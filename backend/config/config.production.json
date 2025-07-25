@@ -1,0 +1,48 @@
+{
+  "logging": {
+    "level": "warn",
+    "maxFiles": "90d",
+    "maxSize": "100m"
+  },
+  "security": {
+    "rateLimit": {
+      "max": 100,
+      "windowMs": 900000
+    },
+    "cors": {
+      "origin": false
+    },
+    "helmet": {
+      "contentSecurityPolicy": {
+        "directives": {
+          "defaultSrc": ["'self'"],
+          "styleSrc": ["'self'", "'unsafe-inline'"],
+          "scriptSrc": ["'self'"],
+          "imgSrc": ["'self'", "data:", "https:"]
+        }
+      }
+    }
+  },
+  "cache": {
+    "defaultTTL": 600,
+    "longTermTTL": 7200,
+    "maxKeys": 5000
+  },
+  "features": {
+    "registration": false,
+    "passwordReset": true,
+    "emailVerification": true
+  },
+  "monitoring": {
+    "healthCheck": {
+      "interval": 60000
+    },
+    "metrics": {
+      "collectInterval": 300000
+    }
+  },
+  "database": {
+    "maxConnections": 20,
+    "timeout": 60000
+  }
+}

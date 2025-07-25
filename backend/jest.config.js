@@ -29,14 +29,18 @@ module.exports = {
   // 覆盖率配置
   collectCoverage: true,
   collectCoverageFrom: [
+    'controllers/**/*.js',
+    'services/**/*.js',
+    'repositories/**/*.js',
     'routes/**/*.js',
     'middleware/**/*.js',
     'config/**/*.js',
+    'utils/**/*.js',
     'scripts/**/*.js',
-    'server.js',
     '!**/node_modules/**',
     '!**/tests/**',
-    '!**/coverage/**'
+    '!**/coverage/**',
+    '!server.js'
   ],
   
   // 覆盖率报告格式

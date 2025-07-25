@@ -50,8 +50,8 @@ const HomePage = () => {
   const isAdmin = user && (
     user.userType === 'admin' ||
     user.role === 'admin' ||
-    user.studentId?.startsWith('ADMIN') ||
-    user.id?.startsWith('ADMIN') ||
+    user.studentId?.startsWith?.('ADMIN') ||
+    user.id?.startsWith?.('ADMIN') ||
     ['ADMIN'].includes(user.studentId) ||
     ['ADMIN'].includes(user.id)
   );
@@ -72,8 +72,8 @@ const StudentPage = () => {
   const isAdmin = user && (
     user.userType === 'admin' ||
     user.role === 'admin' ||
-    user.studentId?.startsWith('ADMIN') ||
-    user.id?.startsWith('ADMIN') ||
+    user.studentId?.startsWith?.('ADMIN') ||
+    user.id?.startsWith?.('ADMIN') ||
     ['ADMIN'].includes(user.studentId) ||
     ['ADMIN'].includes(user.id)
   );
@@ -122,8 +122,8 @@ const AdminPage = () => {
   const isAdmin = user && (
     user.userType === 'admin' ||
     user.role === 'admin' ||
-    user.studentId?.startsWith('ADMIN') ||
-    user.id?.startsWith('ADMIN') ||
+    user.studentId?.startsWith?.('ADMIN') ||
+    user.id?.startsWith?.('ADMIN') ||
     ['ADMIN'].includes(user.studentId) ||
     ['ADMIN'].includes(user.id)
   );

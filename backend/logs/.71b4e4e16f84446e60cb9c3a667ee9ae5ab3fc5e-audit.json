@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/logs/.71b4e4e16f84446e60cb9c3a667ee9ae5ab3fc5e-audit.json",
+    "files": [
+        {
+            "date": 1753370682334,
+            "name": "/Users/danieldong/Documents/GitHub/gougegaoshu/backend/logs/rejections-2025-07-24.log",
+            "hash": "506f29bebc759e5d9aee33c3d23fa842137541362d66d399564105d3565a6be0"
+        }
+    ],
+    "hashType": "sha256"
+}

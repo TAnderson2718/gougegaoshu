@@ -21,14 +21,14 @@ const TodayScreen = () => {
   };
 
   // 获取今日任务
-  const fetchTodayTasks = async () => {
+  const fetchTodayTasks = async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const today = formatDate(systemDate);
-      const response = await taskAPI.getTasks(today, today);
-      
+      const response = await taskAPI.getTasks(today, today, null, forceRefresh);
+
       if (response.success) {
         // 后端返回的是按日期分组的对象，需要提取今天的任务
         const todayTasks = response.data[today] || [];
@@ -223,7 +223,7 @@ const TodayScreen = () => {
           </div>
           <div className="flex space-x-2">
             <button
-              onClick={fetchTodayTasks}
+              onClick={() => fetchTodayTasks(true)}
               className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm"
               disabled={loading}
             >

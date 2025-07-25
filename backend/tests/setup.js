@@ -10,6 +10,7 @@ require('dotenv').config();
 // 设置测试环境变量
 process.env.NODE_ENV = 'test';
 process.env.DB_NAME = 'task_manager_test_db';
+process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-purposes-only';
 
 // 重置数据库连接以确保使用正确的数据库
 resetDatabase();
@@ -281,6 +282,19 @@ beforeEach(async () => {
   } catch (error) {
     console.log('🔄 数据检查失败，重新插入测试数据...');
     await insertTestData();
+  }
+});
+
+// 全局清理
+afterAll(async () => {
+  // 清理JWT管理器定时器
+  try {
+    const { jwtManager } = require('../utils/JWTManager');
+    if (jwtManager && jwtManager.stopCleanupInterval) {
+      jwtManager.stopCleanupInterval();
+    }
+  } catch (error) {
+    // 忽略清理错误
   }
 });
 
